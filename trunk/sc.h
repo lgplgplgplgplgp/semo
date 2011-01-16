@@ -1,0 +1,119 @@
+
+/*
+
++	Semo C()mpiler 0.2.0
+
++	Semo C()mpiler is a free software created by (c)Techniques of Knowledge since 20080202.
++	(C)TOK Jelo Wang
+
++	You can redistribute it and/or modify it under the terms of the gnu general public license	
++	as published by the free software foundation, either version 3 of the license or any later 	
++	version.this program is distributed in the hope that it will be useful,but without any 		
++	warranty.without even the implied warranty of merchantability or fitness for a particular 	
++	purpose.																					
+																											
++	(c)	Techniques of Knowledge
++		an open source group since 2008
++		page : http://www.tok.cc
++		email : wqw85@sina.com
+
+*/
+
+
+# ifndef __SMART_COMPILER
+# define __SMART_COMPILER
+
+enum {
+
+	//	author : Jelo Wang
+	//	since : 20100817
+	//	(c)TOK
+
+	//	notes : parameters of the framework
+
+	//	compile for c language based on C99 
+	SC_C99 = 0x1 ,
+	//	compile for c plus plus language
+	SC_CPP = 0x2 ,
+	//	compile for java language	
+	SC_JAVA = 0x4 ,
+	//	export pre-compiling results to external file
+	SC_PO = 0x8 ,
+	//	export IR to external file
+	SC_LAC = 0xa ,
+	//	export smart assembly code to external file
+	SC_SASM = 0x20 ,
+	//	enable compiling-render and export results
+	SC_CR = 0x40 ,
+	//	generate object-file with ELF format by default
+	SC_ELF = 0x80 ,
+	//	compile and link
+	SC_LINK = 0x100 ,
+	//	compile only by default
+	SC_NLINK = 0x200 ,
+	//	lga lgnosia graph	
+	SC_LGA = 0x400 ,
+	//	exp expression graph
+	SC_EXP = 0x800 ,
+	//	delete comments	
+	SC_DC = 0x1000 ,
+	//	marco substitution
+	SC_MS = 0x2000 ,	
+	//	compile for the ARM architecture by default
+	SC_ARM = 0x4000 ,
+	//	compile for the x80386 architecture
+	SC_X80386 = 0x8000 ,
+	//	both dc and ms features by default
+	SC_DM = 0x10000 ,
+	
+} ;
+
+enum {
+
+	//	author : Jelo Wang
+	//	since : 20091127
+	//	(c)TOK
+
+	//	An binary IMAGE that can runing straightly
+	SC_DYNAMIC_RUNING ,
+	//	An object file or something like that fashion
+	SC_EXECUTABLE_UNIT ,
+		
+} ;
+
+typedef struct COMPILER_NODE {
+
+	//	author : Jelo Wang
+	//	notes : initialize compiler parameters
+	//	since : 20090809
+	//	(c)TOK
+
+	//	input files list , a handle to SCCllist*
+	int il  ;
+	//	object files list , a handle to SCCllist*	
+	int ol ;
+
+	int parameter ;
+	
+	long start_time ; 
+	long end_time ; 
+
+	int lines ;
+	int codes ;
+
+	void (*PRESOR)(unsigned char*) ;
+	void (*PARSER)(int* codes , int* lines ) ;
+	char* (*GENTOR)( char* ) ;
+	char* (*ASMOR)( char* , char* ) ;
+	void (*ASSEMER)( char* , char* ) ;
+	void (*LINKER ) ( int ) ;
+	void (*RELEASE)() ;
+	
+} COMPILER ;
+
+extern COMPILER* compiler ;
+
+# endif
+
+extern int SCCompile ( int argc , char** argv , int type ) ;
+
