@@ -471,8 +471,6 @@ void lacgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 }
 
 
-
-
 void lacgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	//	author : Jelo Wang

@@ -80,7 +80,7 @@ static void asmor_arm_gen_exp ( SCClString* lac ) {
 				if ( LAC_VAR == lexac->v ) {
 					lexac->stop = 1 ;
 					sc_strcpy ( Rm , lexac->token ) ;
-					THUMB_ADD_RdRnRm (RegocAlloc(Rd),RegocAlloc(Rn),RegocAlloc(Rm)) ;
+					THUMB_ADD_RdRnRm ("R0","R0","R0") ;
 				}
 			break ;
 		}
