@@ -127,7 +127,7 @@ char* lacgentor_get_register ( int index ) {
 	//	author : Jelo Wang
 	//	since : 20100425
 
-	static char tempv [64] = {"%$R."} ;
+	static char tempv [64] = {"%$V"} ;
 	
 	return sc_strcat ( tempv , SCClItoa (index) ) ;
 	
@@ -281,13 +281,13 @@ void lacgentor_gen_funcdef () {
 	lgnosia = (LGNOSIA* ) lacgentor.lgnosia ;
 	azonal = (AZONAL* ) lgnosia->azonal ;
 
-	LACAdd ( azonal->name ) ;
-	LACAdd ( "(" ) ;
+	LACAdd ( azonal->name , LAC_PROC , lacgentor.identor.deep ) ;
+	LACAdd ( "(" , -1 , -1 ) ;
 
 	//	gen para
 	
-	LACAdd ( ")\r\n" ) ;
-	LACAdd ( "{\r\n" ) ;
+	LACAdd ( ")\r\n" , LAC_CR , -1 ) ;
+	LACAdd ( "{\r\n" , LAC_CR , -1 ) ;
 
 	PUSH_LACGENTOR_LGA(lgnosia) ;
 	SET_LACGENTOR_SCOPE(ISA_FUNCTION);
@@ -303,7 +303,7 @@ void lacgentor_gen_funcdef () {
 	UNSET_LACGENTOR_SCOPE();
 	POP_LACGENTOR_LGA() ;
 	
-	LACAdd ( "}\r\n" ) ;
+	LACAdd ( "}\r\n" , LAC_CR , -1 ) ;
 
 	SCFree ( lacgentor.lgnosia ) ;
 
@@ -330,13 +330,11 @@ void lacgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	LACIdentorPop () ;
 	UNSET_LACGENTOR_DELT();
 
-	//	scope header
-	LACAdd ( "#>\r\n" ) ;	
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "if ( " ) ) ;
-	LACAdd ( ((EXPR*)parameter->element)->delt ) ;
+	LACAdd ( sc_strcat ( lacgentor_get_identor () , "if ( " ) , LAC_IF , -1 ) ;
+	LACAdd ( ((EXPR*)parameter->element)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
 
-	lac = LACAdd ( " ) FALSE goto " ) ;
-	LACAdd ( "\r\n" );
+	lac = LACAdd ( " ) FALSE goto " , -1 , -1 ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 
 	//	push lga and lac 
 	//	for if-flow label generating
@@ -367,8 +365,8 @@ void lacgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		
 	}
 
-	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") ) ) ;
-	LACAdd ( "\r\n" );
+	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 	
 	SET_LACGENTOR_DELT(0);
 	LACIdentorPush () ;		
@@ -389,8 +387,6 @@ void lacgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	SCFree ( lgnosia ) ;
 
-	//	scope footer	
-	LACAdd ( "#<\r\n" ) ;
 
 
 }
@@ -413,11 +409,11 @@ void lacgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	parameter = lgnosia->parameter.head ;
 	lacgentor_gen_expr ( (EXPR*)parameter->element , 1 ) ;
 		
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "if ( " ) ) ;
-	LACAdd ( ((EXPR*)parameter->element)->delt ) ;
+	LACAdd ( sc_strcat ( lacgentor_get_identor () , "if ( " ) , LAC_IF , -1  ) ;
+	LACAdd ( ((EXPR*)parameter->element)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
 
-	lac = LACAdd ( " ) FALSE goto " ) ;
-	LACAdd ( "\r\n" );
+	lac = LACAdd ( " ) FALSE goto " , -1 , -1 ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 
 	//	push lga and lac 
 	//	for if-flow label generating
@@ -446,8 +442,8 @@ void lacgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		
 	}
 
-	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") ) ) ;
-	LACAdd ( "\r\n" );
+	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 	
 //	SET_LACGENTOR_DELT(0);
 //	LACIdentorPush () ;		
@@ -484,7 +480,7 @@ void lacgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	PUSH_LACGENTOR_LGA(lgnosia) ;
 	SET_LACGENTOR_SCOPE(ISA_ELSECF);
 	
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "// else-flow\r\n" ) ) ;
+	LACAdd ( sc_strcat ( lacgentor_get_identor () , "// else-flow\r\n" ) , LAC_CR , -1 ) ;
 		
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
 			
@@ -492,8 +488,8 @@ void lacgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 			
 	}
 
-	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") ) ) ;
-	LACAdd ( "\r\n" );
+	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 
 	//	release the LGA
 	SCFree ( lgnosia ) ;	
@@ -525,13 +521,13 @@ void lacgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	UNSET_LACGENTOR_DELT();
 
 	entry_label = lacgentor_get_label () ;
-	LACAdd ( entry_label );
-	LACAdd ( "\r\n" );		
+	LACAdd ( entry_label , -1 , -1 );
+	LACAdd ( "\r\n" , LAC_CR , -1 );		
 
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "while ( " ) ) ;
-	LACAdd ( ((EXPR*)parameter->element)->delt ) ;
-	lac = LACAdd ( " ) FALSE goto " ) ;
-	LACAdd ( "\r\n" );
+	LACAdd ( sc_strcat ( lacgentor_get_identor () , "while ( " ) , -1 , -1 ) ;
+	LACAdd ( ((EXPR*)parameter->element)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+	lac = LACAdd ( " ) FALSE goto " , -1 , -1 ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 	
 	LACLabelMoiAdd ( lac ) ;
 
@@ -543,9 +539,9 @@ void lacgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	}
 
 	lacgentor_gen_expr ( (EXPR*)parameter->head , 1 ) ;
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto " ) ) ;
-	LACAdd ( entry_label ) ;
-	LACAdd ( "\r\n" );
+	LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto " ) , -1 , -1 ) ;
+	LACAdd ( entry_label , -1 , -1 ) ;
+	LACAdd ( "\r\n" , LAC_CR , -1 );
 
 	SCFreeEx ( &((EXPR*)parameter->element)->delt ) ;
 	SCFreeEx ( (void**)&parameter->element ) ;	
@@ -573,8 +569,8 @@ void lacgentor_switcher ( LGNOSIA* lgnosia ) {
 	
 	if ( !azonal ) return ;
 		
-	LACAdd ( lacgentor_get_label() );
-	LACAdd ( "\r\n" ) ;
+	LACAdd ( lacgentor_get_label() , -1 , -1 );
+	LACAdd ( "\r\n" , LAC_CR , -1 ) ;
 
 	switch ( azonal->azonaltype ) {
 		
@@ -630,12 +626,13 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 		SymboleDRCDropCFF ( azonal ) ;
 		
-		LACAdd ( lacgentor_get_identor () ) ;
+		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
 
-		LACAdd ( name ) ;
-		LACAdd ( " = " ) ;
-		LACAdd ( ((EXPR*)expression)->delt ) ;
-		LACAdd ( " ;\r\n" ) ;
+		LACAdd ( name , LAC_L_DELT , lacgentor.identor.deep ) ;
+		LACAdd ( " = " , -1 , -1 ) ;
+		LACAdd ( ((EXPR*)expression)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+		
+		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
 
 		SCFreeEx ( &((EXPR*)expression)->delt ) ;
 		SCFreeEx ( (void**)&expression ) ;
@@ -708,7 +705,7 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 
 		char* tvalue = 0 ;
 		
-		LACAdd ( lacgentor_get_identor () ) ;
+		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
 
 		tvalue = lacgentor_get_register (lacgentor.delt+1) ;
 		expression->delt = (char* ) SCMalloc ( sc_strlen(tvalue) + 1 ) ;
@@ -716,12 +713,12 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 
 		expression->delttype = EXP_DELT_DEFAULT ;
 		
-		LACAdd ( expression->delt  ) ;
-		LACAdd ( " = ") ;
-		LACAdd ( expression->left->delt ) ;
-		LACAdd ( lacgentor_gen_operator(expression->handle) ) ;
-		LACAdd ( expression->right->delt ) ;
-		LACAdd ( ";\r\n" ) ;
+		LACAdd ( expression->delt , LAC_L_DELT , lacgentor.identor.deep ) ;
+		LACAdd ( " = " , -1 , -1 ) ;
+		LACAdd ( expression->left->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+		LACAdd ( lacgentor_gen_operator(expression->handle) , -1 , -1 ) ;
+		LACAdd ( expression->right->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+		LACAdd ( ";\r\n" , LAC_CR , -1 ) ;
 
 		lacgentor.delt = lacgentor.delt + 1 ;
 		
@@ -787,7 +784,6 @@ void lacgentor_gen_nechain ( LGNOSIA* ne_chain ) {
 
 }
 
-
 char* gentor_lac_run ( char* lacfile ) {
 
 	//	author : Jelo Wang
@@ -816,7 +812,7 @@ char* gentor_lac_run ( char* lacfile ) {
 	if ( SC_CR & compiler->parameter ) {
 
 		mopo = MOPOCreatePanel ( MOPO_RGB565 , 2048 , 2048 ) ;
-		MOPODrawText ( mopo , 15 , 10 , "Sema Compiler Compiling-Render" , 200 , 200 , 200 ) ;	
+		MOPODrawText ( mopo , 15 , 10 , "Semo C()mpiler Compiling-Render" , 200 , 200 , 200 ) ;	
 		MOPODrawText ( mopo , 15 , 10+14 , "(C)Techniques of Knowledge" , 200 , 200 , 200 ) ;	
 		MOPODrawText ( mopo , 15 , 10+14+14 , "   an open source group since 2008" , 200 , 200 , 200 ) ;	
 
@@ -851,6 +847,10 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	}
 
+	//	print copyrights
+	LACAdd ( "\r\n# Semo C()mpiler Frameworks 0.2.0" , LAC_CR , -1 ) ;
+	LACAdd ( "\r\n# (C)Techniques of Knowledge" , LAC_CR , -1 ) ;
+	LACLiveScopeGenerate () ;
 	//	Get Lac Codes
 	lac = LACGetContent () ;
 	LACClear () ;

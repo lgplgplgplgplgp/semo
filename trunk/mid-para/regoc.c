@@ -136,32 +136,6 @@ void RegocDestroy () {
 
 }
 
-static int RegocCheckLiveScope ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
-
-	//	author : Jelo Wang
-	//	since : 20110107
-	//	(C)TOK
-
-	//	if ls_2 is has interference relation with ls_1 return 1 else return 0
-
-	if ( !ls_1 || !ls_2 ) return 0 ;
-
-	if ( -1 == ls_1->end_line || -1 == ls_2->end_line ) return 0 ;
-	
-	if ( (ls_1->start_line == ls_2->start_line) && (ls_1->end_line == ls_2->end_line ) )
-		return 1 ;
-	else if ( (ls_1->start_line >= ls_2->start_line) && (ls_1->end_line >= ls_2->end_line ) )
-		return 1 ;
-	else if ( (ls_1->start_line >= ls_1->start_line) && (ls_1->end_line <= ls_2->end_line ) )
-		return 1 ;
-	else if ( (ls_2->start_line >= ls_1->start_line) && (ls_2->end_line >= ls_1->end_line ) )
-		return 1 ;
-	else if ( (ls_2->start_line >= ls_1->start_line) && (ls_2->end_line <= ls_1->end_line ) )
-		return 1 ;
-	
-	return 0 ;
-	
-}
 
 
 void RegocLiveScopeMoiCreate () {
@@ -173,69 +147,159 @@ void RegocLiveScopeMoiCreate () {
 	//	create live scope monitor
 
 	lsmonitor = (LIVESCOPE** ) SCMalloc ( sizeof (LIVESCOPE*)*LSDEFAULT_LENGTH ) ;
-	__SCASSERT ( !lsmonitor ) ;
+	ASSERT ( lsmonitor ) ;
 	lslength = LSDEFAULT_LENGTH ;
 	lslooper = 0 ;
 
 	//	create interference-graph
 	iG = SCClGraphCreate () ;
-	__SCASSERT ( !iG ) ;
+	ASSERT ( iG ) ;
 	
 }
 
-void RegocLiveScopeAdd ( char* live , int line ) {
+
+static int RegocLiveScopeFind ( char* live , int scope ) {
+
+	//	author : Jelo Wang
+	//	since : 20110107
+	//	(C)TOK
+
+	int looper = -1 ;
+
+	//	search the live
+	for ( looper = lslooper-1 ; looper > -1 ; looper -- ) {
+		
+		if ( scope == lsmonitor[looper]->scope ) {			
+			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {				
+				break ;
+			}
+		}
+		
+	}
+
+	return looper ;
+	
+}
+
+
+int RegocCheckLiveScope ( char* live , int scope , int line ) {
+
+	//	author : Jelo Wang
+	//	since : 20110107
+	//	(C)TOK
+
+	LIVESCOPE* ls = 0 ;
+	
+	int offset = RegocLiveScopeFind ( live , scope ) ;
+
+	if ( -1 == offset ) return -1 ;
+ 
+	ls = lsmonitor[offset] ;
+
+	ls->end_line = line ;
+
+	return ls->number ;
+
+}
+
+static int RegocLiveScopeRefCheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
+
+	//	if ls_2 is has interference relation with ls_1 return 1 else return 0
+
+	if ( !ls_1 || !ls_2 ) return 0 ;
+
+	if ( -1 == ls_1->end_line || -1 == ls_2->end_line ) return 0 ;
+
+	if ( ls_1->start_line > ls_2->end_line ) 
+		return 0 ;
+	else if ( ls_2->start_line > ls_1->end_line ) 
+		return 0 ;
+	else if ( (ls_1->start_line == ls_2->start_line) && (ls_1->end_line == ls_2->end_line ) )
+		return 1 ;
+	else if ( (ls_1->start_line >= ls_2->start_line) && (ls_1->end_line >= ls_2->end_line ) )
+		return 1 ;
+	else if ( (ls_1->start_line >= ls_1->start_line) && (ls_1->end_line <= ls_2->end_line ) )
+		return 1 ;
+	else if ( (ls_2->start_line >= ls_1->start_line) && (ls_2->end_line >= ls_1->end_line ) )
+		return 1 ;
+	else if ( (ls_2->start_line >= ls_1->start_line) && (ls_2->end_line <= ls_1->end_line ) )
+		return 1 ;
+
+	return 0 ;
+	
+}
+
+
+int RegocLiveScopeAdd ( char* live , int scope , int line ) {
 
 	//	author : Jelo Wang
 	//	since : 20110107
 	//	(C)TOK
 	
-	//	generate livescope since lac code generating process begin
-	//	build interferene-graph , and run Yorktown-Allocator
+	//	generate live scope , and return its number
 
-	int looper = 0 ;
+	//	if there have not enough pool for saving the live , we needs realloc
+	if ( lslooper == lslength ) {	
+		lsmonitor = (LIVESCOPE** ) SCRemalloc ( lsmonitor , \
+			(lslooper-1)*lslength*sizeof (LIVESCOPE*) , \
+			((lslooper-1)*lslength*sizeof (LIVESCOPE*))+LSDEFAULT_LENGTH*sizeof (LIVESCOPE*) ) ;
 
-	//	search the live
-	for ( looper = lslooper ; looper > -1 ; looper -- ) {
-		if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {
-			break ;
-		}
-	}
+		ASSERT ( lsmonitor ) ;
+		//	new length
+		lslength = ((lslooper-1)*lslength)+LSDEFAULT_LENGTH ;
+	} 
 
-	//	if it isnt found , insert it into lsmonitor
-	if ( looper == -1 ) {
-
-		//	if there have not enough pool for saving the live , we needs realloc
-		if ( lslooper == lslength ) {
-			lsmonitor = (LIVESCOPE** ) SCRemalloc ( lsmonitor , \
-				(lslooper-1)*lslength*sizeof (LIVESCOPE*) , \
-				((lslooper-1)*lslength*sizeof (LIVESCOPE*))+LSDEFAULT_LENGTH*sizeof (LIVESCOPE*) ) ;
-			__SCASSERT ( !lsmonitor ) ;
-			//	new length
-			lslength = ((lslooper-1)*lslength)+LSDEFAULT_LENGTH ;
-		} 
-
-		lsmonitor[looper] = (LIVESCOPE* ) SCMalloc ( sizeof (LIVESCOPE) ) ;
-		__SCASSERT (!lsmonitor[looper]) ;
-		
-		sc_strcpy ( lsmonitor[looper]->live , live ) ;
-		lsmonitor[looper]->start_line = line ;
-		lsmonitor[looper]->end_line = -1 ;
-		//	plus lslooper
-		lslooper ++ ;
-		
-	} else if ( looper > -1 ) {
-	//	 if the register is already eixts which indicate the livescope completed
-		lsmonitor[looper]->end_line = line ;
-	}
+	lsmonitor[lslooper] = (LIVESCOPE* ) SCMalloc ( sizeof (LIVESCOPE) ) ;
 	
-	if ( 0 < lslooper ) {
-		if ( RegocCheckLiveScope ( (LIVESCOPE*)lsmonitor[lslooper-1] , (LIVESCOPE*)lsmonitor[lslooper]) ) {
-			//	create interference-graph			
-		}
-	}
+	ASSERT (lsmonitor[lslooper]) ;
 	
+	sc_strcpy ( lsmonitor[lslooper]->live , live ) ;
+
+	lsmonitor[lslooper]->scope = scope ;
+	lsmonitor[lslooper]->number = lslooper ;
+	lsmonitor[lslooper]->start_line = line ;
+	lsmonitor[lslooper]->end_line = -1 ;
+	//	plus lslooper
+	lslooper ++ ;
+
+	return lslooper - 1 ;
+		
 } 
 
+
+void RegocLiveScopeCreateRefGraph () {
+
+	//	author : Jelo Wang
+	//	since : 20110107
+	//	(C)TOK
+
+	int looper = 0 ;
+	int inlooper = 0 ;
+
+	for ( looper = 0 ; looper < lslooper ; looper ++ ) {
+
+		LIVESCOPE* ls_1 = lsmonitor[looper] ;
+
+		//	add a node into ref graph
+		SCClGraphAddNode ( iG , ls_1->number ) ;
+		
+		for ( inlooper = looper + 1 ; inlooper < lslooper ; inlooper ++ ) {
+
+			LIVESCOPE* ls_2 = lsmonitor[inlooper] ;
+
+			if ( RegocLiveScopeRefCheck ( ls_1 , ls_2 ) ) {
+				
+				SCClGraphAddNode ( iG , ls_2->number ) ;
+				//	add ref edge bettwen ls_1 and ls_2
+				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;			
+		
+			}
+			
+		}
+		
+	}
+	
+}
 
 void RegocLiveScopeClear () {
 

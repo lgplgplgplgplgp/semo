@@ -22,6 +22,7 @@
 # include "schal.h"
 # include "sccl.h"
 # include "lac.h"
+# include "regoc.h"
 
 LAC* lac = 0 ;
 LABELMOI* labelmoi = 0 ;
@@ -54,7 +55,7 @@ void LACSetContext ( int context ) {
 
 } 
 
-int LACAdd ( char* string ) {
+int LACAdd ( char* string , LAC_ATOM type , int scope ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
@@ -69,10 +70,16 @@ int LACAdd ( char* string ) {
 	
 	lacn->havelabel = 0 ;
 	lacn->length = 0 ;
+	lacn->type = type ;
+	lacn->scope = scope ;
 	//	number of lac node
 	lacn->number = lac->length ; 
+	lacn->line = lac->line ;
 	lacn->head = 0 ;
 	lacn->next = 0 ;
+
+	if ( LAC_CR == lacn->type )
+		lac->line ++ ;
 	
 	if ( 0 == lac->head ) {
 		lac->head = lacn ;
@@ -84,7 +91,7 @@ int LACAdd ( char* string ) {
 
 	lac->length ++ ;
 	lac->colen = lac->colen + lacn->code.length ;
-
+	
 	return lacn ;
 
 }
@@ -137,6 +144,7 @@ char* LACGetContent () {
 	for ( ; walker ; walker = walker->next ) {
 
 		SCClStringAddStr ( &string , walker->code.data ) ;
+
 	}	
 
 	SCClStringAdd ( &string , '\0' ) ;
@@ -146,6 +154,38 @@ char* LACGetContent () {
 	
 }
 
+void LACLiveScopeGenerate () {
+	
+	//	author : Jelo Wang
+	//	since : 20110118
+	//	(C)TOK
+
+	LAC* llooper = lac ;
+
+	if ( !llooper ) return ;
+
+	RegocLiveScopeMoiCreate () ;
+
+	for ( llooper = llooper->head ; llooper ; llooper = llooper->next ) {
+
+		if ( LAC_L_DELT == llooper->type ) {			
+			int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line ) ;
+			char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
+			SCClStringAddStr ( &llooper->code , value ) ;
+			SCClStringAdd ( &llooper->code , 0 ) ;			
+			SCFree ( value ) ;			
+		} else if ( LAC_R_DELT == llooper->type ) {
+			int lsn = RegocCheckLiveScope ( llooper->code.data , llooper->scope , llooper->line ) ;
+			char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;
+			SCClStringAddStr ( &llooper->code , value ) ;
+			SCClStringAdd ( &llooper->code , 0 ) ;
+			SCFree ( value ) ;			
+		}
+	}
+	
+	RegocLiveScopeCreateRefGraph () ;
+		
+}
 
 void LACClear () {
 

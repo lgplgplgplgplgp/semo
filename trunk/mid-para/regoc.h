@@ -47,7 +47,13 @@ typedef struct {
 	//	(C)TOK
 
 	//	register name 
-	char live [ LIVE_NAME_LENGTH ] ;
+	char live [ LIVE_NAME_LENGTH ] ;
+
+	//	number of live scope
+	int number ; 
+	
+	int scope ;
+	
 	//	start position of a register's live scope
 	int start_line ;
 	//	end position of a register's live scope	
@@ -57,11 +63,12 @@ typedef struct {
 
 # endif
 
-
 extern int RegocRegPoolCreate ( char** regs , int totall ) ;
 extern void RegocBuildRefGraph ( char* code , int position ) ;
 extern char* RegocAlloc ( int lr ) ;
 extern void RegocLiveScopeMoiCreate () ;
-extern void RegocLiveScopeAdd ( char* live , int line ) ;
+extern int RegocLiveScopeAdd ( char* live , int scope , int line ) ; 
+extern int RegocCheckLiveScope ( char* live , int scope , int line ) ;
+extern void RegocLiveScopeCreateRefGraph () ;
 extern void RegocLiveScopeClear () ;
 

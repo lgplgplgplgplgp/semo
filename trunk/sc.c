@@ -457,8 +457,10 @@ int SCCompile ( int argc , char** argv , int type ) {
 		char* o = 0 ;
 
 		int filen = 0 ;
-		int inputfile = SCHalFileOpen ( file , "rb" ) ;
-
+		//int inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
+		
+		int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
+		
 		if ( !inputfile ) {
 			SCLog ("Can not open the file '%s'\n" , file ) ;
 			continue ;

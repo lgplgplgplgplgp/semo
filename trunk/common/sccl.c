@@ -1338,7 +1338,7 @@ SCClGraph* SCClGraphCreate () {
 	
 }
 
-SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , char* N ) {
+SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1354,15 +1354,14 @@ SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , char* N ) {
 	if ( node ) return node ;
 		
 	node = (SCClGraphNode* ) SCMalloc ( sizeof(SCClGraphNode) ) ;
-
+	
 	if ( !node ) return 0 ;
-
-	sc_strcpy_ex ( &node->name , N ) ;
 
 	SCClListInit ( &node->nei ) ;
 
 	node->degree = 0 ;
-	node->id = graph->totall ;
+	node->id = N ;
+	node->color = -1 ;
 
 	SCClListInsert ( &graph->nl , (int)node  ) ;
 	graph->totall ++ ;
@@ -1371,7 +1370,7 @@ SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , char* N ) {
 
 }
 
-SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , char* N ) {
+SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , int N ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1379,15 +1378,14 @@ SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , char* N ) {
 
 	SCClList* llooper = 0 ;
 	
-	if ( !graph || !N ) return 0 ;
+	if ( !graph ) return 0 ;
 
 	for ( llooper = graph->nl.head ; llooper ; llooper = llooper->next ) {
 
 		SCClGraphNode* node = (SCClGraphNode* ) llooper->element ;
 
 		if ( !node ) continue ;
-		if ( !node->name ) continue ;
-		if ( !sc_strcmp ( node->name , N ) ) return node ;
+		if ( N == node->id ) return node ;
 		
 	}
 
@@ -1395,7 +1393,7 @@ SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , char* N ) {
 	
 }
 
-void SCClGraphAddEdge (  SCClGraph* graph , char* N1 , char* N2 ) {
+void SCClGraphAddEdge (  SCClGraph* graph , int N1 , int N2 ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1422,7 +1420,7 @@ void SCClGraphAddEdge (  SCClGraph* graph , char* N1 , char* N2 ) {
 	
 }
 
-int SCClGraphHaveEdge ( SCClGraph* graph , char* N1 , char* N2 ) {
+int SCClGraphHaveEdge ( SCClGraph* graph , int N1 , int N2 ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1440,16 +1438,15 @@ int SCClGraphHaveEdge ( SCClGraph* graph , char* N1 , char* N2 ) {
 	node2 = SCClGraphSearchNode ( graph , N2 ) ;
 
 	if ( !node2 ) return ;
-
+	
 	SCClListSetIterator ( &node1->nei , SCCLLISTSEEK_HEAD ) ;
 
 	for ( ; SCClListIteratorPermit ( &node1->nei ) ; SCClListListIteratorNext ( &node1->nei ) ) {
 		
 		SCClGraphNode* node = (SCClGraphNode* )SCClListIteratorGetElement ( &node1->nei ) ;
-		
+			
 		if ( !node ) continue ;
-		if ( !node->name ) continue ;
-		if ( !sc_strcmp ( node->name , N2 ) ) return 1 ;
+		if (  N2 == node->id ) return 1 ;
 		
 	}	
 
@@ -1457,7 +1454,7 @@ int SCClGraphHaveEdge ( SCClGraph* graph , char* N1 , char* N2 ) {
 
 }
 
-int SCClGraphGetDegree ( SCClGraph* graph , char* N ) {
+int SCClGraphGetDegree ( SCClGraph* graph , int N ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1475,7 +1472,7 @@ int SCClGraphGetDegree ( SCClGraph* graph , char* N ) {
 	
 }
 
-void SCClGraphDelete ( SCClGraph* graph , char* N ) {
+void SCClGraphDelete ( SCClGraph* graph , int N ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1492,8 +1489,7 @@ void SCClGraphDelete ( SCClGraph* graph , char* N ) {
 		node = (SCClGraphNode* ) llooper->element ;
 
 		if ( !node ) continue ;
-		if ( !node->name ) continue ;
-		if ( !sc_strcmp ( node->name , N ) ) break ;
+		if ( N == node->id ) continue ;
 		
 	}
 
@@ -1506,12 +1502,96 @@ void SCClGraphDelete ( SCClGraph* graph , char* N ) {
 	SCFree ( llooper ) ;
 	//
 	
-	if ( node->name ) SCFree ( node->name ) ;
-
 	SCClListDestroy ( &node->nei ) ;
 
 	SCFree ( node ) ;
 	
+	
+}
+
+static int SCClGraphGetColor ( SCClGraph* graph , int totall_colors ) {
+
+	//	author : Jelo Wang
+	//	since : 20110118
+	//	(C)TOK	
+
+	SCClList* looper = 0 ;
+	SCClGraphNode* node = 0 ;
+	
+	//	value of colors bettwen [0,totall_colors)
+	int* colors = (int* ) SCMalloc ( sizeof(int)*totall_colors ) ; 
+	
+	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
+
+		node = (SCClGraphNode* ) looper->element ;
+
+		//	记录邻接点的颜色
+		if ( -1 != node->color ) {
+			//	邻接点颜色已被占用
+			colors [ node->color ] = 1 ;
+		} else {
+			colors [ node->color ] = 0 ;
+		}
+		
+	}
+
+	{	
+		int looper = 0 ;
+		for ( looper = 0 ; looper < totall_colors ; looper ++ ) {
+			//	顺序取一个没有占用的颜色
+			if ( 0 == colors [looper] ) {
+				SCFree ( colors ) ;
+				//	return color
+				return looper ;
+			}
+		}
+	}
+
+	SCFree ( colors ) ;
+
+	return -1 ;
+
+	
+}
+
+int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
+
+	//	author : Jelo Wang
+	//	since : 20110118
+	//	(C)TOK	
+
+	//	当无法染色时返回0
+
+	SCClList* llooper = 0 ;
+	SCClList* inlooper = 0 ;
+	SCClGraphNode* node = 0 ;
+	
+	if ( !graph ) return  0 ;
+	
+	for ( llooper = graph->nl.head ; llooper ; llooper = llooper->next ) {
+
+		node = (SCClGraphNode* ) llooper->element ;
+
+		if ( node->degree >= totall_colors ) return 0 ;
+
+		if ( -1 == node->color ) node->color = SCClGraphGetColor ( llooper , totall_colors ) ;
+
+		//	邻接点
+		for ( inlooper = node->nei.head ; inlooper ;  inlooper = inlooper->next ) {
+
+			SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
+
+			if ( innode->degree >= totall_colors ) 
+				return 0 ;
+		
+			if ( -1 == innode->color ) innode->color = SCClGraphGetColor ( inlooper , totall_colors ) ;
+			
+		}
+		
+						
+	}	
+
+	return 1 ;
 	
 }
 
@@ -1530,8 +1610,6 @@ void SCClGraphDestroy ( SCClGraph* graph ) {
 		SCClGraphNode* node = (SCClGraphNode* ) SCClListIteratorGetElement ( &graph->nl ) ;
 		
 		if ( !node ) continue ;
-
-		if ( node->name ) SCFree ( node->name ) ;
 
   		SCClListDestroy ( &node->nei ) ;
 		SCFree ( node ) ;

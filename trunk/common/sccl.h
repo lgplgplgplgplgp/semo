@@ -1,7 +1,7 @@
 
 /*
 
-+	Sema Compiler Common Library
++	Semo C()mpiler Common Library
 
 +	Semo C()mpiler is a free software created by (c)Techniques of Knowledge since 20080202.
 +	(C)TOK Jelo Wang
@@ -25,7 +25,7 @@
 
 # include <assert.h>
 
-# define __SCASSERT assert
+# define ASSERT assert
 
 typedef enum {
 
@@ -206,12 +206,11 @@ extern void SCClQueueDestroy ( SCClQueue* queue ) ;
 //	SCClGraph
 extern void SCClGraphInit ( SCClGraph* graph ) ;
 extern SCClGraph* SCClGraphCreate () ;
-extern SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph ) ;
-extern SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , char* N ) ;
-extern void SCClGraphAddEdge (  SCClGraph* graph , char* N1 , char* N2 ) ;
-extern int SCClGraphHaveEdge ( SCClGraph* graph , char* N1 , char* N2 ) ; 
-extern int SCClGraphGetDegree ( SCClGraph* graph , char* N ) ; 
-extern void SCClGraphColoring ( SCClGraph* graph , int colors ) ; 
-extern void SCClGraphDelete ( SCClGraph* graph , char* N ) ; 
+extern SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N ) ;
+extern SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , int N ) ;
+extern void SCClGraphAddEdge (  SCClGraph* graph , int N1 , int N2 ) ;
+extern int SCClGraphHaveEdge ( SCClGraph* graph , int N1 , int N2 ) ; 
+extern int SCClGraphGetDegree ( SCClGraph* graph , int N ) ; 
+extern int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) ; 
+extern void SCClGraphDelete ( SCClGraph* graph , int N ) ; 
 extern void SCClGraphDestroy ( SCClGraph* graph ) ; 
-
