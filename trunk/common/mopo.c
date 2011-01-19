@@ -982,3 +982,49 @@ int MOPOCFDFSRender ( int mopo , int lgnosiaa , int type , int x , int y , int f
 	
 }
 
+int visited[100] = {0} ;
+
+void MOPOIGBFSRender ( SCClGraph* graph , int mopo ) {
+	
+	int x = 50 ;
+	
+	SCClQueue queue = {0} ;
+	SCClList* looper = 0 ;	
+	SCClList* inlooper = 0 ;	
+	
+	if ( !graph ) return 0 ;
+
+	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
+			
+		SCClQueueInit ( &queue ) ;
+		
+		SCClQueueEnter ( &queue , (int)looper->element ) ;
+		
+		while( !SCClQueueEmpty ( &queue) ) {
+
+			SCClGraphNode* genode = 0 ;
+			
+			genode = (SCClGraphNode* ) SCClQueueOut ( &queue) ;
+
+			visited[genode->id] = 1 ;
+			
+			for ( inlooper = genode->nei.head ; inlooper ; inlooper = inlooper->next ) {
+
+				SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;	
+
+				if( !visited[innode->id] ) {
+
+
+	 				MOPOFillCircle ( mopo , x , 40 , 3 , 0 , 0 , 255 ) ;
+					SCClQueueEnter ( &queue , (int)innode ) ;
+				}
+
+				x = x + 45 ;
+			}
+
+
+		}
+	}
+	
+}
+

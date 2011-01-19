@@ -244,7 +244,7 @@ int ElfGen ( char* out , int setscale ) {
 
 	} ;
 	
-	char copy [] = { "Semo C()mpiler 0.2.0 Build , (C)Techniques of Knowledge | http://www.tok.cc"} ;
+	char copy [] = { "SEMO C()MPILER 0.3.0 Build , (C)Techniques of Knowledge | http://www.tok.cc"} ;
 	int file = SCHalFileOpen ( out , "wb+" ) ;
 
 	SCFree ( out ) ;

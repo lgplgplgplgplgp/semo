@@ -154,6 +154,8 @@ char* LACGetContent () {
 	
 }
 
+# include "mopo.h"
+
 void LACLiveScopeGenerate () {
 	
 	//	author : Jelo Wang
@@ -164,7 +166,8 @@ void LACLiveScopeGenerate () {
 	//	2. build interference graphs with live scopes
 	//	3. color the i-graphs
 	//	4. alloc register for the live scope based on colored i-graphs
-	
+
+	int iG = 0 ;
 	LAC* llooper = lac ;
 	
 	if ( !llooper ) return ;
@@ -187,8 +190,19 @@ void LACLiveScopeGenerate () {
 			SCFree ( value ) ;			
 		}
 	}
+
+	iG = RegocIGraphCreate () ;
+	RegocRegisterAlloc ( iG ) ;
+
+	{
+		char* file = sc_strcat ( "test" , ".cr.bmp" ) ;	
+		int mopo = MOPOCreatePanel ( MOPO_RGB565 , 2048 , 2048 ) ;
+		MOPOIGBFSRender ( (SCClGraph* ) iG , mopo ) ;
+		MOPOOutputPanel ( mopo , file ) ;
+		MOPODestroyPanel ( mopo ) ;
+		SCFree ( file ) ;		
+	}
 		
-	RegocRegisterAlloc ( RegocIGraphCreate () ) ;
 		
 }
 

@@ -1315,6 +1315,18 @@ void SCClQueueInit ( SCClQueue* queue ) {
 	
 }
 
+int SCClQueueEmpty ( SCClQueue* queue ) {
+
+	//	author : Jelo Wang
+	//	since : 20110119
+	//	(C)TOK
+
+	if ( !queue ) return 1 ;
+	else if ( !queue->front ) return 1 ;
+	else return 0 ;
+	
+}
+
 void SCClQueueEnter ( SCClQueue* queue , int element ) {
 	
 	//	author : Jelo Wang
@@ -1638,6 +1650,75 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 	return 1 ;
 	
 }
+
+int gnvisited[10] = {0} ;
+
+int SCClGraphDFSNormalize ( SCClGraphNode* node , int deep ) {
+
+	//	author : Jelo Wang
+	//	since : 20110119
+	//	(C)TOK
+	
+	//	notes : 计算节点深度
+# if 0
+	SCClGraphNode* looper = 0 ;
+	
+	if ( !node ) return 0 ;
+	
+	gnvisited[node->id] = 1 ;
+	
+	for ( looper = node->nei ; looper ; looper = looper->next )
+		if(!gnvisited[node->id])
+			SCClGraphDFSNormalize ( node ) ;	
+# endif
+
+	return 1 ;
+
+	
+}
+
+int SCClGraphBFSNormalize ( SCClGraph* graph , int deep ) {
+
+	//	author : Jelo Wang
+	//	since : 20100804
+	//	(C)TOK
+	
+	//	notes : 计算某一层的节点总数
+
+	SCClQueue queue = {0} ;
+	SCClGraphNode* looper = 0 ;	
+	SCClList* inlooper = 0 ;	
+	
+	if ( !graph ) return 0 ;
+
+	looper = graph->nl.head ;
+		
+	SCClQueueInit ( &queue ) ;
+	
+	SCClQueueEnter ( &queue , (int)looper ) ;
+	
+	while( !SCClQueueEmpty ( &queue) ) {
+
+		looper = (SCClGraphNode* ) SCClQueueOut ( &queue) ;
+
+		gnvisited[looper->id] = 1 ;
+		
+		for ( inlooper = looper->nei.head ; inlooper ; inlooper = inlooper->next ) {
+
+			SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;	
+
+			if( !gnvisited[innode->id] )
+			   SCClQueueEnter ( &queue , (int)innode ) ;
+			
+		}
+
+
+	}	
+
+	return 1 ;
+	
+}
+
 
 void SCClGraphDestroy ( SCClGraph* graph ) {
 

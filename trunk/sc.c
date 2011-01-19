@@ -1,7 +1,7 @@
 
 /*
 
-+	SEMO C()MPILER 0.2.0
++	SEMO C()MPILER 0.3.0
 
 +	Semo C()mpiler is a free software created by (c)Techniques of Knowledge since 20080202.
 +	(C)TOK Jelo Wang

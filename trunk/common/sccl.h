@@ -110,6 +110,9 @@ typedef struct {
 	int degree ;
 	int color ;
 
+	int x ; 
+	int y ;
+
 	//	neighbor
 	SCClList nei ;		
 	
@@ -203,6 +206,7 @@ extern void SCClStackDestroy ( SCClStack* stack ) ;
 extern void SCClQueueInit ( SCClQueue* queue ) ;
 extern void SCClQueueEnter ( SCClQueue* queue , int element ) ;
 extern int SCClQueueOut ( SCClQueue* queue ) ;
+extern int SCClQueueEmpty ( SCClQueue* queue ) ;
 extern void SCClQueueDestroy ( SCClQueue* queue ) ;
 
 //	SCClGraph
