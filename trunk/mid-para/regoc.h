@@ -27,27 +27,12 @@
 typedef struct {
 
 	//	author : Jelo Wang
-	//	since : 20100730
-	//	(C)TOK
-	
-	char** reg ;
-	int regtoll ;
-
-	//	a handle to a SCClString
-	int swapper ;
-	//	a handle to a SCClGraph
-	int graph ;
-	
-} REGOC ;
-
-typedef struct {
-
-	//	author : Jelo Wang
 	//	since : 20110107
 	//	(C)TOK
 
 	//	register name 
-	char live [ LIVE_NAME_LENGTH ] ;
+	char live [ LIVE_NAME_LENGTH ] ;
+
 
 	//	number of live scope
 	int number ; 
@@ -69,6 +54,7 @@ extern char* RegocAlloc ( int lr ) ;
 extern void RegocLiveScopeMoiCreate () ;
 extern int RegocLiveScopeAdd ( char* live , int scope , int line ) ; 
 extern int RegocCheckLiveScope ( char* live , int scope , int line ) ;
-extern void RegocLiveScopeCreateRefGraph () ;
+extern int RegocIGraphCreate () ;
 extern void RegocLiveScopeClear () ;
-
+extern int RegocGetRegister ( int pn , int lsn ) ;
+extern void RegocRegisterAlloc ( int graphp ) ;

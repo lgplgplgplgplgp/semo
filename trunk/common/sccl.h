@@ -154,6 +154,7 @@ extern int sc_memset ( void* , int , int ) ;
 extern void sc_substrcpy ( char* A , char* B , int start ) ;
 extern void sc_submemset ( unsigned char* buffer , int data , int offset , int end ) ;
 extern void sc_back_insert ( char* path , char* name , int pos ) ;
+extern void sc_strinsert ( char* A , char* S , int start ) ;
 
 //	SCClString
 extern SCClString* SCClStringNew () ;
@@ -169,6 +170,7 @@ extern void SCClStringInsert ( SCClString* A , char* S , int start ) ;
 extern void SCClStringInsertAtom ( SCClString* A , char atom , int start , int end ) ;
 extern char* SCClStringGetStr ( SCClString* string ) ;
 extern void SCClStringDestroy ( SCClString* string ) ;
+extern void SCClStringDestroyKernal ( SCClString* string ) ;
 
 //	SCClList
 extern void SCClListInit ( SCClList* list ) ;

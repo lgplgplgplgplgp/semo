@@ -25,118 +25,14 @@
 # include "lac-grammar.h"
 # include "lac-lexer.h"
 
-//	register allocator
-static REGOC regoc = { 0 , 0 , 0 } ;
+static int regoc[100][100] = {-1} ;
+
 //	register's livescope monitor , we need this information for the interference-graph generative process
 static LIVESCOPE** lsmonitor = 0 ;
 static int lslooper = 0 ;
 static int lslength = 0 ;
 //	default amouts of lsmonitor that means the totall livescopes apeared in one scope
 # define LSDEFAULT_LENGTH 256
-//	interference-graph
-SCClGraph* iG = 0 ;
-
-int RegocRegPoolCreate ( char** regs , int totall ) {
-
-	//	author : Jelo Wang
-	//	since : 20100730
-	//	(C)TOK
-
-	//	notes : create a register pool
-
-	int looper = 0 ;
-	
-	regoc.reg = (char** ) SCMalloc ( sizeof(char*)*totall ) ;
-
-	if ( !regoc.reg ) return 0 ;
-
-		
-	regoc.regtoll = totall ;
-
-	for ( looper = 0 ; looper < regoc.regtoll ; looper ++ )
-		sc_strcpy_ex ( &regoc.reg[looper] , regs[looper] ) ;
-		
-	return 1 ;
-
-}
-
-void RegocBuildRefGraph ( char* code , int position ) {
-
-	//	author : Jelo Wang
-	//	since : 20100831
-	//	(C)TOK
-	
-	return ;
-
-	//	create reference graph
-	regoc.graph = SCClGraphCreate () ;
-
-	//	we need a lac lexer to analysis live-range
-	//	build a reference graph
-//	lexerac_set ( lexerac_new ( codes , LEXLAC_FLITER_MODE ) ) ; 
-
-	for ( lexerac_ready () , lexerac_genv () ; !lexac->stop ; lexerac_genv () ) {
-		if ( LAC_VAR == lexac->v ) {
-			SCClGraphAddNode ( (SCClGraph* )regoc.graph , lexac->token ) ;
-		} 
-	}
-
-	//	find reference range
-	for ( lexerac_ready () , lexerac_genv () ; !lexac->stop ; lexerac_genv () ) {
-		if ( LAC_VAR == lexac->v ) {
-			SCClGraphAddNode ( (SCClGraph* )regoc.graph , lexac->token ) ;
-		} 
-	}	
-
-	//	coloring
-
-	lexerac_destroy () ;
-
-}
-int RegocSetSwapper ( SCClString* scclstr ) {
-
-	//	author : Jelo Wang
-	//	since : 20100730
-	//	(C)TOK
-
-	//	When a alloc-problem needs SWAP(Rn),the engine can swap it to low-level codes with SCClString*
-	regoc.swapper = (int) scclstr ;
-
-	return 1 ;
-	
-}
-
-char* RegocAlloc ( int lr ) {
-
-	//	author : Jelo Wang
-	//	since : 20100730
-	//	(C)TOK
-
-	//	Alloc a register for the live range
-	//	If there are no remaining registers , the engine would swap a symbol to memory
-	
-	char* reg = regoc.reg[0] ;
-	
-	return reg ;
-	
-}
-
-void RegocDestroy () {
-
-	//	author : Jelo Wang
-	//	since : 20100730
-	//	(C)TOK
-
-	int looper = 0 ;
-
-	for ( looper = 0 ; looper < regoc.regtoll ; looper ++ ) 
-		SCFree(regoc.reg[looper]) ;
-
-	SCFreeEx(&regoc.reg) ;
-
-}
-
-
 
 void RegocLiveScopeMoiCreate () {
 
@@ -151,10 +47,6 @@ void RegocLiveScopeMoiCreate () {
 	lslength = LSDEFAULT_LENGTH ;
 	lslooper = 0 ;
 
-	//	create interference-graph
-	iG = SCClGraphCreate () ;
-	ASSERT ( iG ) ;
-	
 }
 
 
@@ -192,7 +84,7 @@ int RegocCheckLiveScope ( char* live , int scope , int line ) {
 	
 	int offset = RegocLiveScopeFind ( live , scope ) ;
 
-	if ( -1 == offset ) return -1 ;
+	if ( -1 == offset ) return 0 ;
  
 	ls = lsmonitor[offset] ;
 
@@ -202,7 +94,7 @@ int RegocCheckLiveScope ( char* live , int scope , int line ) {
 
 }
 
-static int RegocLiveScopeRefCheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
+static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 
 	//	if ls_2 is has interference relation with ls_1 return 1 else return 0
 
@@ -267,7 +159,7 @@ int RegocLiveScopeAdd ( char* live , int scope , int line ) {
 } 
 
 
-void RegocLiveScopeCreateRefGraph () {
+int RegocIGraphCreate () {
 
 	//	author : Jelo Wang
 	//	since : 20110107
@@ -276,6 +168,10 @@ void RegocLiveScopeCreateRefGraph () {
 	int looper = 0 ;
 	int inlooper = 0 ;
 
+	SCClGraph* iG = 0 ;
+	//	create interference-graph
+	iG = SCClGraphCreate () ;
+	
 	for ( looper = 0 ; looper < lslooper ; looper ++ ) {
 
 		LIVESCOPE* ls_1 = lsmonitor[looper] ;
@@ -287,7 +183,7 @@ void RegocLiveScopeCreateRefGraph () {
 
 			LIVESCOPE* ls_2 = lsmonitor[inlooper] ;
 
-			if ( RegocLiveScopeRefCheck ( ls_1 , ls_2 ) ) {
+			if ( RegocLiveScopeICheck ( ls_1 , ls_2 ) ) {
 				
 				SCClGraphAddNode ( iG , ls_2->number ) ;
 				//	add ref edge bettwen ls_1 and ls_2
@@ -298,6 +194,8 @@ void RegocLiveScopeCreateRefGraph () {
 		}
 		
 	}
+
+	return (int)iG ;
 	
 }
 
@@ -311,5 +209,52 @@ void RegocLiveScopeClear () {
 
 	lslooper = 0 ;
 	
-} 
+}
+
+//void RegocAllocatorReady () {}
+
+int RegocGetRegister ( int pn , int lsn ) {
+
+	//	author : Jelo Wang
+	//	since : 20110119
+	//	(C)TOK	
+
+	//	pn : lac procedure number
+	//	lsn : live scope number
+	
+	return regoc [0][lsn] ;
+	
+	
+}
+
+void RegocRegisterAlloc ( int graphp ) {
+
+	//	author : Jelo Wang
+	//	since : 20110119
+	//	(C)TOK
+
+	//	graph : colored reference-graph
+	//	以生命域为单位进行分配
+
+	SCClGraph* graph = (SCClGraph* )graphp ;
+	SCClList* looper = 0 ;
+	
+	if ( !graph ) return 0 ;
+
+	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
+
+		SCClGraphNode* node = (SCClGraphNode* ) looper->element ;
+
+		if ( !node ) continue ;
+
+		//	node->id is the number of live scope
+		regoc[0][node->id] = node->color ;
+
+		
+	}
+
+	return 0 ;
+		
+	
+}	
 

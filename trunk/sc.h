@@ -23,7 +23,7 @@
 # ifndef __SMART_COMPILER
 # define __SMART_COMPILER
 
-# define SEMO_DEBUG 
+//# define SEMO_DEBUG 
 
 enum {
 

@@ -78,6 +78,9 @@ typedef struct {
 	int mode ;
 	int deep ;	// if recursive occured , deep + 1
 	int headbit ;
+
+	//	live scope number
+	int lsn ;
 	
 	//	ignore odd symbols
 	int ios ;

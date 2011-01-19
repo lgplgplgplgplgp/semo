@@ -1362,6 +1362,27 @@ int lexerac_matchop ( int el ) {
 				lexac->v = LAC_YHH ;					
 				
 			break;
+
+/*
+
+							{
+
+								//	generate lsn
+								SCClString Lsn = {0} ; 
+								lexerac_next () ;
+									
+								while ( sc_is_digit(lexac->c) ) {
+									SCClStringAdd ( &Lsn , lexerac_get_atom () ) ;
+									lexerac_next () ;
+								}   
+								
+								SCClStringAdd ( &Lsn , '\0' ) ;
+
+								lexac->lsn = SCClAtoi ( Lsn.data ) ;								
+								SCClStringDestroyKernal ( &Lsn ) ;
+	
+							}
+*/
 			
 			case '%':
 
@@ -1374,26 +1395,29 @@ int lexerac_matchop ( int el ) {
 					
 					while( lexerac_is_var () ) ;
 
-					if ( 'R' == LACTOK.data[0] && '.' == lexerac_look ( 0 ) ) {
+					if ( 'V' == LACTOK.data[0] && '.' == lexerac_look ( 0 ) ) {
 					
 						//	virtual register detected 
+						sc_strinsert ( LACTOK.data , "%$" , 0 ) ; 
 
-						char R = LACTOK.data[0] ;
-						char D = '.' ;
-						char N = 0 ;
+						{
 
-						lexerac_genv () ;
-						lexerac_genv () ;
+							//	generate lsn
+							SCClString Lsn = {0} ; 
+							lexerac_next () ;
+									
+							while ( sc_is_digit(lexac->c) ) {
+								SCClStringAdd ( &Lsn , lexerac_get_atom () ) ;
+								lexerac_next () ;
+							}   
+								
+							SCClStringAdd ( &Lsn , '\0' ) ;
 
-						N = LACTOK.data[0] ;
+							lexac->lsn = SCClAtoi ( Lsn.data ) ;								
+							SCClStringDestroyKernal ( &Lsn ) ;
 
-						LACTOK.data[0] = '%' ;
-						LACTOK.data[1] = '$' ;
-						LACTOK.data[2] = R;
-						LACTOK.data[3] = D;
-						LACTOK.data[4] = N;
-						LACTOK.data[5] = '\0';
-						
+						}
+
 						lexac->pv = lexac->v ;				
 						lexac->v = LAC_VREG ;
 						lexac->token = LACTOK.data ;
@@ -1709,14 +1733,37 @@ REDO :
 
 					} else {	
 
-						if ( 0 == lexac->scale ) {
-							lexac->v = LAC_VAR ;	
-							lexac->c = 0 ;		
-						} else {
+						//	variable-name.number
+						//if ( '.' == lexac->c && sc_is_digit (lexerac_look (1)) ) {
 
-							lexac->v = LAC_VARDEF ;	
-							lexac->c = 0 ;	
-						}
+							{
+
+								//	generate lsn
+								SCClString Lsn = {0} ; 
+								lexerac_next () ;
+									
+								while ( sc_is_digit(lexac->c) ) {
+									SCClStringAdd ( &Lsn , lexerac_get_atom () ) ;
+									lexerac_next () ;
+								}   
+								
+								SCClStringAdd ( &Lsn , '\0' ) ;
+
+								lexac->lsn = SCClAtoi ( Lsn.data ) ;
+ 								SCClStringDestroyKernal ( &Lsn ) ;
+	
+							}
+								
+							if ( 0 == lexac->scale ) {
+								lexac->v = LAC_VAR ;	
+								lexac->c = 0 ;		
+							} else {
+
+								lexac->v = LAC_VARDEF ;	
+								lexac->c = 0 ;	
+							}
+						
+						//}
 						
 					}
 

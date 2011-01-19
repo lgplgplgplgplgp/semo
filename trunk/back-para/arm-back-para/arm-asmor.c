@@ -77,10 +77,12 @@ static void asmor_arm_gen_exp ( SCClString* lac ) {
 				}
 			break ;
 			case 3 :
-				if ( LAC_VAR == lexac->v ) {
+			 	if ( LAC_VAR == lexac->v ) {
+					
+					char * R = SCClItoa ( RegocGetRegister ( 0 , lexac->lsn )  )  ;
 					lexac->stop = 1 ;
-					sc_strcpy ( Rm , lexac->token ) ;
-					THUMB_ADD_RdRnRm ("R0","R0","R0") ;
+ 					THUMB_ADD_RdRnRm ( R , R , R ) ;
+					
 				}
 			break ;
 		}
@@ -249,14 +251,6 @@ char* asmor_arm_run ( char* lac , char* asmout ) {
 	} ;
 
 	if ( !lac ) return 0 ;
-
-	//	create reg-pool of register allocator 
-	//	only 7 registers that can be used in ARM
-	RegocRegPoolCreate ( reg , 7 ) ;
-	//	create ref graph
-//	RegocBuildRefGraph ( 0 )  ;
-	//	set a swapper to Regoc
-//	RegocSetSwapper ( &ArmAsm ) ;
 	
 	lexerac_set ( lexerac_new ( lac , LEXLAC_FLITER_MODE ) ) ; 
 	lexerac_ready () ;
@@ -277,9 +271,7 @@ char* asmor_arm_run ( char* lac , char* asmout ) {
 		SCHalFileClose ( file ) ;
 		SCFree ( asmout ) ;
 	}	
-	
-	RegocDestroy () ;
-	
+		
 	return ArmAsm.data ;
 
 }

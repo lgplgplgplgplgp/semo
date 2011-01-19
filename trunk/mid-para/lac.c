@@ -160,8 +160,13 @@ void LACLiveScopeGenerate () {
 	//	since : 20110118
 	//	(C)TOK
 
+	//	1. locate live scopes of LAC per procedure 
+	//	2. build interference graphs with live scopes
+	//	3. color the i-graphs
+	//	4. alloc register for the live scope based on colored i-graphs
+	
 	LAC* llooper = lac ;
-
+	
 	if ( !llooper ) return ;
 
 	RegocLiveScopeMoiCreate () ;
@@ -182,8 +187,8 @@ void LACLiveScopeGenerate () {
 			SCFree ( value ) ;			
 		}
 	}
-	
-	RegocLiveScopeCreateRefGraph () ;
+		
+	RegocRegisterAlloc ( RegocIGraphCreate () ) ;
 		
 }
 

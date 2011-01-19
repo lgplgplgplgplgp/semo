@@ -469,6 +469,37 @@ void sc_submemset ( unsigned char* buffer , int data , int offset , int end ) {
 
 }
 
+void sc_strinsert ( char* A , char* S , int start ) {
+
+	//	author : Jelo Wang
+	//	since : 20110119
+	//	(C)TOK
+
+	//	insert S into A from start to sc_strlen(S)
+	
+	int walker = 0 ;
+	int counter = 0 ;
+	int move_step = 0 ;
+	int move_border = 0 ;
+
+	int len_s = sc_strlen (S) ;
+	int A_len = sc_strlen (A) ;
+
+	move_step = len_s ;
+	move_border = start ;
+
+	for ( walker = A_len - 1 ; walker >= move_border ; walker -- ) {
+		A [ move_step + walker ] = A [ walker ] ;
+	}
+
+	for ( counter = start ; counter < start + len_s ; counter ++ ) {
+		A [ counter ] = S [ counter - start ] ;
+	}
+
+	A [ A_len+len_s ] = '\0' ;
+
+}
+
 void sc_back_insert ( char* path , char* name , int pos ) {
 
 	//	author : Jelo Wang
@@ -828,6 +859,19 @@ void SCClStringDestroy ( SCClString* string ) {
   	if ( string->data ) SCFree ( string->data ) ;
 
 	SCFree ( string ) ;
+
+	
+}
+
+void SCClStringDestroyKernal ( SCClString* string ) {
+
+	//	author : Jelo Wang
+	//	since : 20090816
+	//	(C)TOK
+
+	if ( !string ) return ;
+	
+  	if ( string->data ) SCFree ( string->data ) ;
 
 	
 }

@@ -848,8 +848,8 @@ char* gentor_lac_run ( char* lacfile ) {
 	}
 
 	//	print copyrights
-	LACAdd ( "\r\n# Semo C()mpiler Frameworks 0.2.0" , LAC_CR , -1 ) ;
-	LACAdd ( "\r\n# (C)Techniques of Knowledge" , LAC_CR , -1 ) ;
+//	LACAdd ( "\r\n# Semo C()mpiler Frameworks 0.2.0" , LAC_CR , -1 ) ;
+//	LACAdd ( "\r\n# (C)Techniques of Knowledge" , LAC_CR , -1 ) ;
 	LACLiveScopeGenerate () ;
 	//	Get Lac Codes
 	lac = LACGetContent () ;
