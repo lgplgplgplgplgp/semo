@@ -1073,13 +1073,14 @@ void MOPOIGBFSRender ( SCClGraph* graph ) {
 				
 				MOPODrawLine ( node->x , node->y , innode->x , innode->y , 0 , 0 , 0 ) ;
 				MOPODrawText ( innode->x , innode->y , SCClItoa(innode->id), textcolor , textcolor , 0 ) ;	
-				MOPODrawText ( innode->x , innode->y-15 , SCClItoa(innode->degree), textcolor , textcolor , 0 ) ;	
+				MOPODrawText ( innode->x , innode->y-15 , SCClItoa(innode->degree), textcolor , textcolor , 0 ) ;
+				
 			}
 		
 							
 		}	
 	}
-
+	
 	SCFree ( visited ) ;
 	
 }
