@@ -35,13 +35,15 @@
 	color = color | ( (green >> 2) << 5 ) ;\
 	color = color | (blue >> 3) ;\
 
+static MOPO* mopo = 0 ;
+
 int MOPOCreatePanel ( int format , int width , int height ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
 	//	(C)TOK
 
-	MOPO* mopo = (MOPO* ) SCMalloc ( sizeof(MOPO) ) ;
+	mopo = (MOPO* ) SCMalloc ( sizeof(MOPO) ) ;
 
 	if ( !mopo ) return 0 ;
 
@@ -67,7 +69,7 @@ int MOPOCreatePanel ( int format , int width , int height ) {
 
 }
 
-int MOPOOutputPanel ( int panela , char* path ) {
+int MOPOOutputPanel ( char* path ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -83,7 +85,7 @@ int MOPOOutputPanel ( int panela , char* path ) {
 		
 	};
 	
-	short* panel16 = (short* )((MOPO*)panela)->buffer ;
+	short* panel16 = (short* )((MOPO*)mopo)->buffer ;
 	
 	int file = SCHalFileOpen ( path , "wb+" ) ;
 	
@@ -91,14 +93,14 @@ int MOPOOutputPanel ( int panela , char* path ) {
 
 	SCHalFileWrite ( file , bmp565header , 1 , 70 ) ;
 
-	if ( MOPO_RGB565 == ((MOPO*)panela)->format ) {
+	if ( MOPO_RGB565 == ((MOPO*)mopo)->format ) {
 
 		int x = 0 ;
 		int y = 0 ;
 
-		for ( y = ((MOPO*)panela)->height-1 ; y >= 0 ; y -- ) {
-			for ( x = 0 ; x < ((MOPO*)panela)->width ; x ++ ) {
-				int value = panel16 [ y*((MOPO*)panela)->width + x ] ;
+		for ( y = ((MOPO*)mopo)->height-1 ; y >= 0 ; y -- ) {
+			for ( x = 0 ; x < ((MOPO*)mopo)->width ; x ++ ) {
+				int value = panel16 [ y*((MOPO*)mopo)->width + x ] ;
 				SCHalFileWrite ( file , &value , 2 , 1 ) ;
 			}
 		}
@@ -111,7 +113,7 @@ int MOPOOutputPanel ( int panela , char* path ) {
 
 }
 
-int MOPODestroyPanel ( int mopo ) {
+int MOPODestroyPanel () {
 	
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -123,38 +125,38 @@ int MOPODestroyPanel ( int mopo ) {
 }
 
 
-void MOPODrawPixel ( int panela , int x , int y , int red , int green , int blue ) { 
+void MOPODrawPixel ( int x , int y , int red , int green , int blue ) { 
 	
 	//	author : Jelo Wang
 	//	since : 20100802
 	//	(C)TOK
 
 	int color = 0 ;
-	short* panel16 = (short* )((MOPO*)panela)->buffer ;
+	short* panel16 = (short* )((MOPO*)mopo)->buffer ;
 
-	if ( MOPO_RGB565 == ((MOPO*)panela)->format ) {
+	if ( MOPO_RGB565 == ((MOPO*)mopo)->format ) {
 		MOPORGB565COLOR(color,red,green,blue);
 	}	
 
 	if ( 0 > x || 0 > y ) return ;
-	else if ( x >= ((MOPO*)panela)->width || y >= ((MOPO*)panela)->height ) return ;
+	else if ( x >= ((MOPO*)mopo)->width || y >= ((MOPO*)mopo)->height ) return ;
 
-	panel16 [ y*((MOPO*)panela)->width + x ] = color ;
+	panel16 [ y*((MOPO*)mopo)->width + x ] = color ;
 
 	
 }  
 
 
-int MOPODrawLine ( int panela , int x0 , int y0 , int x1 , int y1 , int red , int green , int blue ) {
+int MOPODrawLine ( int x0 , int y0 , int x1 , int y1 , int red , int green , int blue ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100802
 	//	(C)TOK
 	
 	int color = 0 ;
-	int panel_width = ((MOPO*)panela)->width ;
-	int panel_height = ((MOPO*)panela)->height ;
-	short* panel16 = (short* )((MOPO*)panela)->buffer ;
+	int panel_width = ((MOPO*)mopo)->width ;
+	int panel_height = ((MOPO*)mopo)->height ;
+	short* panel16 = (short* )((MOPO*)mopo)->buffer ;
 	float dy,dx,x,y,m = 0 ;
 	
 	if ( 0 > x0 || 0 > y0 ) return ;
@@ -164,7 +166,7 @@ int MOPODrawLine ( int panela , int x0 , int y0 , int x1 , int y1 , int red , in
 	dy = y1-y0 ;
 	m = dy/dx ;
 
-	if ( MOPO_RGB565 == ((MOPO*)panela)->format ){
+	if ( MOPO_RGB565 == ((MOPO*)mopo)->format ){
 		MOPORGB565COLOR(color,red,green,blue) ;
 	}
 
@@ -234,7 +236,7 @@ int MOPODrawLine ( int panela , int x0 , int y0 , int x1 , int y1 , int red , in
 }
 
 
-int MOPODrawCircle ( int mopo , int x , int y , int raduis , int red , int green , int blue ) {
+int MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -248,14 +250,14 @@ int MOPODrawCircle ( int mopo , int x , int y , int raduis , int red , int green
 		int xx = raduis * cos(MOPODTR(theta)) ;
 		int yy = raduis * sin(MOPODTR(theta)) ;
 		
-		MOPODrawPixel ( mopo , xx+x , yy+y , red , green , blue ) ;
+		MOPODrawPixel ( xx+x , yy+y , red , green , blue ) ;
 		
 	}
 
 	
 }
 
-int MOPOFillCircle ( int mopo , int x , int y , int raduis , int red , int green , int blue ) {
+int MOPOFillCircle ( int x , int y , int raduis , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -275,7 +277,7 @@ int MOPOFillCircle ( int mopo , int x , int y , int raduis , int red , int green
 			
 			int r = sqrt((double)((xx-x)*(xx-x))+((yy-y)*(yy-y))) ;
 			
-			if ( r < raduis ) MOPODrawPixel ( mopo , xx , yy , red , green , blue ) ;	
+			if ( r < raduis ) MOPODrawPixel ( xx , yy , red , green , blue ) ;	
 
 		}
 	}
@@ -283,7 +285,7 @@ int MOPOFillCircle ( int mopo , int x , int y , int raduis , int red , int green
 
 }
 
-void MOPODrawRect ( int mopo , int x , int y , int x_scale , int y_scale , int linewidth , int red , int green , int blue ) {
+void MOPODrawRect ( int x , int y , int x_scale , int y_scale , int linewidth , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100803
@@ -329,7 +331,7 @@ void MOPODrawRect ( int mopo , int x , int y , int x_scale , int y_scale , int l
 	
 }
 
-void MOPODrawGrid ( int mopo , int red , int green , int blue ) {
+void MOPODrawGrid ( int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100803
@@ -342,11 +344,11 @@ void MOPODrawGrid ( int mopo , int red , int green , int blue ) {
 	int panel_height = ((MOPO*)mopo)->height ;
 
 	for ( xx = 0 ; xx < panel_width ; xx += 10 ) {
-		MOPODrawLine ( mopo , xx , 0 , xx , panel_height-1 , red , green , blue ) ;			
+		MOPODrawLine ( xx , 0 , xx , panel_height-1 , red , green , blue ) ;			
 	}
 
 	for ( yy = 0 ; yy < panel_height; yy += 10 ) {
-		MOPODrawLine ( mopo , 0 , yy , panel_width-1 , yy , red , green , blue ) ;			
+		MOPODrawLine ( 0 , yy , panel_width-1 , yy , red , green , blue ) ;			
 	}	
 
 
@@ -356,7 +358,7 @@ void MOPODrawGrid ( int mopo , int red , int green , int blue ) {
 # define MopoBaiscFunction(x) \
 	(( x >= 1.0 ) ? 0 : x)
 
-void MOPOStretch ( int mopo , int cx , int cy , float radius , int dx , int dy ) {
+void MOPOStretch ( int cx , int cy , float radius , int dx , int dy ) {
 
 	//	author : Jelo Wang
 	//	since : 20090612
@@ -438,7 +440,7 @@ void MOPOStretch ( int mopo , int cx , int cy , float radius , int dx , int dy )
 	
 }
 
-static int MOPODrawTextModel ( int mopo , int x , int y , const char* words , int red , int green , int blue ) {
+static int MOPODrawTextModel ( int x , int y , const char* words , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -461,7 +463,7 @@ static int MOPODrawTextModel ( int mopo , int x , int y , const char* words , in
 	
 			for(colwalker = 0; colwalker < 8; colwalker ++ ) {
 				if(words[font_walker * wdlen + rowwalker] & (0x80 >> colwalker)) {
-					MOPODrawPixel ( mopo , x+rowwalker*8+colwalker , y+font_walker , red , green , blue ) ;
+					MOPODrawPixel ( x+rowwalker*8+colwalker , y+font_walker , red , green , blue ) ;
 				}
 			}
 		}
@@ -486,26 +488,24 @@ static void* MOPOSearchTextModel ( char element ) {
 
 }
 
-void MOPODrawText ( int mopoa , int x , int y , const char* text , int red , int green , int blue ) {
+void MOPODrawText ( int x , int y , const char* text , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
 	//	(C)TOK
 
-	MOPO* mopo = (MOPO* ) mopoa ; 
-	
 	int walker = 0 ;
 
 	if ( !mopo || !text ) return ;
 	
 	for ( ; text[walker] !='\0' && x < mopo->width ; walker ++ ) {
-		MOPODrawTextModel ( mopo , x  , y , (char*)MOPOSearchTextModel( text[walker]) , red , green , blue );
+		MOPODrawTextModel ( x  , y , (char*)MOPOSearchTextModel( text[walker]) , red , green , blue );
 		x = x + 8 ;
 	}
 
 }
 
-void MOPOExpDFSRender ( int mopo , int exp , int x , int y ) {
+void MOPOExpDFSRender ( int exp , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -528,23 +528,23 @@ void MOPOExpDFSRender ( int mopo , int exp , int x , int y ) {
 		
 		extern char* lacgentor_gen_operator( int ) ;
 
-		MOPODrawText ( mopo , x+5 , y , lacgentor_gen_operator(expression->handle) , 255 , 0 , 0 ) ;
-		MOPODrawCircle ( mopo , x , y , 5 , 255 , 0 , 0 ) ;
+		MOPODrawText ( x+5 , y , lacgentor_gen_operator(expression->handle) , 255 , 0 , 0 ) ;
+		MOPODrawCircle ( x , y , 5 , 255 , 0 , 0 ) ;
 		
-		MOPODrawLine ( mopo , x , y , ratiox1 , y+40 , 0 , 0 , 0 ) ;
-		MOPODrawLine ( mopo , x , y , ratiox2 , y+40 , 0 , 0 , 0 ) ;		
+		MOPODrawLine ( x , y , ratiox1 , y+40 , 0 , 0 , 0 ) ;
+		MOPODrawLine ( x , y , ratiox2 , y+40 , 0 , 0 , 0 ) ;		
 		
 	} else if ( EXP_OPERAND == expression->type ) {
 		AZONAL* azonal = expression->handle ;		
-		MOPODrawText ( mopo , x+5 , y , azonal->name , 0 , 0 , 255 ) ;
-		MOPODrawCircle ( mopo , x , y , 5 , 0 , 0 , 0 ) ;		
+		MOPODrawText ( x+5 , y , azonal->name , 0 , 0 , 255 ) ;
+		MOPODrawCircle ( x , y , 5 , 0 , 0 , 0 ) ;		
 		azonal = expression->handle ;
 	} 
 	
 	if ( expression->left ) {
 
 		deep ++ ;
-		MOPOExpDFSRender ( mopo , (int)expression->left , ratiox1 , y+40 ) ;
+		MOPOExpDFSRender ( (int)expression->left , ratiox1 , y+40 ) ;
 		deep -- ;
 
 	}
@@ -552,7 +552,7 @@ void MOPOExpDFSRender ( int mopo , int exp , int x , int y ) {
 	if ( expression->right ) {
 
 		deep ++ ;
-		MOPOExpDFSRender ( mopo , (int)expression->right , ratiox2 , y+40 ) ;
+		MOPOExpDFSRender ( (int)expression->right , ratiox2 , y+40 ) ;
 		deep -- ;
 
 	}
@@ -561,7 +561,7 @@ void MOPOExpDFSRender ( int mopo , int exp , int x , int y ) {
 	
 }
 
-int MOPOExpBFSRender ( int mopo , int exp , int x , int y ) {
+int MOPOExpBFSRender ( int exp , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -608,16 +608,16 @@ int MOPOExpBFSRender ( int mopo , int exp , int x , int y ) {
 			
 			if ( EXP_OPERAND == expression->type ) {
 				AZONAL* azonal = expression->handle ;						
-				MOPOFillCircle ( mopo , xx , y , 5 , 70 , 70 , 70 ) ;
-				if ( father ) MOPODrawLine ( mopo , expression->x , expression->y , father->x , father->y+7 , 70 , 70 , 70 );
-				MOPODrawText ( mopo , xx , y , azonal->name , 70 , 70 , 70 ) ;	
+				MOPOFillCircle ( xx , y , 5 , 70 , 70 , 70 ) ;
+				if ( father ) MOPODrawLine ( expression->x , expression->y , father->x , father->y+7 , 70 , 70 , 70 );
+				MOPODrawText ( xx , y , azonal->name , 70 , 70 , 70 ) ;	
 				xx = xx + 20 ;				
 			} else if ( EXP_OPERATOR == expression->type ) {
 		
 				extern char* lacgentor_gen_operator ( int ) ;				
-				MOPOFillCircle ( mopo , xx , y , 7 , 200 , 200 , 200 ) ;				
-				if ( father ) MOPODrawLine ( mopo , expression->x , expression->y-7 , father->x , father->y+7 , 200 , 200 , 200 );
-				MOPODrawText ( mopo , xx-3 , y-7 , lacgentor_gen_operator(expression->handle) , 0 , 0 , 0 ) ;
+				MOPOFillCircle ( xx , y , 7 , 200 , 200 , 200 ) ;				
+				if ( father ) MOPODrawLine ( expression->x , expression->y-7 , father->x , father->y+7 , 200 , 200 , 200 );
+				MOPODrawText ( xx-3 , y-7 , lacgentor_gen_operator(expression->handle) , 0 , 0 , 0 ) ;
 				xx = xx + 17 ;
 				
 			}
@@ -640,17 +640,17 @@ int MOPOExpBFSRender ( int mopo , int exp , int x , int y ) {
 			if ( EXP_OPERAND == expression->type ) {
 				
 				AZONAL* azonal = expression->handle ;						
-				MOPOFillCircle ( mopo , xx , y , 5 , 70 , 70 , 70 ) ;
-				if ( father ) MOPODrawLine ( mopo , expression->x , expression->y , father->x , father->y+7 , 70 , 70 , 70 );
-				MOPODrawText ( mopo , xx , y , azonal->name , 70 , 70 , 70 ) ;	
+				MOPOFillCircle ( xx , y , 5 , 70 , 70 , 70 ) ;
+				if ( father ) MOPODrawLine ( expression->x , expression->y , father->x , father->y+7 , 70 , 70 , 70 );
+				MOPODrawText ( xx , y , azonal->name , 70 , 70 , 70 ) ;	
 				xx = xx + 20 ;
 				
 			} else if ( EXP_OPERATOR == expression->type ) {
 	
 				extern char* lacgentor_gen_operator ( int ) ;
-				MOPOFillCircle ( mopo , xx , y , 7 , 200 , 200 , 200 ) ;
-				if ( father ) MOPODrawLine ( mopo , expression->x , expression->y-7 , father->x , father->y+7 , 200 , 200 , 200 );
-				MOPODrawText ( mopo , xx-3 , y-7 , lacgentor_gen_operator(expression->handle) , 0 , 0 , 0 ) ;
+				MOPOFillCircle ( xx , y , 7 , 200 , 200 , 200 ) ;
+				if ( father ) MOPODrawLine ( expression->x , expression->y-7 , father->x , father->y+7 , 200 , 200 , 200 );
+				MOPODrawText ( xx-3 , y-7 , lacgentor_gen_operator(expression->handle) , 0 , 0 , 0 ) ;
 				xx = xx + 17 ;
 			}			
 			
@@ -670,7 +670,7 @@ int MOPOExpBFSRender ( int mopo , int exp , int x , int y ) {
 }
 
 
-int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
+int MOPOLgaExpRender ( int lgnosiaa , int anltype , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100803
@@ -695,14 +695,14 @@ int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
 	
 	if ( ISA_FUNCTION == anltype ) {
 		name = sc_strcat("   PROC:",azonal->name) ; 
-		MOPODrawText ( mopo , x , y , name , 150 , 150 , 150 ) ;
+		MOPODrawText ( x , y , name , 150 , 150 , 150 ) ;
 		SCFree ( name ) ;
 	} else if ( ISA_IFCF == anltype ) {
-		MOPODrawText ( mopo , x , y , "IF Flow" , 150 , 150 , 150 ) ;
-		MOPODrawRect ( mopo , procx-2 , procy-2 , sc_strlen("IF Flow")*14 , 14+8 , 1 , 150 , 150 , 150 ) ;
+		MOPODrawText ( x , y , "IF Flow" , 150 , 150 , 150 ) ;
+		MOPODrawRect ( procx-2 , procy-2 , sc_strlen("IF Flow")*14 , 14+8 , 1 , 150 , 150 , 150 ) ;
 	} else if ( ISA_ELSECF == anltype ) {
-		MOPODrawText ( mopo , x , y , "ELSEIF Flow" , 150 , 150 , 150 ) ;
-		MOPODrawRect ( mopo , procx-2 , procy-2 , sc_strlen("ELSEIF Flow")*14 , 14+8 , 1 , 150 , 150 , 150 ) ;
+		MOPODrawText ( x , y , "ELSEIF Flow" , 150 , 150 , 150 ) ;
+		MOPODrawRect ( procx-2 , procy-2 , sc_strlen("ELSEIF Flow")*14 , 14+8 , 1 , 150 , 150 , 150 ) ;
 	}
 		
 	y = y + 14+ 8 ;
@@ -720,7 +720,7 @@ int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
 		switch ( azonal->azonaltype ) {
 
 			case ISA_IFCF :
-				deepestl = MOPOLgaExpRender ( mopo , lgnosia->po_chain , ISA_IFCF , x , y+deepestl ) ;
+				deepestl = MOPOLgaExpRender ( lgnosia->po_chain , ISA_IFCF , x , y+deepestl ) ;
 			break ;
 			
 			case ISA_VARIABLE :	
@@ -733,9 +733,9 @@ int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
 					namelen = sc_strlen(name) ;
 						
 					x = x + 50 ;
-					MOPODrawText ( mopo , x , y+2 , name , 150 , 150 , 150 ) ;
-					MOPODrawRect ( mopo , x , y , namelen*10+2 , 14+8 , 1 , 150 , 150 , 150 ) ;	
-					MOPODrawLine ( mopo , x+namelen*10+2 , y+10 , x+namelen*10+2+30 , y+10 , 150 , 150 , 150 );
+					MOPODrawText ( x , y+2 , name , 150 , 150 , 150 ) ;
+					MOPODrawRect ( x , y , namelen*10+2 , 14+8 , 1 , 150 , 150 , 150 ) ;	
+					MOPODrawLine ( x+namelen*10+2 , y+10 , x+namelen*10+2+30 , y+10 , 150 , 150 , 150 );
 					x = x+namelen*10+2+30 ;
 					SCFree ( name ) ;
 						
@@ -746,11 +746,11 @@ int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
 						extern int lacgentor_get_exp_deep ( EXPR* expression , EXPR* father , int deep , int* totall ) ;
 						deep = lacgentor_get_exp_deep ( expression , 0 , 0 , &totall ) ;			
 							
-						MOPODrawText ( mopo , x-20-60 , y+14+10 , "H = " , 150 , 150 , 150 ) ;
-						MOPODrawText ( mopo , x-20-30 , y+14+10 , SCClItoa (deep) , 150 , 150 , 150 ) ;
+						MOPODrawText ( x-20-60 , y+14+10 , "H = " , 150 , 150 , 150 ) ;
+						MOPODrawText ( x-20-30 , y+14+10 , SCClItoa (deep) , 150 , 150 , 150 ) ;
 							
-						MOPODrawText ( mopo , x-20-60 , y+14+14+10 , "N = " , 150 , 150 , 150 ) ;
-						MOPODrawText ( mopo , x-20-30 , y+14+14+10 , SCClItoa (totall) , 150 , 150 , 150 ) ;
+						MOPODrawText ( x-20-60 , y+14+14+10 , "N = " , 150 , 150 , 150 ) ;
+						MOPODrawText ( x-20-30 , y+14+14+10 , SCClItoa (totall) , 150 , 150 , 150 ) ;
 
 						deepestc = deep ;
 
@@ -758,7 +758,7 @@ int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
 						
 					}
 					
-					x = x + MOPOExpBFSRender ( mopo , expression , x  , y+10 )*14 ;
+					x = x + MOPOExpBFSRender ( expression , x  , y+10 )*14 ;
 					
 				}
 			
@@ -768,14 +768,14 @@ int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) {
 		
 	}
 
-	if ( ISA_FUNCTION == anltype ) MOPODrawRect ( mopo , procx-2 , procy-2 , x , 14+8 , 1 , 150 , 150 , 150 ) ;
+	if ( ISA_FUNCTION == anltype ) MOPODrawRect ( procx-2 , procy-2 , x , 14+8 , 1 , 150 , 150 , 150 ) ;
 	
 	return deepestl*37 ;
 
 }
 
 
-int MOPOCFBFSRender ( int mopo , int lgnosiaa , int x , int y ) {
+int MOPOCFBFSRender ( int lgnosiaa , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100804
@@ -864,8 +864,8 @@ int MOPOCFBFSRender ( int mopo , int lgnosiaa , int x , int y ) {
 			lgnosia->x = xx ;
 			lgnosia->y = y ;
 
-			MOPOFillCircle ( mopo , xx , y , raduis , red , green , blue ) ;
-			if ( father ) MOPODrawLine ( mopo , lgnosia->x , lgnosia->y , father->x , father->y , red , green , blue );
+			MOPOFillCircle ( xx , y , raduis , red , green , blue ) ;
+			if ( father ) MOPODrawLine ( lgnosia->x , lgnosia->y , father->x , father->y , red , green , blue );
 		
 			allinlayerc ++ ;
 					
@@ -909,8 +909,8 @@ int MOPOCFBFSRender ( int mopo , int lgnosiaa , int x , int y ) {
 			lgnosia->x = xx ;
 			lgnosia->y = y ;
 
-			MOPOFillCircle ( mopo , xx , y , raduis , red , green , blue ) ;
-			if ( father ) MOPODrawLine ( mopo , lgnosia->x , lgnosia->y , father->x , father->y , red , green , blue );
+			MOPOFillCircle ( xx , y , raduis , red , green , blue ) ;
+			if ( father ) MOPODrawLine ( lgnosia->x , lgnosia->y , father->x , father->y , red , green , blue );
 			
 			if ( allinlayerl < allinlayerc ) 
 				allinlayerl = allinlayerc ;
@@ -925,7 +925,7 @@ int MOPOCFBFSRender ( int mopo , int lgnosiaa , int x , int y ) {
 	
 }
 
-int MOPOCFDFSRender ( int mopo , int lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) {
+int MOPOCFDFSRender ( int lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) {
 
 	//	author : Jelo Wang
 	//	since : 20100804
@@ -947,16 +947,16 @@ int MOPOCFDFSRender ( int mopo , int lgnosiaa , int type , int x , int y , int f
 	if ( 1 == deep ) LgnosiaBFSNormalize ( lgnosia ) ;
 
    	if ( LGNOSIA_POC_IDENT == type ) {
-		MOPODrawText ( mopo , xx-7 , y-30 , "POC" , 0 , 255 , 0 );
-		MOPODrawLine ( mopo , xx , y , fx , fy , 0 , 255 , 0 );
-		MOPODrawRect ( mopo , xx-7 , y , 20 , 20 , 2 , 0 , 255 , 0 ) ;	
+		MOPODrawText ( xx-7 , y-30 , "POC" , 0 , 255 , 0 );
+		MOPODrawLine ( xx , y , fx , fy , 0 , 255 , 0 );
+		MOPODrawRect ( xx-7 , y , 20 , 20 , 2 , 0 , 255 , 0 ) ;	
 	} else if ( LGNOSIA_NEC_IDENT == type ) {
-		MOPODrawText ( mopo , xx-7 , y-30 , "NEC" , 255 , 0 , 0 );
-		MOPODrawLine ( mopo , xx , y , fx , fy , 255 , 0 , 0 );
-		MOPODrawRect ( mopo , xx-7 , y , 20 , 20 , 2 , 255 , 0 , 0 ) ;	
+		MOPODrawText ( xx-7 , y-30 , "NEC" , 255 , 0 , 0 );
+		MOPODrawLine ( xx , y , fx , fy , 255 , 0 , 0 );
+		MOPODrawRect ( xx-7 , y , 20 , 20 , 2 , 255 , 0 , 0 ) ;	
 	} else {
-		MOPODrawLine ( mopo , xx , y , fx , fy , 0 , 0 , 0 );	
-		MOPODrawRect ( mopo , xx-7 , y , 20 , 20 , 2 , 0 , 255 , 0 ) ;	
+		MOPODrawLine ( xx , y , fx , fy , 0 , 0 , 0 );	
+		MOPODrawRect ( xx-7 , y , 20 , 20 , 2 , 0 , 255 , 0 ) ;	
 	}	
 	
 	for ( looper = lgnosia->context.head ; looper ; looper = looper->next ) {
@@ -967,10 +967,10 @@ int MOPOCFDFSRender ( int mopo , int lgnosiaa , int type , int x , int y , int f
 			LGNOSIA* poc = lga->po_chain ;
 			LGNOSIA* nec = lga->ne_chain ;
 			
-			MOPOFillCircle ( mopo , xx , y , 3 , 0 , 0 , 255 ) ;
+			MOPOFillCircle ( xx , y , 3 , 0 , 0 , 255 ) ;
 
-			MOPOCFDFSRender ( mopo , poc , LGNOSIA_POC_IDENT , xx - (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
-			MOPOCFDFSRender ( mopo , nec , LGNOSIA_NEC_IDENT , xx + (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
+			MOPOCFDFSRender ( poc , LGNOSIA_POC_IDENT , xx - (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
+			MOPOCFDFSRender ( nec , LGNOSIA_NEC_IDENT , xx + (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
 		
 			xx = xx + (lga->allinyer+400)*(1.0/deep) ;
 
@@ -982,22 +982,33 @@ int MOPOCFDFSRender ( int mopo , int lgnosiaa , int type , int x , int y , int f
 	
 }
 
-int visited[100] = {0} ;
+void MOPOIGBFSRender ( SCClGraph* graph ) {
 
-void MOPOIGBFSRender ( SCClGraph* graph , int mopo ) {
+	//	author : Jelo Wang
+	//	since : 20110119
+	//	(C)TOK	
 	
-	int x = 50 ;
+
+	int* visited = 0 ;
 	
 	SCClQueue queue = {0} ;
 	SCClList* looper = 0 ;	
 	SCClList* inlooper = 0 ;	
 	
 	if ( !graph ) return 0 ;
+	
+	visited = (int* ) SCMalloc ( sizeof(int)*graph->totall ) ;
+
+	ASSERT(visited) ;
+
+	MOPODrawText ( 30 , 100 , "interference-graph" , 150 , 150 , 150 ) ;	
+	MOPODrawText ( 30 , 115 , "live scopes : " , 150 , 150 , 150 ) ;	
+	MOPODrawText ( 135 , 115 , SCClItoa ( graph->totall ) , 150 , 150 , 150 ) ;	
+
+	SCClQueueInit ( &queue ) ;	
 
 	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
-			
-		SCClQueueInit ( &queue ) ;
-		
+				
 		SCClQueueEnter ( &queue , (int)looper->element ) ;
 		
 		while( !SCClQueueEmpty ( &queue) ) {
@@ -1005,26 +1016,71 @@ void MOPOIGBFSRender ( SCClGraph* graph , int mopo ) {
 			SCClGraphNode* genode = 0 ;
 			
 			genode = (SCClGraphNode* ) SCClQueueOut ( &queue) ;
-
-			visited[genode->id] = 1 ;
 			
+			if ( !visited[genode->id] ) {
+				visited[genode->id] = 1 ;
+				genode->x = sc_randex ( 200 , 800 ) ;
+				genode->y = sc_randex ( 100 , 800 ) ;
+		 		MOPOFillCircle ( genode->x , genode->y , 15 , genode->color*sc_randex ( 10 , 150 ) , genode->color*sc_randex ( 10 , 150 ) , 0 ) ;	
+				
+			}
+
+		
 			for ( inlooper = genode->nei.head ; inlooper ; inlooper = inlooper->next ) {
 
 				SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;	
 
 				if( !visited[innode->id] ) {
 
+					visited[innode->id] = 1 ;
 
-	 				MOPOFillCircle ( mopo , x , 40 , 3 , 0 , 0 , 255 ) ;
+					innode->x = sc_randex ( 200 , 800 ) ;
+					innode->y = sc_randex ( 100 , 800 ) ;
+					
+	 				MOPOFillCircle ( innode->x , innode->y , 15 , innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) , 0 ) ;					
 					SCClQueueEnter ( &queue , (int)innode ) ;
+					
 				}
 
-				x = x + 45 ;
-			}
-
+				
+			}			
 
 		}
 	}
+
+
+	{
+		
+		SCClList* llooper = 0 ;
+		SCClList* inlooper = 0 ;
+		SCClGraphNode* node = 0 ;		
+		
+		for ( llooper = graph->nl.head ; llooper ; llooper = llooper->next ) {
+		
+			int textcolor = 0 ;
+			
+			node = (SCClGraphNode* ) llooper->element ;
+
+			textcolor = ~(node->color*sc_randex ( 10 , 150 )) ;
+
+			MOPODrawText ( node->x , node->y , SCClItoa(node->id), textcolor , textcolor , 0 ) ;	
+			MOPODrawText ( node->x , node->y-15 , SCClItoa(node->degree), textcolor , textcolor , 0 ) ;	
+	
+			for ( inlooper = node->nei.head ; inlooper ;  inlooper = inlooper->next ) {
+					
+				SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
+				textcolor = ~(innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) )  ;
+				
+				MOPODrawLine ( node->x , node->y , innode->x , innode->y , 0 , 0 , 0 ) ;
+				MOPODrawText ( innode->x , innode->y , SCClItoa(innode->id), textcolor , textcolor , 0 ) ;	
+				MOPODrawText ( innode->x , innode->y-15 , SCClItoa(innode->degree), textcolor , textcolor , 0 ) ;	
+			}
+		
+							
+		}	
+	}
+
+	SCFree ( visited ) ;
 	
 }
 

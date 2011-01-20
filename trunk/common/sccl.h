@@ -111,10 +111,11 @@ typedef struct {
 	int color ;
 
 	int x ; 
-	int y ;
-
+	int y ;	
+	
 	//	neighbor
-	SCClList nei ;		
+	SCClList nei ;
+	
 	
 } SCClGraphNode ;
 
@@ -136,6 +137,7 @@ typedef struct {
 # endif
 
 //	generic strings func
+extern int sc_randex ( int bottom , int upper ) ;
 extern int sc_is_blank ( unsigned char element ) ;
 extern int sc_is_space ( unsigned char element ) ;
 extern int sc_is_alpha ( char el ) ;

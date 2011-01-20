@@ -187,14 +187,15 @@ int RegocIGraphCreate () {
 				
 				SCClGraphAddNode ( iG , ls_2->number ) ;
 				//	add ref edge bettwen ls_1 and ls_2
-				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;			
+				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;
+//				printf("ls_1->number %d - ls_1->number %d\n",ls_1->number,ls_2->number);
 		
 			}
 			
 		}
 		
 	}
-
+	
 	return (int)iG ;
 	
 }

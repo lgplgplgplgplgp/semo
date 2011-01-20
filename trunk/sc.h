@@ -65,8 +65,10 @@ enum {
 	SC_ARM = 0x4000 ,
 	//	compile for the x80386 architecture
 	SC_X80386 = 0x8000 ,
-	//	both dc and ms features by default
-	SC_DM = 0x10000 ,
+	//	both dc and ms features by default , = 2^17
+	SC_DM = 0x10000 ,				
+	//	interference graph of live scope , = 2^18
+	SC_IG = 0x20000	
 	
 } ;
 

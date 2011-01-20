@@ -22,6 +22,22 @@
 # include "schal.h"
 # include "sccl.h"
 
+int sc_randex ( int bottom , int upper ) {
+
+	//	author : Jelo Wang
+	//	since : 20110120
+	//	(C)TOK
+
+	int value = rand () % upper ;
+ 
+	while ( value < bottom ) {
+		value = rand () % upper ;
+	}
+
+	return value ;
+	
+}
+
 int sc_is_blank ( unsigned char element ) {
 
 	//	author : Jelo Wang
@@ -1565,28 +1581,25 @@ void SCClGraphDelete ( SCClGraph* graph , int N ) {
 	
 }
 
-static int SCClGraphGetColor ( SCClGraph* graph , int totall_colors ) {
+static int SCClGraphGetColor ( SCClGraphNode* node , int totall_colors ) {
 
 	//	author : Jelo Wang
 	//	since : 20110118
 	//	(C)TOK	
 
 	SCClList* looper = 0 ;
-	SCClGraphNode* node = 0 ;
 	
 	//	value of colors bettwen [0,totall_colors)
 	int* colors = (int* ) SCMalloc ( sizeof(int)*totall_colors ) ; 
 	
-	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
+	for ( looper = node->nei.head ; looper ; looper = looper->next ) {
 
 		node = (SCClGraphNode* ) looper->element ;
 
 		//	记录邻接点的颜色
-		if ( -1 != node->color ) {
+		if ( -1 != node->color ) {	
 			//	邻接点颜色已被占用
 			colors [ node->color ] = 1 ;
-		} else {
-			colors [ node->color ] = 0 ;
 		}
 		
 	}
@@ -1595,7 +1608,7 @@ static int SCClGraphGetColor ( SCClGraph* graph , int totall_colors ) {
 		int looper = 0 ;
 		for ( looper = 0 ; looper < totall_colors ; looper ++ ) {
 			//	顺序取一个没有占用的颜色
-			if ( 0 == colors [looper] ) {
+			if ( 0 == colors [looper] ) {	
 				SCFree ( colors ) ;
 				//	return color
 				return looper ;
@@ -1630,7 +1643,7 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 
 		if ( node->degree >= totall_colors ) return 0 ;
 
-		if ( -1 == node->color ) node->color = SCClGraphGetColor ( llooper , totall_colors ) ;
+		if ( -1 == node->color ) node->color = SCClGraphGetColor ( node , totall_colors ) ;
 
 		//	邻接点
 		for ( inlooper = node->nei.head ; inlooper ;  inlooper = inlooper->next ) {
@@ -1640,17 +1653,17 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 			if ( innode->degree >= totall_colors ) 
 				return 0 ;
 		
-			if ( -1 == innode->color ) innode->color = SCClGraphGetColor ( inlooper , totall_colors ) ;
+			if ( -1 == innode->color ) innode->color = SCClGraphGetColor ( innode , totall_colors ) ;
 			
 		}
-		
+	
 						
 	}	
 
 	return 1 ;
 	
 }
-
+ 
 int gnvisited[10] = {0} ;
 
 int SCClGraphDFSNormalize ( SCClGraphNode* node , int deep ) {

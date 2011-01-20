@@ -50,21 +50,22 @@ typedef struct {
 # endif
 
 extern int MOPOCreatePanel ( int format , int width , int height ) ;
-extern int MOPOOutputPanel ( int mopo , char* path ) ;
-extern int MOPODestroyPanel ( int mopo ) ;
+extern int MOPOOutputPanel ( char* path ) ;
+extern int MOPODestroyPanel () ;
 
-extern void MOPODrawPixel ( int mopo , int x , int y , int red , int green , int blue ) ;
-extern int MOPODrawLine ( int mopo , int x1 , int y1 , int x2 , int y2 , int red , int green , int blue ) ;
-extern int MOPODrawCircle ( int mopo , int x , int y , int raduis , int red , int green , int blue ) ;
-extern int MOPOFillCircle ( int mopo , int x , int y , int raduis , int red , int green , int blue ) ;
-extern void MOPODrawText ( int mopo , int x , int y , const char* text , int red , int green , int blue ) ;
-extern void MOPODrawRect ( int mopo , int x , int y , int x_scale , int y_scale , int linewidth , int red , int green , int blue ) ;
-extern void MOPOStretch ( int mopo , int cx , int cy , float radius , int dx , int dy ) ;
-extern void MOPODrawGrid ( int mopo , int red , int green , int blue ) ;
+extern void MOPODrawPixel ( int x , int y , int red , int green , int blue ) ;
+extern int MOPODrawLine ( int x1 , int y1 , int x2 , int y2 , int red , int green , int blue ) ;
+extern int MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue ) ;
+extern int MOPOFillCircle ( int x , int y , int raduis , int red , int green , int blue ) ;
+extern void MOPODrawText ( int x , int y , const char* text , int red , int green , int blue ) ;
+extern void MOPODrawRect ( int x , int y , int x_scale , int y_scale , int linewidth , int red , int green , int blue ) ;
+extern void MOPOStretch ( int cx , int cy , float radius , int dx , int dy ) ;
+extern void MOPODrawGrid ( int red , int green , int blue ) ;
 
-extern void MOPOExpDFSRender ( int mopo , int exp , int x , int y ) ;
-extern int MOPOLgaExpRender ( int mopo , int lgnosiaa , int anltype , int x , int y ) ;
-extern int MOPOCFBFSRender ( int mopo , int lgnosiaa , int x , int y ) ;
-extern int MOPOCFDFSRender ( int mopo , int lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) ;
-extern int MOPOExpBFSRender ( int mopo , int exp , int x , int y ) ;	
+extern void MOPOExpDFSRender ( int exp , int x , int y ) ;
+extern int MOPOLgaExpRender ( int lgnosiaa , int anltype , int x , int y ) ;
+extern int MOPOCFBFSRender ( int lgnosiaa , int x , int y ) ;
+extern int MOPOCFDFSRender ( int lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) ;
+extern int MOPOExpBFSRender ( int exp , int x , int y ) ;	
+extern void MOPOIGBFSRender ( SCClGraph* graph ) ;
 

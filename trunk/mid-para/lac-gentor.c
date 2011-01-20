@@ -811,10 +811,10 @@ char* gentor_lac_run ( char* lacfile ) {
 	//	use compiling-render
 	if ( SC_CR & compiler->parameter ) {
 
-		mopo = MOPOCreatePanel ( MOPO_RGB565 , 2048 , 2048 ) ;
-		MOPODrawText ( mopo , 15 , 10 , "Semo C()mpiler Compiling-Render" , 200 , 200 , 200 ) ;	
-		MOPODrawText ( mopo , 15 , 10+14 , "(C)Techniques of Knowledge" , 200 , 200 , 200 ) ;	
-		MOPODrawText ( mopo , 15 , 10+14+14 , "   an open source group since 2008" , 200 , 200 , 200 ) ;	
+		MOPOCreatePanel ( MOPO_RGB565 , 2048 , 2048 ) ;
+		MOPODrawText ( 15 , 10 , "Semo C()mpiler Compiling-Render" , 200 , 200 , 200 ) ;	
+		MOPODrawText ( 15 , 10+14 , "(C)Techniques of Knowledge" , 200 , 200 , 200 ) ;	
+		MOPODrawText ( 15 , 10+14+14 , "   an open source group since 2008" , 200 , 200 , 200 ) ;	
 
 	}
 	
@@ -847,18 +847,15 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	}
 
-	//	print copyrights
-//	LACAdd ( "\r\n# Semo C()mpiler Frameworks 0.2.0" , LAC_CR , -1 ) ;
-//	LACAdd ( "\r\n# (C)Techniques of Knowledge" , LAC_CR , -1 ) ;
 	LACLiveScopeGenerate () ;
 	//	Get Lac Codes
 	lac = LACGetContent () ;
 	LACClear () ;
 
 	if ( SC_CR & compiler->parameter ) {
-		char* file = sc_strcat ( lacfile , ".cr.bmp" ) ;	
-		MOPOOutputPanel ( mopo , file ) ;
-		MOPODestroyPanel ( mopo ) ;
+		char* file = sc_strcat ( lacfile , ".cr.bmp" ) ;		
+		MOPOOutputPanel ( file ) ;
+		MOPODestroyPanel () ;
 		SCFree ( file ) ;
 	}
 	

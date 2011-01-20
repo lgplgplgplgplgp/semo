@@ -65,6 +65,7 @@ SET :\n\
 \t module : cr compiling-render\n\
 \t parameter : lga lgnosia graph\n\
 \t parameter : exp expression graph\n\
+\t parameter : ig interference graph of live scope\n\
 \n\
 \t module : linker\n\
 \t parameter : file1 file2...filen\n\
@@ -278,6 +279,8 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 						compiler->parameter |= SC_LGA ;		
 					} else if ( !sc_strcmp ( lexc->token , "exp" ) ) {
 						compiler->parameter |= SC_EXP ;		
+					} else if ( !sc_strcmp ( lexc->token , "ig" ) ) {
+						compiler->parameter |= SC_IG ;		
 					} else {
 						SCLog ( "Incorrect 'SET' form\n" ) ;
 						goto ErrorRelease ;						
@@ -459,8 +462,10 @@ int SCCompile ( int argc , char** argv , int type ) {
 		int filen = 0 ;
 		//int inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
-		
+		//int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
+
+		int inputfile = SCHalFileOpen ( file , "rb" ) ;
+				
 		if ( !inputfile ) {
 			SCLog ("Can not open the file '%s'\n" , file ) ;
 			continue ;
@@ -481,7 +486,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		
 		compiler->PRESOR ( sc_strcat (file,".po") ) ;	
  	 	compiler->PARSER ( &compiler->codes , &compiler->lines ) ; 
-		lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;
+		lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
 		asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;

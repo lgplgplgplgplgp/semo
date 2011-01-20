@@ -19,10 +19,12 @@
 
 */
 
+# include "sc.h"
 # include "schal.h"
 # include "sccl.h"
 # include "lac.h"
 # include "regoc.h"
+# include "mopo.h"
 
 LAC* lac = 0 ;
 LABELMOI* labelmoi = 0 ;
@@ -154,8 +156,6 @@ char* LACGetContent () {
 	
 }
 
-# include "mopo.h"
-
 void LACLiveScopeGenerate () {
 	
 	//	author : Jelo Wang
@@ -192,16 +192,11 @@ void LACLiveScopeGenerate () {
 	}
 
 	iG = RegocIGraphCreate () ;
+	SCClGraphColoring ( iG , 100 ) ;
 	RegocRegisterAlloc ( iG ) ;
 
-	{
-		char* file = sc_strcat ( "test" , ".cr.bmp" ) ;	
-		int mopo = MOPOCreatePanel ( MOPO_RGB565 , 2048 , 2048 ) ;
-		MOPOIGBFSRender ( (SCClGraph* ) iG , mopo ) ;
-		MOPOOutputPanel ( mopo , file ) ;
-		MOPODestroyPanel ( mopo ) ;
-		SCFree ( file ) ;		
-	}
+	if ( SC_IG & compiler->parameter ) 
+		MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
 		
 		
 }
@@ -215,7 +210,8 @@ void LACClear () {
 
 	LAC* walker = lac->head ; 
  
-	for ( ; walker ; ) {
+	for ( ; walker ; ) {
+
 		lac->next = walker->next ; 
 		SCFree ( walker->code.data ) ;
 		SCFree ( walker ) ;
