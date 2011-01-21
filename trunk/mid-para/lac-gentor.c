@@ -847,7 +847,9 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	}
 
-	LACLiveScopeGenerate () ;
+	if ( SC_ARM & compiler->parameter ) 
+		LACLiveScopeGenerate ( 7 ) ;
+	
 	//	Get Lac Codes
 	lac = LACGetContent () ;
 	LACClear () ;

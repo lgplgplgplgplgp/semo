@@ -659,7 +659,7 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 	if ( !el ) return 0 ;
 
 	ellen = sc_strlen (el) ;
-	
+
 	if ( 0 == string->length && ellen ) {
 
 		string->data = (char* ) SCMalloc ( ellen + 1 ) ;
@@ -682,6 +682,7 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 	if ( string->add_walker >= string->length ) {
 
 		string->data = (char* ) SCRealloc ( string->data , string->length + ellen ) ;
+
 		string->length += ellen ;
 
 	}
@@ -1410,7 +1411,7 @@ SCClGraph* SCClGraphCreate () {
 	
 }
 
-SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N ) {
+SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , int handle ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1434,6 +1435,7 @@ SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N ) {
 	node->degree = 0 ;
 	node->id = N ;
 	node->color = -1 ;
+	node->handle = handle ;
 
 	SCClListInsert ( &graph->nl , (int)node  ) ;
 	graph->totall ++ ;
@@ -1629,19 +1631,21 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 	//	since : 20110118
 	//	(C)TOK	
 
-	//	当无法染色时返回0
+	//	当无法染色时返回LAC handle
+	//	当然色成功是返回-1
 
 	SCClList* llooper = 0 ;
 	SCClList* inlooper = 0 ;
 	SCClGraphNode* node = 0 ;
 	
-	if ( !graph ) return  0 ;
+	ASSERT(graph) ;
 	
 	for ( llooper = graph->nl.head ; llooper ; llooper = llooper->next ) {
 
 		node = (SCClGraphNode* ) llooper->element ;
 
-		if ( node->degree >= totall_colors ) return 0 ;
+		//	node->handle is a handle of LAC
+		if ( node->degree >= totall_colors ) return node->handle ;
 
 		if ( -1 == node->color ) node->color = SCClGraphGetColor ( node , totall_colors ) ;
 
@@ -1650,8 +1654,12 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 
 			SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
 
+			//	这个判定不妥，因为度大于等于颜色数不一定是没法染色的
+			//	要看有没有回路，只有当所有邻接点颜色都取完后才无法染色
+			//	需要改进
+			//	node->handle is a handle of LAC
 			if ( innode->degree >= totall_colors ) 
-				return 0 ;
+				return innode->handle ;
 		
 			if ( -1 == innode->color ) innode->color = SCClGraphGetColor ( innode , totall_colors ) ;
 			
@@ -1659,79 +1667,10 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 	
 						
 	}	
-
-	return 1 ;
+	
+	return -1 ;
 	
 }
- 
-int gnvisited[10] = {0} ;
-
-int SCClGraphDFSNormalize ( SCClGraphNode* node , int deep ) {
-
-	//	author : Jelo Wang
-	//	since : 20110119
-	//	(C)TOK
-	
-	//	notes : 计算节点深度
-# if 0
-	SCClGraphNode* looper = 0 ;
-	
-	if ( !node ) return 0 ;
-	
-	gnvisited[node->id] = 1 ;
-	
-	for ( looper = node->nei ; looper ; looper = looper->next )
-		if(!gnvisited[node->id])
-			SCClGraphDFSNormalize ( node ) ;	
-# endif
-
-	return 1 ;
-
-	
-}
-
-int SCClGraphBFSNormalize ( SCClGraph* graph , int deep ) {
-
-	//	author : Jelo Wang
-	//	since : 20100804
-	//	(C)TOK
-	
-	//	notes : 计算某一层的节点总数
-
-	SCClQueue queue = {0} ;
-	SCClGraphNode* looper = 0 ;	
-	SCClList* inlooper = 0 ;	
-	
-	if ( !graph ) return 0 ;
-
-	looper = graph->nl.head ;
-		
-	SCClQueueInit ( &queue ) ;
-	
-	SCClQueueEnter ( &queue , (int)looper ) ;
-	
-	while( !SCClQueueEmpty ( &queue) ) {
-
-		looper = (SCClGraphNode* ) SCClQueueOut ( &queue) ;
-
-		gnvisited[looper->id] = 1 ;
-		
-		for ( inlooper = looper->nei.head ; inlooper ; inlooper = inlooper->next ) {
-
-			SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;	
-
-			if( !gnvisited[innode->id] )
-			   SCClQueueEnter ( &queue , (int)innode ) ;
-			
-		}
-
-
-	}	
-
-	return 1 ;
-	
-}
-
 
 void SCClGraphDestroy ( SCClGraph* graph ) {
 

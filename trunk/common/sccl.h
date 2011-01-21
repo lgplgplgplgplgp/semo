@@ -109,7 +109,8 @@ typedef struct {
 	int id ;
 	int degree ;
 	int color ;
-
+	//	handle to anothers 
+	int handle ;
 	int x ; 
 	int y ;	
 	
@@ -214,7 +215,7 @@ extern void SCClQueueDestroy ( SCClQueue* queue ) ;
 //	SCClGraph
 extern void SCClGraphInit ( SCClGraph* graph ) ;
 extern SCClGraph* SCClGraphCreate () ;
-extern SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N ) ;
+extern SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , int handle ) ;
 extern SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , int N ) ;
 extern void SCClGraphAddEdge (  SCClGraph* graph , int N1 , int N2 ) ;
 extern int SCClGraphHaveEdge ( SCClGraph* graph , int N1 , int N2 ) ; 
@@ -222,3 +223,4 @@ extern int SCClGraphGetDegree ( SCClGraph* graph , int N ) ;
 extern int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) ; 
 extern void SCClGraphDelete ( SCClGraph* graph , int N ) ; 
 extern void SCClGraphDestroy ( SCClGraph* graph ) ; 
+

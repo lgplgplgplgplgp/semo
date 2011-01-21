@@ -515,6 +515,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	SCLog ("Lines : %d \n" , compiler->lines ) ;
 	SCLog ("Lines/MS : %1.3f \n" , preline ) ;
 	SCLog ("Codes : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
+	SCLog ("Splited : %d\n",compiler->lssplits) ;
 	SCLog ("\n" ) ;
 
 	compiler->RELEASE () ;

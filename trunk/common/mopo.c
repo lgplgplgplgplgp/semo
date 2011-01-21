@@ -1019,8 +1019,8 @@ void MOPOIGBFSRender ( SCClGraph* graph ) {
 			
 			if ( !visited[genode->id] ) {
 				visited[genode->id] = 1 ;
-				genode->x = sc_randex ( 200 , 800 ) ;
-				genode->y = sc_randex ( 100 , 800 ) ;
+				genode->x = sc_randex ( 200 , 500 ) ;
+				genode->y = sc_randex ( 100 , 500 ) ;
 		 		MOPOFillCircle ( genode->x , genode->y , 15 , genode->color*sc_randex ( 10 , 150 ) , genode->color*sc_randex ( 10 , 150 ) , 0 ) ;	
 				
 			}
@@ -1034,8 +1034,8 @@ void MOPOIGBFSRender ( SCClGraph* graph ) {
 
 					visited[innode->id] = 1 ;
 
-					innode->x = sc_randex ( 200 , 800 ) ;
-					innode->y = sc_randex ( 100 , 800 ) ;
+					innode->x = sc_randex ( 200 , 500 ) ;
+					innode->y = sc_randex ( 100 , 500 ) ;
 					
 	 				MOPOFillCircle ( innode->x , innode->y , 15 , innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) , 0 ) ;					
 					SCClQueueEnter ( &queue , (int)innode ) ;
@@ -1071,7 +1071,7 @@ void MOPOIGBFSRender ( SCClGraph* graph ) {
 				SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
 				textcolor = ~(innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) )  ;
 				
-				MOPODrawLine ( node->x , node->y , innode->x , innode->y , 0 , 0 , 0 ) ;
+				MOPODrawLine ( node->x , node->y , innode->x , innode->y , innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 0 , 50 ) , 0 ) ;
 				MOPODrawText ( innode->x , innode->y , SCClItoa(innode->id), textcolor , textcolor , 0 ) ;	
 				MOPODrawText ( innode->x , innode->y-15 , SCClItoa(innode->degree), textcolor , textcolor , 0 ) ;
 				

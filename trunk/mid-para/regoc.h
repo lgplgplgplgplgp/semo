@@ -33,6 +33,8 @@ typedef struct {
 	//	register name 
 	char live [ LIVE_NAME_LENGTH ] ;
 
+	//	a handle to LAC
+	int lac ;
 
 	//	number of live scope
 	int number ; 
@@ -46,13 +48,30 @@ typedef struct {
 	
 } LIVESCOPE ;
 
+typedef struct {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+
+	//	regoc's interference-graph of live scope
+
+	//	lac function belong to
+	char* name ;
+	//	a handle to SCClGraph*
+	int iG ;		
+	
+} REGOCIG ;
+
 # endif
 
 extern int RegocRegPoolCreate ( char** regs , int totall ) ;
 extern void RegocBuildRefGraph ( char* code , int position ) ;
 extern char* RegocAlloc ( int lr ) ;
 extern void RegocLiveScopeMoiCreate () ;
-extern int RegocLiveScopeAdd ( char* live , int scope , int line ) ; 
+extern void RegocLiveScopeMoiDestroy () ;
+extern int RegocLiveScopeGetLAC () ;
+extern int RegocLiveScopeAdd ( char* live , int scope , int line , int lac ) ; 
 extern int RegocCheckLiveScope ( char* live , int scope , int line ) ;
 extern int RegocIGraphCreate () ;
 extern void RegocLiveScopeClear () ;

@@ -105,6 +105,8 @@ typedef struct COMPILER_NODE {
 	int lines ;
 	int codes ;
 
+	int lssplits ;
+
 	void (*PRESOR)(unsigned char*) ;
 	void (*PARSER)(int* codes , int* lines ) ;
 	char* (*GENTOR)( char* ) ;

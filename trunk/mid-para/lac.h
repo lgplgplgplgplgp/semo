@@ -63,8 +63,12 @@ typedef enum {
 	LAC_IF ,
 	LAC_L_DELT ,
 	LAC_R_DELT ,
+	LAC_L_MEM ,
+	LAC_R_MEM ,
+	
 	//	change row
 	LAC_CR ,
+
 	
 } LAC_ATOM ;
 
@@ -137,8 +141,6 @@ typedef struct LACA {
 	//	oprand1 op oprand2
 	//	and a label if necessary
 
-	SCClString code ;
-
 	//	lac type
 	int type ;
 	//	a handle to another datas
@@ -154,9 +156,14 @@ typedef struct LACA {
 	int length ;
 	//	lac codes length in bytes
 	int colen ;
-
+	
 	struct LACA* head ;
 	struct LACA* next ;
+
+	SCClString code ;
+
+	//	reference chain
+	SCClList refchain ;
 
 } LAC ;
 
@@ -180,7 +187,7 @@ extern LAC* LACGet ( int number ) ;
 extern int LACAdd ( char* string , LAC_ATOM type , int scope ) ;
 extern void LACAddLabel ( int number , char* label ) ;
 extern char* LACGetContent () ;
-extern void LACLiveScopeGenerate () ;
+extern void LACLiveScopeGenerate ( int degreesmax ) ;
 extern void LACClear () ;
 
 extern int LACLabelMoiNew () ;

@@ -93,7 +93,7 @@ int LACAdd ( char* string , LAC_ATOM type , int scope ) {
 
 	lac->length ++ ;
 	lac->colen = lac->colen + lacn->code.length ;
-	
+
 	return lacn ;
 
 }
@@ -142,7 +142,7 @@ char* LACGetContent () {
 	SCClString string = { 0 , 0 , 0 , 0 , 0 } ;
 
 	SCClStringInitEx ( &string , lac->colen ) ;
-	
+
 	for ( ; walker ; walker = walker->next ) {
 
 		SCClStringAddStr ( &string , walker->code.data ) ;
@@ -156,7 +156,45 @@ char* LACGetContent () {
 	
 }
 
-void LACLiveScopeGenerate () {
+static void LACRefChainInsert ( int head , int chain ) {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+
+	LAC* lac = (LAC* )head ;
+
+	SCClListInsert ( &lac->refchain , chain ) ;
+
+}
+
+static void LACLiveScopeSplit ( int laca ) {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+
+	//	将lac 引用链上的节点分裂
+
+	LAC* lac = laca ;
+	
+	SCClList* looper = 0 ;
+	
+	compiler->lssplits ++ ;
+
+	for ( looper = lac->refchain.head ; looper ; looper = looper->next ) {
+		LAC* lacnode = looper->element ;
+		if ( LAC_L_DELT == lacnode->type ) {
+			lacnode->type =LAC_L_MEM ;
+		} else if ( LAC_R_DELT == lacnode->type ) {
+			lacnode->type =LAC_R_MEM ;
+		}
+	}
+
+		
+}
+
+void LACLiveScopeGenerate ( int degreesmax ) {
 	
 	//	author : Jelo Wang
 	//	since : 20110118
@@ -168,37 +206,96 @@ void LACLiveScopeGenerate () {
 	//	4. alloc register for the live scope based on colored i-graphs
 
 	int iG = 0 ;
-	LAC* llooper = lac ;
+	char* procname = 0 ;
+	LAC* llooper = 0 ;
+	int totall_colors = degreesmax ;
 	
-	if ( !llooper ) return ;
+	RegocIGPoolInit () ;	
+	
+restart :
+	for ( llooper = lac->head ; llooper ; ) {
 
-	RegocLiveScopeMoiCreate () ;
+readproc :
 
-	for ( llooper = llooper->head ; llooper ; llooper = llooper->next ) {
+		if ( LAC_PROC == llooper->type ) {
 
-		if ( LAC_L_DELT == llooper->type ) {			
-			int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line ) ;
-			char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
-			SCClStringAddStr ( &llooper->code , value ) ;
-			SCClStringAdd ( &llooper->code , 0 ) ;			
-			SCFree ( value ) ;			
-		} else if ( LAC_R_DELT == llooper->type ) {
-			int lsn = RegocCheckLiveScope ( llooper->code.data , llooper->scope , llooper->line ) ;
-			char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;
-			SCClStringAddStr ( &llooper->code , value ) ;
-			SCClStringAdd ( &llooper->code , 0 ) ;
-			SCFree ( value ) ;			
+			sc_strcpy_ex ( &procname , llooper->code.data ) ;
+			RegocLiveScopeMoiCreate () ;
+			
+			for ( llooper = llooper->next ; llooper ; ) {			
+
+				if ( LAC_L_DELT == llooper->type ) {		
+		
+					//	添加生命域
+					int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line , llooper ) ;
+					//	生命域编号
+					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
+					SCClStringAddStr ( &llooper->code , value ) ;
+					SCClStringAdd ( &llooper->code , 0 ) ;			
+					SCFree ( value ) ;	
+						 
+				} else if ( LAC_R_DELT == llooper->type ) {
+
+					//	生命域引用
+					//	获取其编号
+					int lsn = RegocCheckLiveScope ( llooper->code.data , llooper->scope , llooper->line ) ;
+					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;
+					SCClStringAddStr ( &llooper->code , value ) ;
+					SCClStringAdd ( &llooper->code , 0 ) ;
+					SCFree ( value ) ;		
+
+					if ( -1 != lsn ) {
+						//	将lac 添加到其引用链
+						int lac = 0 ;
+						lac = RegocLiveScopeGetLAC () ;
+						LACRefChainInsert ( lac , llooper ) ;
+						
+					}
+					
+				} else if ( LAC_PROC == llooper->type ) {
+
+					//	get another lac proc
+					//	coloring the graph of the last proc
+					int lac = 0 ;
+					
+					iG = RegocIGraphCreate () ;
+					lac = SCClGraphColoring ( iG , degreesmax ) ;				
+					if ( -1 != lac && lac ) {
+						//	graph coloring is failed if lac itsnt equal -1
+						//	split the problem
+						LACLiveScopeSplit ( lac ) ;
+						RegocLiveScopeMoiDestroy () ;
+						SCClGraphDestroy ( iG ) ;							
+//						SCFree ( procname ) ;
+						goto restart ;
+					}
+					RegocRegisterAlloc ( iG ) ;
+					RegocIGPoolInsert ( procname , iG ) ;
+					SCFree ( procname ) ;
+					
+					if ( SC_IG & compiler->parameter ) 
+						MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
+
+					RegocLiveScopeMoiDestroy () ;	
+	
+					goto readproc ;
+					
+				}
+
+				llooper = llooper->next ;				
+
+				
+			}
+
+			
+		} else {
+			llooper = llooper->next ;
 		}
+
+		
 	}
 
-	iG = RegocIGraphCreate () ;
-	SCClGraphColoring ( iG , 100 ) ;
-	RegocRegisterAlloc ( iG ) ;
-
-	if ( SC_IG & compiler->parameter ) 
-		MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
-		
-		
+			
 }
 
 void LACClear () {

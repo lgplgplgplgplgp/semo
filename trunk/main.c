@@ -14,7 +14,7 @@ int main ( int argc , char* argv [] ) {
 			" -lac" ,	
 		} ;
   
-  		SCCompile ( count , value , SC_EXECUTABLE_UNIT ) ;
+   		SCCompile ( count , value , SC_EXECUTABLE_UNIT ) ;
 
 		return 0 ;
 	}

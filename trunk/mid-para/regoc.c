@@ -27,12 +27,19 @@
 
 static int regoc[100][100] = {-1} ;
 
+//	用于识别生命域
 //	register's livescope monitor , we need this information for the interference-graph generative process
 static LIVESCOPE** lsmonitor = 0 ;
 static int lslooper = 0 ;
 static int lslength = 0 ;
 //	default amouts of lsmonitor that means the totall livescopes apeared in one scope
 # define LSDEFAULT_LENGTH 256
+
+//	add iG that generated from LAC into RegocIGPool
+SCClList RegocIGPool = {0} ;
+
+//	lac node of the last found
+static int laclast = 0 ;
 
 void RegocLiveScopeMoiCreate () {
 
@@ -49,6 +56,23 @@ void RegocLiveScopeMoiCreate () {
 
 }
 
+void RegocLiveScopeMoiDestroy () {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK	
+
+	int looper = 0 ;
+
+	for ( looper = 0 ; looper < lslooper ; looper ++ ) {
+		SCFree ( lsmonitor[looper] ) ;
+	}
+
+	SCFree ( lsmonitor ) ;
+	lsmonitor = 0 ;
+	lslooper = 0 ;
+	
+}
 
 static int RegocLiveScopeFind ( char* live , int scope ) {
 
@@ -61,18 +85,31 @@ static int RegocLiveScopeFind ( char* live , int scope ) {
 	//	search the live
 	for ( looper = lslooper-1 ; looper > -1 ; looper -- ) {
 		
-		if ( scope == lsmonitor[looper]->scope ) {			
-			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {				
+		if ( scope >= lsmonitor[looper]->scope ) {			
+			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {
+				laclast = lsmonitor[looper]->lac ;
 				break ;
 			}
 		}
 		
 	}
 
+	if ( -1 >= looper ) laclast = 0 ;
+	
 	return looper ;
 	
 }
 
+
+int RegocLiveScopeGetLAC () {
+	
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+	
+	return laclast ;
+	
+}
 
 int RegocCheckLiveScope ( char* live , int scope , int line ) {
 
@@ -84,7 +121,7 @@ int RegocCheckLiveScope ( char* live , int scope , int line ) {
 	
 	int offset = RegocLiveScopeFind ( live , scope ) ;
 
-	if ( -1 == offset ) return 0 ;
+	if ( -1 == offset ) return -1 ;
  
 	ls = lsmonitor[offset] ;
 
@@ -122,7 +159,7 @@ static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 }
 
 
-int RegocLiveScopeAdd ( char* live , int scope , int line ) {
+int RegocLiveScopeAdd ( char* live , int scope , int line , int lac ) {
 
 	//	author : Jelo Wang
 	//	since : 20110107
@@ -151,6 +188,7 @@ int RegocLiveScopeAdd ( char* live , int scope , int line ) {
 	lsmonitor[lslooper]->number = lslooper ;
 	lsmonitor[lslooper]->start_line = line ;
 	lsmonitor[lslooper]->end_line = -1 ;
+	lsmonitor[lslooper]->lac = lac ;
 	//	plus lslooper
 	lslooper ++ ;
 
@@ -177,7 +215,7 @@ int RegocIGraphCreate () {
 		LIVESCOPE* ls_1 = lsmonitor[looper] ;
 
 		//	add a node into ref graph
-		SCClGraphAddNode ( iG , ls_1->number ) ;
+		SCClGraphAddNode ( iG , ls_1->number , ls_1->lac ) ;
 		
 		for ( inlooper = looper + 1 ; inlooper < lslooper ; inlooper ++ ) {
 
@@ -185,7 +223,7 @@ int RegocIGraphCreate () {
 
 			if ( RegocLiveScopeICheck ( ls_1 , ls_2 ) ) {
 				
-				SCClGraphAddNode ( iG , ls_2->number ) ;
+				SCClGraphAddNode ( iG , ls_2->number , ls_2->lac ) ;
 				//	add ref edge bettwen ls_1 and ls_2
 				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;
 //				printf("ls_1->number %d - ls_1->number %d\n",ls_1->number,ls_2->number);
@@ -258,4 +296,32 @@ void RegocRegisterAlloc ( int graphp ) {
 		
 	
 }	
+
+void RegocIGPoolInit () {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+	
+	SCClListInit ( &RegocIGPool ) ;
+	
+}
+
+void RegocIGPoolInsert ( char* name , int iG ) {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+
+	REGOCIG* regocig = (REGOCIG* ) SCMalloc ( sizeof(REGOCIG) ) ;
+
+	ASSERT(regocig) ;
+
+	sc_strcpy_ex ( &regocig->name , name ) ;
+
+	regocig->iG = iG ;
+
+	SCClListInsert ( &RegocIGPool , (int)regocig ) ;
+
+}
 
