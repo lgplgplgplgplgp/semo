@@ -26,8 +26,9 @@
 # include "regoc.h"
 # include "mopo.h"
 
-LAC* lac = 0 ;
-LABELMOI* labelmoi = 0 ;
+static LAC* lac = 0 ;
+static LAC* lacswaper = 0 ;
+static LABELMOI* labelmoi = 0 ;
 
 int LACNew () {
 
@@ -56,6 +57,24 @@ void LACSetContext ( int context ) {
 	lac = (LAC* ) context ;
 
 } 
+
+void LACSwapIn () {
+
+	//	author : Jelo Wang
+	//	since : 20110122
+	//	(C)TOK
+	
+	lacswaper = lac ;
+}
+
+void LACSwapBack () {
+
+	//	author : Jelo Wang
+	//	since : 20110122
+	//	(C)TOK
+	
+	lac = lacswaper ;
+}
 
 int LACAdd ( char* string , LAC_ATOM type , int scope ) {
 
@@ -206,34 +225,53 @@ void LACLiveScopeGenerate ( int degreesmax ) {
 	//	4. alloc register for the live scope based on colored i-graphs
 
 	int iG = 0 ;
+	int totall_colors = degreesmax ;	
 	char* procname = 0 ;
+	
 	LAC* llooper = 0 ;
-	int totall_colors = degreesmax ;
+	LAC* newlac = 0 ;
+	LAC* orignallac = lac->head ;
 	
 	RegocIGPoolInit () ;	
+
+	//	backup the orignal LAC context
+	LACSwapIn () ;
 	
 restart :
-	for ( llooper = lac->head ; llooper ; ) {
 
+	newlac = LACNew () ;
+	LACSetContext ( newlac ) ;
+	
+	for ( llooper = orignallac ; llooper ; ) {
+
+		LAC* lacnode = 0 ;
+				
 readproc :
+
+		lacnode = LACAdd ( llooper->code.data , llooper->type , llooper->scope ) ;
 
 		if ( LAC_PROC == llooper->type ) {
 
-			sc_strcpy_ex ( &procname , llooper->code.data ) ;
+			procname = (char* ) SCMalloc ( sc_strlen(lacnode->code.data) + 1 ) ;
+			sc_strcpy ( procname , lacnode->code.data ) ;
+			ASSERT(procname) ;
+			
 			RegocLiveScopeMoiCreate () ;
 			
 			for ( llooper = llooper->next ; llooper ; ) {			
 
+				lacnode = LACAdd ( llooper->code.data , llooper->type , llooper->scope ) ; 
+				
 				if ( LAC_L_DELT == llooper->type ) {		
-		
+					
 					//	添加生命域
-					int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line , llooper ) ;
+					int lsn = RegocLiveScopeAdd ( lacnode->code.data , lacnode->scope , lacnode->line , lacnode ) ;
 					//	生命域编号
 					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
-					SCClStringAddStr ( &llooper->code , value ) ;
-					SCClStringAdd ( &llooper->code , 0 ) ;			
+					SCClStringAddStr ( &lacnode->code , value ) ;
+					SCClStringAdd ( &lacnode->code , 0 ) ;
 					SCFree ( value ) ;	
-						 
+
 				} else if ( LAC_R_DELT == llooper->type ) {
 
 					//	生命域引用
@@ -249,10 +287,9 @@ readproc :
 						int lac = 0 ;
 						lac = RegocLiveScopeGetLAC () ;
 						LACRefChainInsert ( lac , llooper ) ;
-						
 					}
 					
-				} else if ( LAC_PROC == llooper->type ) {
+				} else if ( LAC_PROC == llooper->type || 0 == llooper->next ) {
 
 					//	get another lac proc
 					//	coloring the graph of the last proc
@@ -261,12 +298,16 @@ readproc :
 					iG = RegocIGraphCreate () ;
 					lac = SCClGraphColoring ( iG , degreesmax ) ;				
 					if ( -1 != lac && lac ) {
+						
 						//	graph coloring is failed if lac itsnt equal -1
 						//	split the problem
 						LACLiveScopeSplit ( lac ) ;
 						RegocLiveScopeMoiDestroy () ;
 						SCClGraphDestroy ( iG ) ;							
-//						SCFree ( procname ) ;
+						SCFree ( procname ) ;
+	
+						LACClear () ;
+						
 						goto restart ;
 					}
 					RegocRegisterAlloc ( iG ) ;
@@ -277,13 +318,14 @@ readproc :
 						MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
 
 					RegocLiveScopeMoiDestroy () ;	
-	
+
+					//	end of LAC flow
+					if ( 0 == llooper->next ) goto success ;
 					goto readproc ;
 					
 				}
 
 				llooper = llooper->next ;				
-
 				
 			}
 
@@ -295,6 +337,13 @@ readproc :
 		
 	}
 
+success :
+
+	//	destroy the orginal LAC flow
+	LACClearEx ( orignallac ) ;
+	
+	return ;
+	
 			
 }
 
@@ -317,6 +366,21 @@ void LACClear () {
 
 } 
 
+void LACClearEx ( LAC* walker ) {
+
+	//	author : Jelo Wang
+	//	since : 20110122
+	//	(C)TOK
+
+	for ( ; walker ; ) {
+
+		lac->next = walker->next ; 
+		SCFree ( walker->code.data ) ;
+		SCFree ( walker ) ;
+		walker = lac->next ;
+	}	
+
+} 
 
 int LACLabelMoiNew () {
 

@@ -33,7 +33,7 @@ static LIVESCOPE** lsmonitor = 0 ;
 static int lslooper = 0 ;
 static int lslength = 0 ;
 //	default amouts of lsmonitor that means the totall livescopes apeared in one scope
-# define LSDEFAULT_LENGTH 256
+# define LSDEFAULT_LENGTH 1024
 
 //	add iG that generated from LAC into RegocIGPool
 SCClList RegocIGPool = {0} ;

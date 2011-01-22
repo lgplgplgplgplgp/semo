@@ -189,6 +189,7 @@ extern void LACAddLabel ( int number , char* label ) ;
 extern char* LACGetContent () ;
 extern void LACLiveScopeGenerate ( int degreesmax ) ;
 extern void LACClear () ;
+extern void LACClearEx ( LAC* walker ) ;
 
 extern int LACLabelMoiNew () ;
 extern void LACLabelMoiSetContext ( int monitor ) ;
