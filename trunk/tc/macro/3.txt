@@ -1,9 +1,0 @@
-#define A B E F
-#define B bbbb F E
-#define E eeee
-#define F ffff
-
-F
-A
-B
-E
