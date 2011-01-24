@@ -1,0 +1,2 @@
+#define getstr MAIN
+#define MAIN getstr
