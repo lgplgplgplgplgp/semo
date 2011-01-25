@@ -78,16 +78,16 @@ void RegocRegisterAlloc ( int graphp , int lstotall ) {
 	//	(C)TOK
 
 	//	graph : colored reference-graph
-	//	以生命域为单位进行分配
 
 	SCClGraph* graph = (SCClGraph* )graphp ;
 	SCClList* looper = 0 ;
+	SCClList* next = 0 ;
 	
 	ASSERT( graph ) ;
 
 	regoc[regoclooper] = (int* ) SCMalloc ( sizeof(int)*lstotall ) ;
 
-	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
+	for ( looper = graph->nl.head ; looper ; ) {
 
 		SCClGraphNode* node = (SCClGraphNode* ) looper->element ;
 			
@@ -95,6 +95,11 @@ void RegocRegisterAlloc ( int graphp , int lstotall ) {
 		
 		//	node->id is the number of live scope 
 		regoc[regoclooper][node->id] = node->color ;
+
+		next = looper->next ;
+		SCFree ( node ) ;
+		SCFree ( looper ) ;		
+		looper = next ;
 		
 	}
 	
@@ -293,7 +298,6 @@ int RegocIGraphCreate () {
 				SCClGraphAddNode ( iG , ls_2->number , ls_2->lac ) ;
 				//	add ref edge bettwen ls_1 and ls_2
 				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;
-//				printf("ls_1->number %d - ls_1->number %d\n",ls_1->number,ls_2->number);
 		
 			}
 			

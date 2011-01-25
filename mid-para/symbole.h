@@ -32,6 +32,7 @@ typedef enum {
 	//	since : 2008
 	//	(C)TOK
 
+	ISA_INTEGER ,
 	ISA_VARIABLE ,
 	ISA_ARRAY ,		
 	ISA_FUNCTION ,
@@ -71,8 +72,9 @@ typedef enum {
 	//	(C)TOK
 	
 	EXP_DELT_DEFAULT ,
-	EXP_DELT_AZONAL ,
-	
+	EXP_DELT_ANLDATA ,
+	EXP_DELT_ANLNUMERIC ,	
+
 } EXPDELTTYPE ;
 
 typedef enum {
@@ -333,4 +335,4 @@ extern char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) ;
 extern ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) ;
 extern void SymboleDRCDropCFF ( AZONAL* azonal ) ;
 extern void SymboleDRCDropDRC ( AZONAL* azonal ) ;
-
+extern AZONAL* SymboleAndNumeric ( char* name , int type ) ;

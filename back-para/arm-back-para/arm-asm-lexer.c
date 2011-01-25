@@ -441,7 +441,7 @@ int lexerarm_genv () {
 				} else {
 
 					//	skip ',' here
-					if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;	
+					//if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;	
 
 					lexarm->c = 0 ;
 

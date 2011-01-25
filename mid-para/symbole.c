@@ -1269,7 +1269,7 @@ char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) {
 
 	if ( anldrc && scope < anldrc->scope ) {
 		
-		ANLDRC* cff = SymboleDRCGenCFF ( azonal , scope , lga ) ;		
+		ANLDRC* cff = SymboleDRCGenCFF ( azonal , scope , lga ) ;				
 		if ( cff ) return SymboleDRCConvertCFFToSSA ( azonal , cff ) ;
 		
 	} else if ( anldrc && scope == anldrc->scope ) {
@@ -1385,7 +1385,7 @@ char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) {
 		
 	} else if ( 0 == anldrc ) {
 
-SSADEF :
+SSADEF :	
 		//	release the memory outside
 		return sc_strcat ( azonal->name , SCClItoa (azonal->DRC.deftimes) ) ; 	
 						
@@ -1616,5 +1616,24 @@ return ;
 
 
 }
+
+AZONAL* SymboleAndNumeric ( char* name , int type ) {
+
+	//	author : Jelo Wang
+	//	since : 20110125
+	//	(C)TOK
+
+	AZONAL* azonal = (AZONAL* ) SCMalloc ( sizeof(AZONAL) ) ;
+
+	azonal->name = (char* ) SCMalloc ( sc_strlen (name)+1 ) ;
+
+	ASSERT(azonal->name) ;
+
+	sc_strcpy ( azonal->name , name ) ;
+
+	azonal->azonaltype = type ;
+
+	return azonal ;
 	
+}
 
