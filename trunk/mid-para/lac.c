@@ -318,9 +318,8 @@ readproc :
 						MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
 					}
 
-					//	start register allocation based on interference-graph
+					//	start register allocation based on interference-graph					
 					RegocRegisterAlloc ( iG , laclsnumber ) ;
-					SCClGraphDestroy ( iG ) ;											
 					RegocLiveScopeMoiDestroy () ;	
 
 					//	end of LAC flow
@@ -366,6 +365,7 @@ void LACClear () {
 		SCFree ( walker->code.data ) ;
 		SCFree ( walker ) ;
 		walker = lac->next ;
+		
 	}	
 
 } 

@@ -38,9 +38,9 @@ int assemer_is_reg ( int reg ) {
 	//	(C)TOK
 
 	if ( THUMB16_SET == AssemerArm.set ) {
-		if ( THUMB16_REG_R0 <= reg && reg <= THUMB16_REG_R14 ) return 1 ;
+		if ( THUMB16_OPC_R0 <= reg && reg <= THUMB16_OPC_R14 ) return 1 ;
 	} else if ( ARM32_SET == AssemerArm.set ) {
-		if ( ARM32_REG_R0 <= reg && reg <= ARM32_REG_R14 ) return 1 ;
+		if ( ARM32_OPC_R0 <= reg && reg <= ARM32_OPC_R14 ) return 1 ;
 	}
 	
 	return 0 ;
@@ -53,47 +53,6 @@ int assemer_get_reg_opc ( int reg ) {
 	//	since : 20100723
 	//	(C)TOK	
 
-	if ( THUMB16_SET == AssemerArm.set ) {
-		switch ( reg ) {
-			case THUMB16_REG_R0 : return THUMB16_OPC_R0 ;
-			case THUMB16_REG_R1 : return THUMB16_OPC_R1 ;
-			case THUMB16_REG_R2 : return THUMB16_OPC_R2 ;
-			case THUMB16_REG_R3 : return THUMB16_OPC_R3 ;
-			case THUMB16_REG_R4 : return THUMB16_OPC_R4 ;
-			case THUMB16_REG_R5 : return THUMB16_OPC_R5 ;
-			case THUMB16_REG_R6 : return THUMB16_OPC_R6 ;
-			case THUMB16_REG_R7 : return THUMB16_OPC_R7 ;
-			case THUMB16_REG_R8 : return THUMB16_OPC_R8 ;
-			case THUMB16_REG_R9 : return THUMB16_OPC_R9 ;
-			case THUMB16_REG_R10 : return THUMB16_OPC_R10 ;
-			case THUMB16_REG_R11 : return THUMB16_OPC_R11 ;
-			case THUMB16_REG_R12 : return THUMB16_OPC_R12 ;
-			case THUMB16_REG_R13 : return THUMB16_OPC_R13 ;
-			case THUMB16_REG_R14 :return THUMB16_OPC_R14 ;		
-			break ;
-		}
-	} else if ( ARM32_SET == AssemerArm.set ) {
-
-		switch ( reg ) {
-			case ARM32_REG_R0 : return ARM_OPC_R0 ;
-			case ARM32_REG_R1 : return ARM_OPC_R1 ;
-			case ARM32_REG_R2 : return ARM_OPC_R2 ;
-			case ARM32_REG_R3 : return ARM_OPC_R3 ;
-			case ARM32_REG_R4 : return ARM_OPC_R4 ;
-			case ARM32_REG_R5 : return ARM_OPC_R5 ;
-			case ARM32_REG_R6 : return ARM_OPC_R6 ;
-			case ARM32_REG_R7 : return ARM_OPC_R7 ;
-			case ARM32_REG_R8 : return ARM_OPC_R8 ;
-			case ARM32_REG_R9 : return ARM_OPC_R9 ;
-			case ARM32_REG_R10 : return ARM_OPC_R10 ;
-			case ARM32_REG_R11 : return ARM_OPC_R11 ;
-			case ARM32_REG_R12 : return ARM_OPC_R12 ;
-			case ARM32_REG_R13 : return ARM_OPC_R13 ;			
-			case ARM32_REG_R14 : return ARM_OPC_R14 ;				
-			break ;
-		}
-		
-	}
 	
 
 }
@@ -107,9 +66,9 @@ void THUMB16_ADC_RdRm ( int Rd , int Rm ) {
 
 	unsigned short value = 0 ;
 
-	value |= assemer_get_reg_opc ( Rm ) ;
+	value |= Rm ;
 
-	value |= assemer_get_reg_opc ( Rd ) << 3 ;
+	value |= Rd << 3 ;
 
 	value |= THUMB16_OPC_ADC << 6 ;
 
@@ -119,7 +78,8 @@ void THUMB16_ADC_RdRm ( int Rd , int Rm ) {
 
 
 
-void THUMB16_ADD_RdRnImmed_3 ( int Rd , int Rn , int immed_3 ) {
+void THUMB16_ADD_RdRnImmed_3 ( int Rd , int Rn , int immed_3 ) {
+
 	
 	//	author : Jelo Wang
 	//	since : 20100730
@@ -129,9 +89,9 @@ void THUMB16_ADD_RdRnImmed_3 ( int Rd , int Rn , int immed_3 ) {
 	
 	unsigned short value = 0 ;	
 
-	value |= assemer_get_reg_opc ( Rd ) ;
+	value |= Rd ;
 
-	value |= assemer_get_reg_opc ( Rn ) << 3 ;
+	value |= Rn << 3 ;
 
 	value |= immed_3 << 6 ;
 
@@ -140,7 +100,8 @@ void THUMB16_ADD_RdRnImmed_3 ( int Rd , int Rn , int immed_3 ) {
 	ElfGenAddTextValue ( value ) ;	
 
 
-}
+}
+
 
 
 void THUMB16_ADD_RdImmed_8 ( int Rd , int immed_8 ) {
@@ -153,7 +114,7 @@ void THUMB16_ADD_RdImmed_8 ( int Rd , int immed_8 ) {
 	
 	unsigned short value = 0 ;
 
-	value |= assemer_get_reg_opc ( Rd ) << 3 ;
+	value |= Rd << 3 ;
 
 	value |= THUMB16_OPC_ADD2 << 11 ;	
 
@@ -161,7 +122,8 @@ void THUMB16_ADD_RdImmed_8 ( int Rd , int immed_8 ) {
 	
 }
 
-void THUMB16_ADD_RdRnRm ( int Rd ,int Rn , int Rm ) {
+void THUMB16_ADD_RdRnRm ( int Rd ,int Rn , int Rm ) {
+
 
 	//	author : Jelo Wang
 	//	since : 20100730
@@ -171,11 +133,11 @@ void THUMB16_ADD_RdRnRm ( int Rd ,int Rn , int Rm ) {
 
 	unsigned short value = 0 ;	
 
-	value |= assemer_get_reg_opc ( Rd ) ;
+	value |= Rd ;	
 
-	value |= assemer_get_reg_opc ( Rn ) << 3 ;	
-
-	value |= assemer_get_reg_opc ( Rm ) << 6 ;	
+	value |= Rd << 3 ;
+	
+	value |= Rm << 6 ;	
 
 	value |= THUMB16_OPC_ADD3 << 9 ;	
 
@@ -184,7 +146,8 @@ void THUMB16_ADD_RdRnRm ( int Rd ,int Rn , int Rm ) {
 }
 
 
-void THUMB16_ADD_RdRm ( int Rd ,int Rm ) {
+void THUMB16_ADD_RdRm ( int Rd ,int Rm ) {
+
 
 	//	author : Jelo Wang
 	//	since : 20100730
@@ -192,8 +155,8 @@ void THUMB16_ADD_RdRm ( int Rd ,int Rm ) {
 
 	//	pattern : ADD <Rd> , <Rm>
 
-	int RdV = assemer_get_reg_opc ( Rd ) ;
-	int RmV = assemer_get_reg_opc ( Rm ) ;
+	int RdV = Rd ;
+	int RmV = Rm ;
 	
 	unsigned short value = 0 ;	
 
@@ -227,7 +190,8 @@ void THUMB16_ADD_RdRm ( int Rd ,int Rm ) {
 
 }
 
-void THUMB16_ADD_RdPCImmed_8 ( int Rd , int immed_8 ) {
+void THUMB16_ADD_RdPCImmed_8 ( int Rd , int immed_8 ) {
+
 	
 	//	author : Jelo Wang
 	//	since : 20100730
@@ -239,16 +203,18 @@ void THUMB16_ADD_RdPCImmed_8 ( int Rd , int immed_8 ) {
 
 	value |= immed_8 ;
 
-	value |= assemer_get_reg_opc ( Rd ) << 8 ;
+	value |= Rd << 8 ;
 
 	value |= THUMB16_OPC_ADD5 << 11 ;	
 
 	ElfGenAddTextValue ( value ) ;	
 
 
-}
+}
 
-void THUMB16_ADD_RdSPImmed_8 ( int Rd , int immed_8 ) {
+
+void THUMB16_ADD_RdSPImmed_8 ( int Rd , int immed_8 ) {
+
 	
 	//	author : Jelo Wang
 	//	since : 20100730
@@ -260,16 +226,18 @@ void THUMB16_ADD_RdSPImmed_8 ( int Rd , int immed_8 ) {
 
 	value |= immed_8 ;
 
-	value |= assemer_get_reg_opc ( Rd ) << 8 ;
+	value |= Rd << 8 ;
 
 	value |= THUMB16_OPC_ADD6 << 11 ;	
 
 	ElfGenAddTextValue ( value ) ;	
 
 
-}
+}
 
-void THUMB16_ADD_SPImmed_7 ( int immed_8 ) {
+
+void THUMB16_ADD_SPImmed_7 ( int immed_8 ) {
+
 
 	//	author : Jelo Wang
 	//	since : 20100730
@@ -297,7 +265,7 @@ void THUMB16_BX_Rm ( int Rm ) {
 	
 	unsigned short value = 0 ;
 
-	value |= assemer_get_reg_opc ( Rm ) << 3 ;
+	value |= Rm << 3 ;
 
 	value |= THUMB16_OPC_BX << 7 ;	
 
@@ -317,7 +285,7 @@ void THUMB16_MOV_RdImmed_8 ( int Rd , int immed_8 ) {
 
 	value |= immed_8 ;
 
-	value |= assemer_get_reg_opc ( Rd ) << 8 ;
+	value |= Rd << 8 ;
 
 	value |= THUMB16_OPC_MOV1 << 11 ;
 
@@ -335,9 +303,9 @@ void THUMB16_MOV_RdRn ( int Rd , int Rn ) {
 	
 	unsigned short value = 0 ;
 
-	value |= assemer_get_reg_opc ( Rd ) ;
+	value |= Rd ;
 
-	value |= assemer_get_reg_opc ( Rn ) << 3 ;
+	value |= Rn << 3 ;
 
 	value |= THUMB16_OPC_MOV3 << 6 ;
 		
@@ -356,9 +324,9 @@ void THUMB16_STR_RdRnImmed_5 ( int Rd , int Rn , int immed_5 ) {
 	
 	unsigned short value = 0 ;
 
-	value |= assemer_get_reg_opc ( Rd ) ;	
+	value |= Rd ;	
 
-	value |= assemer_get_reg_opc ( Rn ) << 3 ;	
+	value |= Rn << 3 ;	
 
 	value |= immed_5 << 6 ;	
 
@@ -379,11 +347,12 @@ void THUMB16_STR_RdRnRm ( int Rd , int Rn , int Rm ) {
 	
 	unsigned short value = 0 ;
 
-	value |= assemer_get_reg_opc ( Rd ) ;
-	
-	value |= assemer_get_reg_opc ( Rn ) << 3 ;
+	value |= Rd ;
 
-	value |= assemer_get_reg_opc ( Rm ) << 6 ;	
+	value |= Rn << 3 ;
+
+	value |= Rm << 6 ;	
+
 
 	value |= THUMB16_OPC_STR2 << 9 ;
 
@@ -404,7 +373,7 @@ void THUMB16_STR_RdRnImmed_8 ( int Rd , int Rn , int immed_8 ) {
 
 	value |= immed_8 ;
 	
-	value |= assemer_get_reg_opc ( Rd ) << 8 ;
+	value |= Rd << 8 ;
 
 	value |= THUMB16_OPC_STR3 << 11 ;
 	
@@ -425,13 +394,14 @@ static int assemer_thumb16_mov () {
 	//	generate reg
 	lexerarm_genv () ;
 	AssemerArm.Rd = lexarm->v ;
+
 	//	skip ','
 	lexerarm_genv () ;
+
 	//	generate reg
 	lexerarm_genv () ;
-
+	
 	if (  assemer_is_num (lexarm->v) ) {
-		
 		THUMB16_MOV_RdImmed_8(AssemerArm.Rd,SCClAtoi(lexarm->token)) ;
 
 	} else if ( assemer_is_reg ( lexarm->v )  ) {
@@ -566,10 +536,10 @@ static int assemer_thumb16_add () {
 			//	Stack Pointer : R14
 			//	Program Counter : 15
 			
-			if ( THUMB16_REG_R14 == AssemerArm.Rn ) {
+			if ( THUMB16_OPC_R14 == AssemerArm.Rn ) {
 				immed = SCClAtoi(lexarm->token) ;
 				THUMB16_ADD_RdPCImmed_8 ( AssemerArm.Rd , immed ) ;
-			} else if ( THUMB16_REG_R12 == AssemerArm.Rn ) {
+			} else if ( THUMB16_OPC_R12 == AssemerArm.Rn ) {
 				immed = SCClAtoi(lexarm->token) ;
 				THUMB16_ADD_RdSPImmed_8 ( AssemerArm.Rd , immed ) ;
 			} else {
@@ -614,7 +584,8 @@ static int assemer_add_symbol ( int st_name , int shndx , int st_info , char* na
 	
 }
 
-static int assemer_thumb16_genmap () {
+static int assemer_thumb16_genmap () {
+
 	
 	//	author : Jelo Wang
 	//	since : 20100729
@@ -692,7 +663,6 @@ static int assemer_thumb16_proc () {
 
 		else if ( THUMB16_SET_ADD == lexarm->v )
 			assemer_thumb16_add () ;
-
 
 	}
 	

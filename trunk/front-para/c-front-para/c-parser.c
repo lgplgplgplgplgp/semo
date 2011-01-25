@@ -542,7 +542,6 @@ static int parser_c_is_controlflow ( int head ) {
 
 }
 
-
 static int parser_c_read_symbol_inf () {
 
 	//	author : Jelo Wang
@@ -554,7 +553,9 @@ static int parser_c_read_symbol_inf () {
 		case C_VAR :
 			return parser_c_read_variable_inf () ;
 		break ;
-
+		case C_INTNUM :
+			return parser_c_read_intnum_inf () ;
+		break ;
 		default : return 0 ;
 	}
 
@@ -624,8 +625,10 @@ static int parser_c_read_variable_def () {
 	LgnosiaAddContext ( LgnosiaStackTop () , (int)lgnosia , LGNOSIA_SYM_IDENT ) ;
 
 	if ( C_EQU == lexerc_head_genv(1) ) {
+		
 		SET_PARSER_SCOPE(PARSERC_SCOPE_PARAM);
 		lexerc_genv () ;
+		
 		if ( OPERAND_FLOW(lexerc_head_genv(1) )) {
 			lexerc_genv () ;
 		}
@@ -644,6 +647,19 @@ static int parser_c_read_variable_def () {
 	}
 
 	return 1 ;
+
+}
+
+static int parser_c_read_intnum_inf () {
+
+	//	author : Jelo Wang
+	//	since : 20110125
+	//	(C)TOK
+
+	if ( C_INTNUM != lexc->v )
+		return 0 ;
+
+	return (int)SymboleAndNumeric ( lexc->token , ISA_INTEGER ) ;
 
 }
 

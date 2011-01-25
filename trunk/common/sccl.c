@@ -1624,11 +1624,37 @@ static int SCClGraphGetColor ( SCClGraphNode* node , int totall_colors ) {
 	//	since : 20110118
 	//	(C)TOK	
 
+#if 1
+
+	int colorwalker = 0 ;
 	SCClList* looper = 0 ;
+		
+	for ( looper = node->nei.head , colorwalker = 0 ; looper && colorwalker < totall_colors ; looper = looper->next , colorwalker ++ ) {
+
+		node = (SCClGraphNode* ) looper->element ;
+
+		if ( -1 == node->color ) {
+			//	Get a free color 
+			//	Found a free color , return it
+			return colorwalker ;
+		} 
+		
+	}
 	
+	//	have a free color here
+	if ( colorwalker < totall_colors ) {
+		return colorwalker ;
+	}
+
+	return -1 ;
+	
+#elif
+
+	SCClList* looper = 0 ;
+
 	//	value of colors bettwen [0,totall_colors)
 	int* colors = (int* ) SCMalloc ( sizeof(int)*totall_colors ) ; 
-	
+
 	for ( looper = node->nei.head ; looper ; looper = looper->next ) {
 
 		node = (SCClGraphNode* ) looper->element ;
@@ -1656,7 +1682,7 @@ static int SCClGraphGetColor ( SCClGraphNode* node , int totall_colors ) {
 	SCFree ( colors ) ;
 
 	return -1 ;
-
+#endif
 	
 }
 
@@ -1666,8 +1692,8 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 	//	since : 20110118
 	//	(C)TOK	
 
-	//	当无法染色时返回LAC handle
-	//	当然色成功是返回-1
+	//	when processing of coloring graph is failed return LAC handle
+	//	else return -1
 
 	SCClList* llooper = 0 ;
 	SCClList* inlooper = 0 ;
@@ -1684,14 +1710,11 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 
 		if ( -1 == node->color ) node->color = SCClGraphGetColor ( node , totall_colors ) ;
 
-		//	邻接点
+		//	neighbor
 		for ( inlooper = node->nei.head ; inlooper ;  inlooper = inlooper->next ) {
 
 			SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
 
-			//	这个判定不妥，因为度大于等于颜色数不一定是没法染色的
-			//	要看有没有回路，只有当所有邻接点颜色都取完后才无法染色
-			//	需要改进
 			//	node->handle is a handle of LAC
 			if ( innode->degree >= totall_colors ) 
 				return innode->handle ;

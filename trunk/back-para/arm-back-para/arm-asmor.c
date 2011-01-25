@@ -118,14 +118,16 @@ static int asmor_arm_read_variable_inf () {
 
 	sc_strcpy ( R , SCClItoa ( RegocGetRegister ( 0 , lexac->lsn ) ) ) ;
 	sc_strcat_ex ( "R" , R , Rd ) ;
-	
+
 	while ( !lexac->stop ) {
 
 		lexerac_genv () ;
 				
 		switch ( state ) {
 			case 0 :		
-				if ( LAC_EQU == lexac->v ) state = 1 ;
+				if ( LAC_EQU == lexac->v ) {
+					state = 1 ;
+				}
 			break ;
 			case 1 :
 				if ( LAC_VAR == lexac->v || LAC_VREG == lexac->v ) {
@@ -133,6 +135,9 @@ static int asmor_arm_read_variable_inf () {
 					sc_strcat_ex ( "R" , R , Rn ) ;				
  					THUMB_MOV_RdRn ( Rd , Rn ) ;
 					return 1 ;
+				} else if ( LAC_INTNUM == lexac->v ) {		
+ 					THUMB_MOV_RdImmed_8 ( Rd , lexac->token ) ;
+					return 1 ;				
 				}
  			break ;
 		}
@@ -197,21 +202,6 @@ static int asmor_arm_read_symbol_inf () {
 	
 }
 
-static int asmor_arm_read_symbol_def () {
-
-	//	author : Jelo Wang
-	//	since : 20100722
-	//	(C)TOK
-
-	switch ( lexac->v ) {
-
-		default : return 0 ;
-	}
-
-	return 1 ;
-	
-}
-
 int asmor_arm_funcdef () {
 
 	//	author : Jelo Wang
@@ -261,7 +251,6 @@ int asmor_arm_funcdef () {
 			continue ;
 		}
 
-		asmor_arm_read_symbol_def () ;
 		asmor_arm_read_symbol_inf () ;
 		
 	}	

@@ -604,10 +604,11 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	//	(C)TOK
 	
 	EXPR* expression = 0 ;
-	
+
 	if ( !lgnosia->parameter.head ) {
 
 		char* name = SymboleDRCAdd ( azonal , lacgentor.identor.deep , GET_LACGENTOR_SCOPE() , GET_LACGENTOR_LGA() ) ;
+
 //		LACAdd ( lacgentor_get_identor () ) ;
 //		LACAdd ( "%$STACK 4 " ) ;	
 //		LACAdd ( name ) ;		
@@ -623,14 +624,17 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		lacgentor_gen_expr ( (EXPR*)expression , 1 ) ;
 
 		name = SymboleDRCAdd ( azonal , lacgentor.identor.deep , GET_LACGENTOR_SCOPE() , GET_LACGENTOR_LGA() ) ;
-
+		
 		SymboleDRCDropCFF ( azonal ) ;
 		
 		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
 
 		LACAdd ( name , LAC_L_DELT , lacgentor.identor.deep ) ;
 		LACAdd ( " = " , -1 , -1 ) ;
-		LACAdd ( ((EXPR*)expression)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+
+		if ( expression->delttype = EXP_DELT_ANLNUMERIC ) 
+			LACAdd ( ((EXPR*)expression)->delt , -1 , -1 ) ;
+		else LACAdd ( ((EXPR*)expression)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
 		
 		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
 
@@ -675,28 +679,40 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 	//	author : Jelo Wang
 	//	since : 20100425
 	//	(C)TOK
+
+	int recursived = 0 ;
 	
 	if ( !expression ) {
 		return 0 ;
 	}
 	
 	if ( expression->left ) {
+		recursived = 1 ;
 		lacgentor_gen_expr ( expression->left , drop ) ;
 	}
 
 	if ( expression->right ) {
+		recursived = 1 ;		
 		lacgentor_gen_expr ( expression->right , drop ) ;
 	}
 
 	if ( EXP_OPERAND == expression->type ) {
 
+		char* name = 0 ; 
 		AZONAL* azonal = expression->handle ;
-		
-		char* name = SymboleDRCGetDRC ( azonal , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-		
+
+ 		if ( ISA_INTEGER != azonal->azonaltype ) 
+			name = SymboleDRCGetDRC ( azonal , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+		else 
+			name = azonal->name ;
+
 		expression->delt = (char* ) SCMalloc ( name + 1 ) ;
 		sc_strcpy ( expression->delt  , name ) ;
-		expression->delttype = EXP_DELT_AZONAL ;
+		
+		if ( ISA_INTEGER == azonal->azonaltype )
+			expression->delttype = EXP_DELT_ANLNUMERIC ;
+		else 
+			expression->delttype = EXP_DELT_ANLDATA ;
 
 //		SCFree ( name ) ;
 	
