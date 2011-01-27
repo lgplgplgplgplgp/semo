@@ -369,5 +369,5 @@ extern ARM_SETMAP thumb16_insset []  ;
 
 extern int assemer_is_reg ( int reg ) ;
 extern int assemer_get_reg_opc ( int reg ) ;
-extern int assemer_arm_run ( char* asm , char* out ) ;
+extern int assemer_arm_run ( char* asm , char* out , int* codes ) ;
 

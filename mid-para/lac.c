@@ -204,8 +204,6 @@ static void LACLiveScopeSplit ( int laca ) {
 	
 	compiler->lssplits ++ ;
 
-	printf ("split %s , %d\n" , lac->code.data , lac->refchain.head ) ;
-
 	lac->type = LAC_L_MEM ;
 
 	for ( looper = lac->refchain.head ; looper ; looper = looper->next ) {
@@ -230,11 +228,16 @@ void LACLiveScopeGenerate ( int degreesmax ) {
 	int iG = 0 ;
 	int totall_colors = degreesmax ;	
 	int laclsnumber = 0 ;
-		
+
+	int stime = 0 ;
+	int etime = 0 ;
+	
 	LAC* llooper = 0 ;
 	LAC* newlac = 0 ;
 	LAC* orignallac = lac->head ;
-	
+
+	stime = clock () ;
+
 	RegocRegisterReady ( lac->proctotall ) ;
 	//	backup the orignal LAC context
 	LACSwapIn () ;
@@ -286,7 +289,7 @@ readproc :
 					SCClStringAddStr ( &lacnode->code , value ) ;
 					SCClStringAdd ( &lacnode->code , 0 ) ;
 					SCFree ( value ) ;		
-	
+					
 					if ( -1 < lsn ) {
 						//	将lac 添加到其引用链
 						int lac = 0 ;					
@@ -308,9 +311,9 @@ readproc :
 						//	graph coloring is failed if lac itsnt equal -1
 						//	split the problem
 						LACLiveScopeSplit ( lac ) ;
-						//RegocLiveScopeMoiDestroy () ;
-						//SCClGraphDestroy ( iG ) ;							
-						//LACClear () ;
+						RegocLiveScopeMoiDestroy () ;
+						SCClGraphDestroy ( iG ) ;							
+//	Needs debug			LACClear () ;
 						
 						goto restart ;
 						
@@ -346,6 +349,10 @@ success :
 
 	//	destroy the orginal LAC flow
 	LACClearEx ( orignallac ) ;
+
+	etime = clock () ;
+	
+	compiler->regoccosts = etime - stime ;
 	
 	return ;
 	

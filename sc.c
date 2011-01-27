@@ -123,7 +123,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					} else {			
 						//	save file name wit str			
 						SCClStringAddStr ( &str , "SET" ) ;
-						SCClStringAddStr ( &str , "." ) ;
+						SCClStringAddStr ( &str , "." ) ;			
 						lexerc_next () ;
 						state = 2 ;
 					}
@@ -304,7 +304,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 
 	if ( SC_CR & compiler->parameter )
 		if ( !(SC_EXP & compiler->parameter ) && !(SC_LGA & compiler->parameter )  )
-			compiler->parameter |= SC_EXP ;
+			compiler->parameter |= SC_IG ;
 	
 	lexerc_destroy () ;
 
@@ -346,17 +346,19 @@ COMPILER* SCCompilerCreate () {
 		
 	}
 
-	compiler->start_time = 0 ;
-	compiler->end_time = 0 ;
+	compiler->stime = 0 ;
+	compiler->etime = 0 ;
 	compiler->lines = 0 ;
 	compiler->codes = 0 ;
+	compiler->regoccosts = 0 ;
+	compiler->lssplits = 0 ;
 	
 	compiler->PRESOR = 0 ;
 	compiler->PARSER = 0 ;
 	compiler->GENTOR = 0 ;
 	compiler->ASMOR = 0 ;
-	compiler->LINKER = 0 ;
 	compiler->ASSEMER = 0 ;
+	compiler->LINKER = 0 ;
 
 	return compiler ;
 	
@@ -446,8 +448,8 @@ int SCCompile ( int argc , char** argv , int type ) {
  	SCCompilerReady ( argc , argv ) ;
 
 	if ( !compiler ) return -1 ;
-	
-	compiler->start_time = clock () ;
+
+	compiler->stime = clock () ;
 
 	SCClListSetIterator ( compiler->il , SCCLLISTSEEK_HEAD ) ;
 
@@ -462,9 +464,9 @@ int SCCompile ( int argc , char** argv , int type ) {
 		int filen = 0 ;
 		//int inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		//int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
+		int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
 
-		int inputfile = SCHalFileOpen ( file , "rb" ) ;
+		//int inputfile = SCHalFileOpen ( file , "rb" ) ;
 				
 		if ( !inputfile ) {
 			SCLog ("Can not open the file '%s'\n" , file ) ;
@@ -485,13 +487,13 @@ int SCCompile ( int argc , char** argv , int type ) {
 		lexerc_set ( lexerc_new ( buffer , LEXERC_DEFAULT_MODE ) ) ; 		
 		
 		compiler->PRESOR ( sc_strcat (file,".po") ) ;	
- 	 	compiler->PARSER ( &compiler->codes , &compiler->lines ) ; 
+ 	 	compiler->PARSER ( &compiler->lines ) ; 
 		lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
 		asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;
 		SCClListInsert  ( compiler->ol , o ) ;
-		compiler->ASSEMER ( asm , o ) ;
+		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
 
 		SCHalFileClose ( inputfile ) ;
 		SCFree ( buffer ) ;
@@ -506,16 +508,17 @@ int SCCompile ( int argc , char** argv , int type ) {
 		compiler->LINKER ( compiler->ol ) ;
 	}
 	
-	compiler->end_time = clock () ;
+	compiler->etime = clock () ;
 	
-	if ( compiler->lines && compiler->end_time - compiler->start_time )
-		preline = (float)(compiler->lines / (compiler->end_time - compiler->start_time)) ;
+	if ( compiler->lines && compiler->etime - compiler->stime )
+		preline = (float)(compiler->lines / (compiler->etime - compiler->stime)) ;
 
-	SCLog ("Cost : %1.3f sec\n" , (float)(compiler->end_time - compiler->start_time)/1000 ) ;
-	SCLog ("Lines : %d \n" , compiler->lines ) ;
-	SCLog ("Lines/MS : %1.3f \n" , preline ) ;
-	SCLog ("Codes : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
-	SCLog ("Splited : %d\n",compiler->lssplits) ;
+	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
+	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;
+	SCLog ("Speed : %1.3f lines/MS\n" , preline ) ;
+	SCLog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
+	SCLog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
+	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
 	SCLog ("\n" ) ;
 
 	compiler->RELEASE () ;

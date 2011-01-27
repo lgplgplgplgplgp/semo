@@ -808,7 +808,7 @@ char* gentor_lac_run ( char* lacfile ) {
 	//	(C)TOK
 
 	static int runtimes = 0 ;
-	
+
 	char* lac = 0 ;
 	//	Create LAC Pool
 	int lactex = LACNew () ;
@@ -865,7 +865,7 @@ char* gentor_lac_run ( char* lacfile ) {
 	}
 
 	if ( SC_ARM & compiler->parameter ) 
-		LACLiveScopeGenerate ( 7 ) ;
+		LACLiveScopeGenerate ( 8 ) ;
 	
 	//	Get Lac Codes
 	lac = LACGetContent () ;
