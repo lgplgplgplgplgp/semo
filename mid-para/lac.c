@@ -204,13 +204,13 @@ static void LACLiveScopeSplit ( int laca ) {
 	
 	compiler->lssplits ++ ;
 
+	printf ("split %s , %d\n" , lac->code.data , lac->refchain.head ) ;
+
+	lac->type = LAC_L_MEM ;
+
 	for ( looper = lac->refchain.head ; looper ; looper = looper->next ) {
-		LAC* lacnode = looper->element ;
-		if ( LAC_L_DELT == lacnode->type ) {
-			lacnode->type =LAC_L_MEM ;
-		} else if ( LAC_R_DELT == lacnode->type ) {
-			lacnode->type =LAC_R_MEM ;
-		}
+		LAC* lacnode = looper->element ;		
+		lacnode->type =LAC_R_MEM ;		
 	}
 
 		
@@ -265,17 +265,19 @@ readproc :
 				if ( LAC_L_DELT == lacnode->type ) {		
 
 					//	添加生命域
-					int lsn = RegocLiveScopeAdd ( lacnode->code.data , lacnode->scope , lacnode->line , lacnode ) ;
+					//	将原始的llooper加入LiveScopeMonitor，因为生命域分列时需要操作它
+					int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line , llooper ) ;
 					//	生命域编号
 					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
 					SCClStringAddStr ( &lacnode->code , value ) ;
 					SCClStringAdd ( &lacnode->code , 0 ) ;
 					SCFree ( value ) ;	
-				
+
 					laclsnumber ++ ;
 					
 				} else if ( LAC_R_DELT == lacnode->type ) {
 
+{
 					//	生命域引用
 					//	获取其编号
 					int lsn = RegocCheckLiveScope ( lacnode->code.data , lacnode->scope , lacnode->line ) ;
@@ -284,31 +286,31 @@ readproc :
 					SCClStringAddStr ( &lacnode->code , value ) ;
 					SCClStringAdd ( &lacnode->code , 0 ) ;
 					SCFree ( value ) ;		
-
-					if ( 0 < lsn ) {
+	
+					if ( -1 < lsn ) {
 						//	将lac 添加到其引用链
-						int lac = 0 ;
-						lac = RegocLiveScopeGetLAC () ;
+						int lac = 0 ;					
+						lac = RegocLiveScopeGetLAC () ;								
 						LACRefChainInsert ( lac , lacnode ) ;
 					}
 					
+}
 				} else if ( LAC_PROC == lacnode->type || 0 == llooper->next ) {
 
 					//	get another lac proc
 					//	coloring the graph of the last proc
 					int lac = 0 ;
-					
+
 					iG = RegocIGraphCreate () ;
 					lac = SCClGraphColoring ( iG , degreesmax ) ;	
 					
-					if ( -1 != lac && lac ) {
-						
+					if ( -1 != lac && lac ) {						
 						//	graph coloring is failed if lac itsnt equal -1
 						//	split the problem
 						LACLiveScopeSplit ( lac ) ;
-						RegocLiveScopeMoiDestroy () ;
-						SCClGraphDestroy ( iG ) ;							
-						LACClear () ;
+						//RegocLiveScopeMoiDestroy () ;
+						//SCClGraphDestroy ( iG ) ;							
+						//LACClear () ;
 						
 						goto restart ;
 						

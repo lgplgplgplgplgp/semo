@@ -155,9 +155,8 @@ static int RegocLiveScopeFind ( char* live , int scope ) {
 	
 	//	search the live
 	for ( looper = lslooper-1 ; looper > -1 ; looper -- ) {
-		
 		if ( scope >= lsmonitor[looper]->scope ) {			
-			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {
+			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {				
 				laclast = lsmonitor[looper]->lac ;
 				break ;
 			}
@@ -192,12 +191,12 @@ int RegocCheckLiveScope ( char* live , int scope , int line ) {
 
 	if ( -1 == offset ) {
 		//	return 0 as default its no problem
-		return 0 ;
+		return -1 ;
 	}
  
 	ls = lsmonitor[offset] ;
 
-	ls->end_line = line ;		
+	ls->end_line = line ;
 
 	return ls->number ;
 
@@ -207,24 +206,22 @@ static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 
 	//	if ls_2 is has interference relation with ls_1 return 1 else return 0
 
-	if ( !ls_1 || !ls_2 ) return 0 ;
-
 	if ( -1 == ls_1->end_line || -1 == ls_2->end_line ) return 0 ;
 
-	if ( ls_1->start_line > ls_2->end_line ) 
-		return 0 ;
-	else if ( ls_2->start_line > ls_1->end_line ) 
-		return 0 ;
 	else if ( (ls_1->start_line == ls_2->start_line) && (ls_1->end_line == ls_2->end_line ) )
 		return 1 ;
 	else if ( (ls_1->start_line >= ls_2->start_line) && (ls_1->end_line >= ls_2->end_line ) )
 		return 1 ;
-	else if ( (ls_1->start_line >= ls_1->start_line) && (ls_1->end_line <= ls_2->end_line ) )
+	else if ( (ls_1->start_line >= ls_2->start_line) && (ls_1->end_line <= ls_2->end_line ) )
+		return 1 ;	
+	else if ( (ls_1->start_line <= ls_2->start_line) && (ls_1->end_line >= ls_2->end_line ) )
 		return 1 ;
-	else if ( (ls_2->start_line >= ls_1->start_line) && (ls_2->end_line >= ls_1->end_line ) )
+	else if ( (ls_1->start_line <= ls_2->start_line) && (ls_2->end_line <= ls_1->end_line ) )
 		return 1 ;
-	else if ( (ls_2->start_line >= ls_1->start_line) && (ls_2->end_line <= ls_1->end_line ) )
-		return 1 ;
+	else if ( ls_1->start_line > ls_2->end_line ) 
+		return 0 ;
+	else if ( ls_1->start_line < ls_2->end_line ) 
+		return 0 ;
 
 	return 0 ;
 	
@@ -259,7 +256,7 @@ int RegocLiveScopeAdd ( char* live , int scope , int line , int lac ) {
 	lsmonitor[lslooper]->scope = scope ;
 	lsmonitor[lslooper]->number = lslooper ;
 	lsmonitor[lslooper]->start_line = line ;
-	lsmonitor[lslooper]->end_line = -1 ;
+	lsmonitor[lslooper]->end_line = line ;
 	lsmonitor[lslooper]->lac = lac ;
 	//	plus lslooper
 	lslooper ++ ;
@@ -289,17 +286,18 @@ int RegocIGraphCreate () {
 		//	add a node into ref graph
 		SCClGraphAddNode ( iG , ls_1->number , ls_1->lac ) ;
 		
-		for ( inlooper = looper + 1 ; inlooper < lslooper ; inlooper ++ ) {
+		for ( inlooper = 0 ; inlooper < lslooper ; inlooper ++ ) {
 
 			LIVESCOPE* ls_2 = lsmonitor[inlooper] ;
-
+		
+//printf("ls_1->live  %s , ls_2->live %s ,  [%d,%d][%d,%d]\n",ls_1->live , ls_2->live , ls_1->start_line , ls_1->end_line, ls_2->start_line, ls_2->end_line);		
 			if ( RegocLiveScopeICheck ( ls_1 , ls_2 ) ) {
-				
+		
 				SCClGraphAddNode ( iG , ls_2->number , ls_2->lac ) ;
 				//	add ref edge bettwen ls_1 and ls_2
 				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;
-		
-			}
+//				printf("%d- %d\n",ls_1->number , ls_2->number );
+			} 
 			
 		}
 		
