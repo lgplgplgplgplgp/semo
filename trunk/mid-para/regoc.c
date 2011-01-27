@@ -206,8 +206,10 @@ static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 
 	//	if ls_2 is has interference relation with ls_1 return 1 else return 0
 
-	if ( -1 == ls_1->end_line || -1 == ls_2->end_line ) return 0 ;
-
+	if ( ls_1 == ls_2 ) return 0 ;
+	
+	if ( -1 == ls_1->end_line || -1 == ls_2->end_line ) 
+		return 0 ;
 	else if ( (ls_1->start_line == ls_2->start_line) && (ls_1->end_line == ls_2->end_line ) )
 		return 1 ;
 	else if ( (ls_1->start_line >= ls_2->start_line) && (ls_1->end_line >= ls_2->end_line ) )
@@ -256,7 +258,7 @@ int RegocLiveScopeAdd ( char* live , int scope , int line , int lac ) {
 	lsmonitor[lslooper]->scope = scope ;
 	lsmonitor[lslooper]->number = lslooper ;
 	lsmonitor[lslooper]->start_line = line ;
-	lsmonitor[lslooper]->end_line = line ;
+	lsmonitor[lslooper]->end_line = -1 ;
 	lsmonitor[lslooper]->lac = lac ;
 	//	plus lslooper
 	lslooper ++ ;
@@ -335,3 +337,4 @@ int RegocGetRegister ( int pn , int lsn ) {
 	
 }
 
+ 

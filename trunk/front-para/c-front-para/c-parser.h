@@ -69,4 +69,4 @@ extern int parser_c_read_variable_inf () ;
 extern int parser_c_read_symbol_def () ;
 extern int parser_c_read_expr () ;
 extern void parser_c_read_poroperator ( int side , int evalor_enable ) ;
-int parser_c_run ( int* line , int * codes ) ;
+int parser_c_run ( int * line ) ;

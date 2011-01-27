@@ -805,7 +805,7 @@ static void parser_c_read_poroperator ( int side , int evalor_enable ) {
 
 
 
-int parser_c_run ( int* codes , int* lines ) {
+int parser_c_run ( int* lines ) {
 
 	//	author : Jelo Wang
 	//	since : 20091124
@@ -832,7 +832,6 @@ int parser_c_run ( int* codes , int* lines ) {
 
 	}
 
-	*codes = *codes + lexc->code->length ;
 	*lines = *lines +  lexc->line ;
 		
 	lexerc_destroy () ;

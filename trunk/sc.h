@@ -17,7 +17,7 @@
 +		page : http://www.tok.cc
 +		email : wqw85@sina.com
 
-*/
+*/  
 
 
 # ifndef __SMART_COMPILER
@@ -99,19 +99,23 @@ typedef struct COMPILER_NODE {
 
 	int parameter ;
 	
-	long start_time ; 
-	long end_time ; 
+	long stime ; 
+	long etime ; 
 
+	//	register allocation costs
+	int regoccosts ;
+
+	//	lives spliting times
+	int lssplits ;
+	
 	int lines ;
 	int codes ;
 
-	int lssplits ;
-
-	void (*PRESOR)(unsigned char*) ;
-	void (*PARSER)(int* codes , int* lines ) ;
+	void (*PRESOR)( unsigned char* ) ;
+	void (*PARSER)( int* ) ;
 	char* (*GENTOR)( char* ) ;
 	char* (*ASMOR)( char* , char* ) ;
-	void (*ASSEMER)( char* , char* ) ;
+	void (*ASSEMER)( char* , char* , int* ) ;
 	void (*LINKER ) ( int ) ;
 	void (*RELEASE)() ;
 	

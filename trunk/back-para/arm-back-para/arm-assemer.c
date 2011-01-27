@@ -675,7 +675,7 @@ static int assemer_thumb16_proc () {
 
 }
 
-int assemer_arm_run ( char* asm , char* out ) {
+int assemer_arm_run ( char* asm , char* out , int* codes ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100723
@@ -702,7 +702,9 @@ int assemer_arm_run ( char* asm , char* out ) {
 		ElfGen ( out , 2 ) ;
 	else if ( ARM32_SET == AssemerArm.set ) 
 		ElfGen ( out , 4 ) ;
-	
+
+	*codes = ElfGenGetTextScale ( 2 )  ;
+		
 	return 1 ;
 
 }
