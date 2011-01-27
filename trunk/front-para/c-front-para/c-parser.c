@@ -699,7 +699,7 @@ static int parser_c_read_variable_inf () {
 
 	}
 	
-	if ( C_EQU == lexerc_head_genv (1) ) {
+	if ( C_EQU == lexerc_head_genv (1) ) {	
 		SET_PARSER_SCOPE(PARSERC_SCOPE_PARAM);
 		lexerc_genv () ;
 		if ( OPERAND_FLOW(lexerc_head_genv(1) )) {

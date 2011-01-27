@@ -632,9 +632,10 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		LACAdd ( name , LAC_L_DELT , lacgentor.identor.deep ) ;
 		LACAdd ( " = " , -1 , -1 ) ;
 
-		if ( expression->delttype = EXP_DELT_ANLNUMERIC ) 
+		if ( expression->delttype == EXP_DELT_ANLNUMERIC ) 
 			LACAdd ( ((EXPR*)expression)->delt , -1 , -1 ) ;
-		else LACAdd ( ((EXPR*)expression)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+		else 
+			LACAdd ( ((EXPR*)expression)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
 		
 		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
 
@@ -708,7 +709,7 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 
 		expression->delt = (char* ) SCMalloc ( name + 1 ) ;
 		sc_strcpy ( expression->delt  , name ) ;
-		
+	
 		if ( ISA_INTEGER == azonal->azonaltype )
 			expression->delttype = EXP_DELT_ANLNUMERIC ;
 		else 
@@ -848,7 +849,7 @@ char* gentor_lac_run ( char* lacfile ) {
 						lgay = MOPOLgaExpRender ( mopo , lacgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
 					if ( SC_LGA & compiler->parameter )
 						MOPOCFDFSRender ( mopo , lacgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
-					//MOPOCFBFSRender ( mopo , lacgentor.lgnosia , 200 , lgay ) ;
+	 				//MOPOCFBFSRender ( mopo , lacgentor.lgnosia , 200 , lgay ) ;
 				}
 				
 				lacgentor_gen_funcdef () ; 
