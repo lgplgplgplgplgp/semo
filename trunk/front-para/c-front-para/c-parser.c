@@ -803,19 +803,51 @@ static void parser_c_read_poroperator ( int side , int evalor_enable ) {
 
 }
 
-
-
 int parser_c_run ( int* lines ) {
 
 	//	author : Jelo Wang
 	//	since : 20091124
 	//	(C)TOK
 
+	int success = 1 ;
 	int state = 0 ;
 	
 	int symbole = SymboleNew () ;
 	SymboleSetCurrent ( symbole ) ;
 	
+# if 0
+
+	//	these codes bellow just for debug
+	parserc_ready () ;
+	lexerc_ready () ;
+	lexerc_setmode ( LEXERC_FLITER_MODE ) ;
+	
+	for ( lexerc_genv () ; !lexc->stop ; lexerc_genv () ) {
+re : 				
+		if ( C_VARDEF == lexc->v ) {
+		} else if ( C_ARRAYDEF == lexc->v ) {
+		} else if ( C_FUNCDEF == lexc->v ) {
+			while ( !lexc->stop ) {
+				lexerc_genv () ;
+				if ( C_FUNCDEF == lexc->v )
+					goto re ;
+			}
+		} else if ( C_AUTO <= lexc->v &&  lexc->v <= C_UNION ) {
+		} else {			
+			success = 0 ;
+			cerror ( C_PARSER_MOD , IS_C_ERROR , "undefined grammar : %x , line : %d\n" , lexc->v , lexc->line ) ;
+		}
+
+	}
+	
+	*lines = *lines +  lexc->line ;
+	
+	if ( 0 == success ) return 0 ;
+
+	*lines = 0 ;
+
+# endif
+
 	parserc_ready () ;
 	lexerc_ready () ;
 	lexerc_setmode ( LEXERC_FLITER_MODE | LEXERC_HEADBIT_MODE ) ;
@@ -838,6 +870,7 @@ int parser_c_run ( int* lines ) {
 	SCClStackDestroy ( &parserc->scopestack ) ;
 	SCFreeEx ( &parserc ) ;
 
-
+	return 1 ;
+	
 }
 

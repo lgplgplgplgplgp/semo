@@ -453,6 +453,17 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 	SCClListSetIterator ( compiler->il , SCCLLISTSEEK_HEAD ) ;
 
+
+{
+
+	//	just for debug bellow
+	compiler->parameter |= SC_LAC ;
+	compiler->parameter |= SC_SASM ;	
+	compiler->parameter |= SC_CR ;							
+	compiler->parameter |= SC_IG ;	
+						
+}
+
 	for ( ; SCClListIteratorPermit ( compiler->il ) ; SCClListListIteratorNext ( compiler->il ) ) {
 		
 		char* lac = 0 ;
@@ -464,9 +475,9 @@ int SCCompile ( int argc , char** argv , int type ) {
 		int filen = 0 ;
 		//int inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
+		//int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
 
-		//int inputfile = SCHalFileOpen ( file , "rb" ) ;
+		int inputfile = SCHalFileOpen ( file , "rb" ) ;
 				
 		if ( !inputfile ) {
 			SCLog ("Can not open the file '%s'\n" , file ) ;
@@ -486,8 +497,9 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 		lexerc_set ( lexerc_new ( buffer , LEXERC_DEFAULT_MODE ) ) ; 		
 		
-		compiler->PRESOR ( sc_strcat (file,".po") ) ;	
- 	 	compiler->PARSER ( &compiler->lines ) ; 
+		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
+ 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
+		
 		lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
 		asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
@@ -511,7 +523,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	compiler->etime = clock () ;
 	
 	if ( compiler->lines && compiler->etime - compiler->stime )
-		preline = (float)(compiler->lines / (compiler->etime - compiler->stime)) ;
+		preline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
 
 	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
 	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;

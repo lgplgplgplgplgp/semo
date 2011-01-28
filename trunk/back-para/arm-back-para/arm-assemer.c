@@ -698,12 +698,13 @@ int assemer_arm_run ( char* asm , char* out , int* codes ) {
 
 	lexerarm_destroy () ;	
 
-	if ( THUMB16_SET == AssemerArm.set ) 
+	if ( THUMB16_SET == AssemerArm.set ) { 
 		ElfGen ( out , 2 ) ;
-	else if ( ARM32_SET == AssemerArm.set ) 
+		*codes = ElfGenGetTextScale ( 2 )  ;
+	} else if ( ARM32_SET == AssemerArm.set ) {
 		ElfGen ( out , 4 ) ;
-
-	*codes = ElfGenGetTextScale ( 2 )  ;
+		*codes = ElfGenGetTextScale ( 4 )  ;
+	}
 		
 	return 1 ;
 
