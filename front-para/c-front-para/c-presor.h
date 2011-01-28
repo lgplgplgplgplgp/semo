@@ -72,3 +72,4 @@ typedef struct c_macro {
 # endif
 
 extern int presor_c_run ( char* ) ;
+

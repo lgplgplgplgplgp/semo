@@ -111,8 +111,8 @@ typedef struct COMPILER_NODE {
 	int lines ;
 	int codes ;
 
-	void (*PRESOR)( unsigned char* ) ;
-	void (*PARSER)( int* ) ;
+	int (*PRESOR)( unsigned char* ) ;
+	int (*PARSER)( int* ) ;
 	char* (*GENTOR)( char* ) ;
 	char* (*ASMOR)( char* , char* ) ;
 	void (*ASSEMER)( char* , char* , int* ) ;
