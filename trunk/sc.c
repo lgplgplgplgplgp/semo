@@ -457,6 +457,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 {
 
 	//	just for debug bellow
+	compiler->parameter |= SC_PO ;	
 	compiler->parameter |= SC_LAC ;
 	compiler->parameter |= SC_SASM ;	
 	compiler->parameter |= SC_CR ;							
@@ -487,10 +488,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		filen = SCHalFileLength ( inputfile ) ;
 		buffer = (char* ) SCMalloc ( filen ) ;
 
-		if ( !buffer ) {
-			SCLog ("Not enough memory\n") ;
-			continue ;
-		}
+		ASSERT (buffer) ;
 		
 		SCHalFileSeek ( inputfile , 0 , SEEK_HEAD ) ;
 		SCHalFileRead ( inputfile , buffer , 1 , filen ) ;

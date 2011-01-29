@@ -365,7 +365,7 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 	
 	//	save the current lexer in SCClStack
 	SCClStackPush ( &stack , (long int) lexc ) ;
-	
+
 	//	get a new lexer
 	macro_lexer = lexerc_new ( macrobody.data , LEXERC_DEFAULT_MODE ) ;
 	lexerc_set ( macro_lexer ) ;
@@ -482,7 +482,7 @@ static void skip_macro  ()  {
 	
 	if ( C_DEFINE != lexc->v )
 		return 0;
-	
+
 	//	skip these junk streams that we donnt needed
 	lexerc_skip_space () ;
 	lexerc_genv () ;
@@ -518,12 +518,11 @@ static void skip_macro  ()  {
 	for  ( ; !lexc->stop ; lexerc_genv () )  {
 
 
-//		if ( lexc->v == ENTER  && lexc->ppv != ESCAPE )
-//			break;
+		if ( lexc->v == C_ENTER  && lexc->ppv != C_ESCAPE )
+			break;
 
 		if ( (lexc->v == C_CHROW || lexc->v == C_ENTER ) && lexc->pv != C_ESCAPE )
 			break;
-
 
 	}
 
@@ -1089,11 +1088,7 @@ int presor_c_run ( char* presor_file ) {
 	
 	int file = 0 ;
 
-	if ( !presor_results ) {
-		SCLog ("[sc][c-front-para][presorc] initialization has failed\n") ;
-		SCTerminate () ;
-		return 0 ;
-	}
+	ASSERT(presor_results) ;
 
 	precompiling () ;
 	
@@ -1105,7 +1100,7 @@ int presor_c_run ( char* presor_file ) {
  	for ( lexerc_ready () ; !lexc->stop ; ) {
 
 		lexerc_genv () ;
-
+		
 		skip_macro () ;
 
 		if ( C_VAR == lexc->v || C_FUNCCAL == lexc->v ) {
@@ -1113,7 +1108,7 @@ int presor_c_run ( char* presor_file ) {
 			macro_finder = macro_find ( lexc->token ) ;
 			
 			if ( macro_finder ) {
-				
+			
 				SCClStackPush ( &stack , (long int) lexc ) ;
 
 				SCClStackPush ( &macro_stack , (int)macro_finder->name ) ;
@@ -1142,14 +1137,14 @@ int presor_c_run ( char* presor_file ) {
 
 	//	when precompling process is done gen a new lexer here for the back-para parser
 	lexerc_set ( lexerc_new ( presor_results->data , LEXERC_DEFAULT_MODE ) ) ;
-	
+
 	lexc->line = line ;
 	
 	if ( SC_PO & compiler->parameter ) {
 
 		//	output precompiling results
 		file = SCHalFileOpen ( presor_file , "w+" ) ; 
-
+ 
 		SCHalFileWrite ( file , presor_results->data , 1 , presor_results->length ) ;
 
 		SCHalFileClose ( file ) ;
