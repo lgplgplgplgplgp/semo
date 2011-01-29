@@ -478,10 +478,10 @@ int lexerc_overflowed ()  {
 	//	(c)TOK
 	
 	if ( ( lexc->code->get_walker >= lexc->code->length ) ) {
-		lexc->c = 0;
-		lexc->token = 0;
+		lexc->token = 0 ;
+		lexc->c = 0 ;
 		lexc->v = 0;
-		lexc -> stop = 1;
+		lexc->stop = 1;
 		return 1 ;
 	}
 
@@ -520,7 +520,7 @@ unsigned char lexerc_get_atom ()  {
 		return 0;
 	
 	lexc->c = lexc->code->data [ lexc->code->get_walker ] ;
-
+ 
 	return lexc->code->data [ lexc->code->get_walker ] ;
 
 }
@@ -547,7 +547,8 @@ void lexerc_rollback ()  {
 	//	notes : code_setback_walker
 	//	since : 20090810
 	//	(c)TOK
-	
+
+	lexc->stop = SCClStackPop ( lexc->scstack ) ;
 	lexc->code->get_walker = SCClStackPop ( lexc->scstack ) ; 
 
 }
@@ -560,6 +561,9 @@ void lexerc_backup () {
 	//	(C)TOK
 
 	SCClStackPush ( lexc->scstack , lexc->code->get_walker ) ;
+	SCClStackPush ( lexc->scstack , lexc->stop ) ;
+	
+	
 	
 }
 
@@ -581,11 +585,13 @@ void lexerc_skip_blank () {
 	//	since : 20090810
 	//	(c)TOK
 	
-	while ( sc_is_blank ( lexerc_get_atom () ) ) {
+	while ( sc_is_blank ( lexc->code->data [ lexc->code->get_walker ] ) ) {
 		
 		if ( '\n' == lexc->c ) lexc -> line ++ ;
 		
-		lexerc_next () ;
+		lexc->c = lexc->code->data [ lexc->code->get_walker + 1 ] ;
+		lexc->code->last_walker = lexc->code->get_walker ;
+		lexc->code->get_walker ++ ;
 
 	}
 
@@ -1071,7 +1077,7 @@ int lexerc_skip_bracket ( int bracket_type ) {
 	
 	if ( bracket_left != lexc->c ) return 0 ;
 
-	while ( !lexc -> stop ) {
+	while ( !lexc->stop ) {
 
 		if ( bracket_left == lexc->c ) stack ++ ;
 		if ( bracket_right == lexc->c ) stack -- ;
@@ -1892,10 +1898,9 @@ REDO :
 						
 					if ( '(' == lexerc_look ( 0 ) ) {
 
-	//					lexerc_skip_space () ;
 						lexerc_skip_bracket ( LEXC_SMART_BRACKET ) ;
 						lexerc_skip_blank () ;
-						
+					
 						if ( '{' == lexerc_look ( 0 ) ) {
 
 							lexc->v = C_FUNCDEF ;	

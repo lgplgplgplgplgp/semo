@@ -361,7 +361,7 @@ void lexerac_backup_clear () {
 	//	since : 20100308
 	//	(C)TOK
 
-	SCClStackPop ( lexac -> scstack ) ;
+	SCClStackPop ( lexac->scstack ) ;
 	
 }
 
@@ -373,10 +373,10 @@ void lexerac_setback ( int step )  {
 	//	since : 20090810
 	//	(c)TOK
 	
-	if ( 0 > lexac->code -> get_walker - step )
+	if ( 0 > lexac->code->get_walker - step )
 		return 0 ;
 
-	lexac->code -> get_walker = lexac->code -> get_walker - step ;
+	lexac->code->get_walker = lexac->code->get_walker - step ;
 
 
 }
