@@ -1087,6 +1087,7 @@ int presor_c_run ( char* presor_file ) {
 	int line = 0 ;
 	
 	int file = 0 ;
+int ok = 1 ;
 
 	ASSERT(presor_results) ;
 
@@ -1108,7 +1109,7 @@ int presor_c_run ( char* presor_file ) {
 			macro_finder = macro_find ( lexc->token ) ;
 			
 			if ( macro_finder ) {
-			
+ok = 0 ;			
 				SCClStackPush ( &stack , (long int) lexc ) ;
 
 				SCClStackPush ( &macro_stack , (int)macro_finder->name ) ;
@@ -1157,7 +1158,7 @@ int presor_c_run ( char* presor_file ) {
  	SCClStringDestroy ( presor_results ) ;
 
 	macro_destroy () ;
-
+return ok ;
 	return 1 ;
 
 
