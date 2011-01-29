@@ -525,7 +525,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
 	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;
-	SCLog ("Speed : %1.3f lines/MS\n" , preline ) ;
+	SCLog ("Compiling Speed : %1.3f\n" , preline ) ;
 	SCLog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
 	SCLog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
 	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
