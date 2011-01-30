@@ -96,18 +96,11 @@ typedef struct COMPILER_NODE {
 	int il  ;
 	//	object files list , a handle to SCCllist*	
 	int ol ;
-
-	int parameter ;
-	
-	long stime ; 
-	long etime ; 
-
+	int parameter ;	
 	//	register allocation costs
 	int regoccosts ;
-
 	//	lives spliting times
-	int lssplits ;
-	
+	int lssplits ;	
 	int lines ;
 	int codes ;
 
@@ -118,6 +111,9 @@ typedef struct COMPILER_NODE {
 	void (*ASSEMER)( char* , char* , int* ) ;
 	void (*LINKER ) ( int ) ;
 	void (*RELEASE)() ;
+
+	long stime ; 
+	long etime ; 
 	
 } COMPILER ;
 

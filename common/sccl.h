@@ -27,6 +27,10 @@
 
 # define ASSERT assert
 
+//	the default length of SCCString
+//	create a SCCString with SCClSLEN could accelerate it compare with realloc
+# define SCClSLEN 512
+
 typedef enum {
 
 	//	author : Jelo Wang

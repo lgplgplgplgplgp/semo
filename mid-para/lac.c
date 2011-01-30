@@ -284,8 +284,11 @@ readproc :
 					//	生命域引用
 					//	获取其编号
 					int lsn = RegocCheckLiveScope ( lacnode->code.data , lacnode->scope , lacnode->line ) ;
-					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;
-
+					char* value = 0 ; 
+					//	if there have not a lsn of this LS , set number 0 as default
+					if ( -1 == lsn ) value = sc_strcat ( "." , "0" ) ;
+					else sc_strcat ( "." , SCClItoa (lsn) ) ;
+						
 					SCClStringAddStr ( &lacnode->code , value ) ;
 					SCClStringAdd ( &lacnode->code , 0 ) ;
 					SCFree ( value ) ;		

@@ -391,7 +391,6 @@ static void SCCompilerDestroy () {
 static int SCCompilerReady ( int argc , char** argv  ) {
 
 	//	author : Jelo Wang
-	//	notes : initialize compiler parameters
 	//	since : 20090809
 	//	(c)TOK
 	
@@ -403,6 +402,7 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 	unsigned char* buffer = 0;
 
 	if ( !argc || argc < 2 ) {
+
 		help () ;
  		SCTerminate ( 1 ) ;
 		return 0 ;

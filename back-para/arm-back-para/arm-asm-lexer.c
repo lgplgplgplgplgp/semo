@@ -48,6 +48,7 @@ LEXERARM* lexerarm_new ( char* asm , int set ) {
 	return larm ;
 	
 }
+
 void lexerarm_set ( LEXERARM* larm ) {
 
 	//	author : Jelo Wang
@@ -58,6 +59,15 @@ void lexerarm_set ( LEXERARM* larm ) {
 	
 }
 
+void lexerarm_setmode ( int mode ) {
+
+	//	author : Jelo Wang
+	//	since : 20110130
+	//	(C)TOK	
+
+	lexarm->mode = mode ;
+	
+}
 
 static int lexerarm_find_set ( char* token ) {
 
@@ -334,6 +344,9 @@ int lexerarm_genv () {
 					lexarm->c = '\n';
 					lexarm->pv = lexarm->v ;				
 					lexarm->v = AASM_ENTER ;
+					
+					if ( !(lexarm->mode & LEXERARM_FLITER_MODE) )
+						return 1 ;
 
 				} else if ( 13 == lexarm->c ) {
 					
@@ -343,6 +356,8 @@ int lexerarm_genv () {
 					lexarm->pv = lexarm->v ;				
 					lexarm->v = AASM_CHROW ;
 
+					if ( !(lexarm->mode & LEXERARM_FLITER_MODE) )
+						return 1 ;
 
 				} else if ( '[' == lexarm->c ) { 
 
@@ -441,7 +456,7 @@ int lexerarm_genv () {
 				} else {
 
 					//	skip ',' here
-					//if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;	
+//					if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;	
 
 					lexarm->c = 0 ;
 
@@ -467,7 +482,7 @@ int lexerarm_genv () {
 				lexarm->v = AASM_VAR ;	
 				
 				//	skip ',' here
-				if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;	
+//				if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;	
 
 											
 				return 1 ;
@@ -488,7 +503,7 @@ int lexerarm_genv () {
 				lexarm->v = AASM_INTENUM ;	
 
 				//	skip ',' here
-				if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;
+//				if ( ',' == lexerarm_look (0) ) lexerarm_jump ( 1 ) ;
 
 				return 1 ;
 				

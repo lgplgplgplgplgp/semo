@@ -1647,7 +1647,7 @@ REDO :
 					lexc->pv = lexc->v ;				
 					lexc->v = C_SPACE ;
 
-					if ( !(lexc -> mode & LEXERC_FLITER_MODE) )
+					if ( !(lexc->mode & LEXERC_FLITER_MODE) )
 						return 1 ;
 
 				} else if ( '\n' == lexc->c  ) {
@@ -1662,7 +1662,7 @@ REDO :
 					lexc->pv = lexc->v ;				
 					lexc->v = C_ENTER ;
 					
-					if ( !(lexc -> mode & LEXERC_FLITER_MODE) )
+					if ( !(lexc->mode & LEXERC_FLITER_MODE) )
 						return 1 ;
 
 				} 
@@ -1686,7 +1686,7 @@ REDO :
 					lexc->pv = lexc->v ;				
 					lexc->v = C_CHROW ;
 
-					if ( !(lexc -> mode & LEXERC_FLITER_MODE) )
+					if ( !(lexc->mode & LEXERC_FLITER_MODE) )
 						return 1 ;
 
 				}

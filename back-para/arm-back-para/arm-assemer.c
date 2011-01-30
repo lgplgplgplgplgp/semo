@@ -122,7 +122,7 @@ void THUMB16_ADD_RdImmed_8 ( int Rd , int immed_8 ) {
 	
 }
 
-void THUMB16_ADD_RdRnRm ( int Rd ,int Rn , int Rm ) {
+void THUMB16_ADD_RdRnRm ( int Rd , int Rn , int Rm ) {
 
 
 	//	author : Jelo Wang
@@ -135,7 +135,7 @@ void THUMB16_ADD_RdRnRm ( int Rd ,int Rn , int Rm ) {
 
 	value |= Rd ;	
 
-	value |= Rd << 3 ;
+	value |= Rn << 3 ;
 	
 	value |= Rm << 6 ;	
 
@@ -394,13 +394,12 @@ static int assemer_thumb16_mov () {
 	//	generate reg
 	lexerarm_genv () ;
 	AssemerArm.Rd = lexarm->v ;
-
-	//	skip ','
+	//	skip AASM_DOU
 	lexerarm_genv () ;
-
 	//	generate reg
 	lexerarm_genv () ;
-	
+	AssemerArm.Rn = lexarm->v ;		
+
 	if (  assemer_is_num (lexarm->v) ) {
 		THUMB16_MOV_RdImmed_8(AssemerArm.Rd,SCClAtoi(lexarm->token)) ;
 
@@ -486,7 +485,8 @@ static int assemer_thumb16_add () {
 	//	generate reg
 	lexerarm_genv () ;
 	AssemerArm.Rd = lexarm->v ;
-
+	//	skip AASM_DOU
+	lexerarm_genv () ;
 	//	generate reg
 	lexerarm_genv () ;
 	AssemerArm.Rn = lexarm->v ;
@@ -519,13 +519,14 @@ static int assemer_thumb16_add () {
 		//	pattern : ADD <Rd> , <Rn> , <Rm>		
 		//	pattern : ADD <Rd> , PC , #<immed_8>*4
 		//	pattern : ADD <Rd> , SP , #<immed_8>*4		
-
+		//	skip AASM_DOU
+		lexerarm_genv () ;		
 		lexerarm_genv () ;
-		
+
 		if ( assemer_is_reg (lexarm->v) ) {
 			
 			AssemerArm.Rm = lexarm->v ;
-			
+ 			
 			THUMB16_ADD_RdRnRm ( AssemerArm.Rd , AssemerArm.Rn , AssemerArm.Rm ) ;
 
 		} else if ( assemer_is_num (lexarm->v) ) {
@@ -651,7 +652,7 @@ static int assemer_thumb16_proc () {
 	while ( !lexarm->stop ) {
 
 		lexerarm_genv () ;			
-		
+
 		if ( THUMB16_KEY_END == lexarm->v )
 			break ;
 		
@@ -682,7 +683,8 @@ int assemer_arm_run ( char* asm , char* out , int* codes ) {
 	//	(C)TOK
 	
 	lexerarm_set ( lexerarm_new ( asm , AssemerArm.set ) ) ;
-
+	lexerarm_setmode ( LEXERARM_FLITER_MODE ) ;
+		
 	if ( THUMB16_SET == AssemerArm.set )
 		assemer_thumb16_genmap () ;
 
