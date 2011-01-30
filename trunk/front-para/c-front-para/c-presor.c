@@ -1131,7 +1131,7 @@ ok = 0 ;
 	}
 
 	SCClStringAdd ( presor_results , '\0' ) ;
-	
+	 
 	line = lexc->line ;
 
  	lexerc_destroy () ;

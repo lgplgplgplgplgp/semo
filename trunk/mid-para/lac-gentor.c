@@ -824,6 +824,10 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	//	Initialize Lac Gentor
 	lacgentor_ready () ; 
+
+	LACAdd ( "# Codes Generated As Semo Compiler 0.3.0\r\n" , -1 , -1 ) ;
+	LACAdd ( "# Techniques of Knowledge\r\n" , -1 , -1 ) ;
+	LACAdd ( "# Í»¿Ç¿ªÔ´\r\n\r\n" , -1 , -1 ) ;	
 	
 	//	use compiling-render
 	if ( SC_CR & compiler->parameter ) {
@@ -864,6 +868,7 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	}
 
+	//	generate live-scope and start register allocation
 	if ( SC_ARM & compiler->parameter ) 
 		LACLiveScopeGenerate ( 8 ) ;
 	

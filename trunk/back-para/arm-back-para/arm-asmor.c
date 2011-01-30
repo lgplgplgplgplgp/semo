@@ -272,7 +272,9 @@ char* asmor_arm_run ( char* lac , char* asmout ) {
 	lexerac_ready () ;
 
 	SCClStringInit ( &ArmAsm ) ;
-	
+
+  	SEMO_ASSEMBLER_COPYRIGHTS;
+		
 	for ( lexerac_genv () ; !lexac->stop ; lexerac_genv () ) {
 		if ( LAC_FUNCDEF == lexac->v ) {
 			asmor_arm_funcdef () ;

@@ -611,11 +611,12 @@ void SCClStringInit ( SCClString* string ) {
 	
 	if ( 0 < string->data ) SCFree ( string->data ) ;
 
-	string->data = 0 ;
 	string->add_walker = 0 ;
 	string->get_walker = 0 ;
 	string->last_walker = 0 ;
-	string->length = 0 ;
+	
+	string->data = (char* ) SCMalloc ( SCClSLEN + 1 ) ; 
+	string->length = SCClSLEN ;
 
 }
 

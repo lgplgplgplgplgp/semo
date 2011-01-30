@@ -25,6 +25,19 @@
 
 # include "sccl.h"
 
+enum {
+
+	//	author : Jelo Wang
+	//	since : 20110130
+	//	(C)TOK
+
+	//	normal mode without specical features
+	LEXERARM_DEFAULT_MODE = 0x1	 ,
+	//	normal mode with specical features , like blank fliter
+	LEXERARM_FLITER_MODE = 0x2 ,	
+
+} LEXERARM_MODE ;
+
 typedef enum {
 
 	//	author : Jelo Wang
@@ -72,7 +85,8 @@ typedef struct {
 
 	int set ;
 	int stop ; 
-
+	int mode ;
+	
 	SCClStack stack ;
 	SCClString* code ;
 	
@@ -84,6 +98,7 @@ extern LEXERARM* lexarm ;
 
 extern LEXERARM* lexerarm_new ( char* asm , int set ) ;
 extern void lexerarm_set ( LEXERARM* lexerarm ) ;
+extern void lexerc_setmode ( int mode ) ;
 extern int lexerarm_genv () ;
 extern int lexerarm_head_genv ( int border )  ;
 extern int lexerarm_destroy () ;

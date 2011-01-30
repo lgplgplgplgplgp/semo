@@ -35,7 +35,7 @@ static int regoclooper = 0 ;
 static LIVESCOPE** lsmonitor = 0 ;
 static int lslooper = 0 ;
 static int lslength = 0 ;
-//	default amouts of lsmonitor that means the totall livescopes apeared in one scope
+//	default amouts of lsmonitor that means the totall livescopes apeared in a lac procedure
 # define LSDEFAULT_LENGTH 1024
 
 //	lac node of the last found
@@ -205,8 +205,6 @@ int RegocCheckLiveScope ( char* live , int scope , int line ) {
 static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 
 	//	if ls_2 is has interference relation with ls_1 return 1 else return 0
-
-	if ( ls_1 == ls_2 ) return 0 ;
 	
 	if ( -1 == ls_1->end_line || -1 == ls_2->end_line ) 
 		return 0 ;
@@ -291,8 +289,9 @@ int RegocIGraphCreate () {
 		for ( inlooper = 0 ; inlooper < lslooper ; inlooper ++ ) {
 
 			LIVESCOPE* ls_2 = lsmonitor[inlooper] ;
-		
-//printf("ls_1->live  %s , ls_2->live %s ,  [%d,%d][%d,%d]\n",ls_1->live , ls_2->live , ls_1->start_line , ls_1->end_line, ls_2->start_line, ls_2->end_line);		
+
+			if ( ls_1 == ls_2 ) continue ;
+			
 			if ( RegocLiveScopeICheck ( ls_1 , ls_2 ) ) {
 		
 				SCClGraphAddNode ( iG , ls_2->number , ls_2->lac ) ;
@@ -320,8 +319,6 @@ void RegocLiveScopeClear () {
 	lslooper = 0 ;
 	
 }
-
-//void RegocAllocatorReady () {}
 
 int RegocGetRegister ( int pn , int lsn ) {
 
