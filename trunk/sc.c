@@ -1,21 +1,27 @@
 
 /*
 
-+	SEMO C()MPILER 0.3.0
++	Semo Compiler 0.3.0
 
-+	Semo C()mpiler is a free software created by (c)Techniques of Knowledge since 20080202.
-+	(C)TOK Jelo Wang
++	'Semo Compiler' is a multi-objective compiler which developing under the terms of the 
++	GNU general public license as published by the Free Software Foundation.
++	The project lunched by Jelo Wang since 02.Jan.2008 from 'Techniques of Knowledge' community. 
 
-+	You can redistribute it and/or modify it under the terms of the gnu general public license	
-+	as published by the free software foundation, either version 3 of the license or any later 	
-+	version.this program is distributed in the hope that it will be useful,but without any 		
-+	warranty.without even the implied warranty of merchantability or fitness for a particular 	
-+	purpose.																					
++	You can redistribute it and/or modify it under the terms of the gnu general public version 3 of 
++	the license as published by the free software foundation.this program is distributed in the hope 
++	that it will be useful,but without any warranty.without even the implied warranty of merchantability 
++	or fitness for a particular purpose.																					
 																												
-+	(c)	Techniques of Knowledge
-+		an open source group since 2008
-+		page : http://www.tok.cc
-+		email : wqw85@sina.com
++	(C)	突壳开源Techniques of Knowledge
++		an open source community since 2008
++		Community : http://www.tok.cc
++		Contact Us : jelo.wang@gmail.com
+
++		-Thanks to Our Committers and Friends
++		-Best Wish to all whose Contributes and Inspires
++		-Techniques of Knowledge 
++		-致伙伴们最美好祝愿
++		-突壳开源社区
 
 */
 
@@ -38,22 +44,22 @@ static void help () {
 	//	(c)TOK	
  
 	SCLog ( 	"\
-\t - Semo C()mpiler Frameworks 0.3.0 -\n\
-\t - Techniques of Knowledge (突壳开源) -\n\n\
+\t - Semo C()mpiler 0.3.0 -\n\
+\t - 突壳开源 Techniques of Knowledge -\n\n\
 Format : \n\
 \t sc option1-option2...-optionn <SET module=para> file1 file2...filen \n\
 Options :\n\
-\t -c \t\t compile for c language based on C99\n\
-\t -cpp \t\t compile for c plus plus language\n\
-\t -java \t\t compile for java language\n\
+\t -c \t\t compile c language based on C99\n\
+\t -cpp \t\t compile c plus plus language\n\
+\t -java \t\t compile java language\n\
 \t -po \t\t export pre-compiling results to external file\n\
 \t -lac \t\t export IR to external file\n\
 \t -sasm \t\t export semo assembly code to external file\n\
 \t -cr \t\t enable compiling-render and export results\n\
-\t -elf \t\t generate object-file with ELF format by default\n\
+\t -elf \t\t generate object-file with ELF format as default\n\
 \t -link \t\t compile and link\n\
-\t -nlink \t compile only by default\n\
-\t -arm \t\t compile for the ARM architecture by default\n\
+\t -nlink \t compile only as default\n\
+\t -arm \t\t compile for the ARM architecture as default\n\
 \t -x80386 \t compile for the x80386 architecture\n\
 \n\
 SET :\n\

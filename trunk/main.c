@@ -13,7 +13,7 @@ int main ( int argc , char* argv [] ) {
 			"sc",
 			"ssa1.txt" ,
 			" -cr" ,
-			" -lac" ,							
+			" -lac" ,
 
 		} ;
    
