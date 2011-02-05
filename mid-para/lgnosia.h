@@ -1,7 +1,7 @@
 
 /*
 
-+	LGNOSIA , part of SC mid-para
++	LGNOSIA abstractive grammar, part of SC mid-para
 
 +	Semo C()mpiler is a free software created by (c)Techniques of Knowledge since 20080202.
 +	(C)TOK Jelo Wang
@@ -15,7 +15,7 @@
 +	(c)	Techniques of Knowledge
 +		an open source group since 2008
 +		page : http://www.tok.cc 
-+		email : wqw85@sina.com
++		email : jelo.wang@gmail.com
 
 */
 

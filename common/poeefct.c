@@ -12,7 +12,7 @@
 +	(c)	Techniques of Knowledge
 +		an open source group since 2008		
 +		page : http://www.tok.cc
-+		email : wqw85@sina.com
++		email : jelo.wang@gmail.com
 
 */
 

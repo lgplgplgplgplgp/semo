@@ -10,7 +10,7 @@
 	+	(c) Techniques of Knowledge
 	+		an open source group since 2008
 	+		page : http://www.tok.cc
-	+		email : wqw85@sina.com
+	+		email : jelo.wang@gmail.com
 	
 	This file defines standard ELF types, structures, and macros.
 	Copyright (C) 1995, 1996, 1997, 1998, 1999 Free Software Foundation, Inc.
