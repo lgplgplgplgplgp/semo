@@ -95,6 +95,8 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 	//	since : 20091125
 	//	(c)TOK
 
+	//	parsing the **argv with a C LEXER which is a lexical analyzer of c lanuage.
+	
 	int walker = 0 ;
 	int state = 0 ;
 
@@ -109,7 +111,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 
 	SCClStringAdd ( &str , '\0' ) ;
 
-	//	Use lexer of c for the commands analysis
+	//	Use lexer of c for the commands analysing
 	lexerc_set ( lexerc_new ( str.data , LEXERC_DEFAULT_MODE ) ) ; 
 
 	SCClStringReset ( &str ) ;
@@ -425,12 +427,16 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 	}
 	
 	if ( SC_C99 & compiler->parameter ) {
+		//	preprocessor of c lanuage
 		compiler->PRESOR = presor_c_run ;
+		//	parser of c lanuage
 		compiler->PARSER = parser_c_run ;
 	}
 
 	if ( SC_ARM & compiler->parameter ) {
+		//	ARMv assembly codes generator.
 		compiler->ASMOR = asmor_arm_run ;
+		//	ARMv assembler. 		
 		compiler->ASSEMER = assemer_arm_run ;
 	}
 	
@@ -447,18 +453,18 @@ int SCCompile ( int argc , char** argv , int type ) {
 	//	since : 20091127
 	//	(c)TOK
 
-	float preline = 0 ;
-
+	//	lines parsed per ms. itsnt a accurate value.
+	float perline = 0 ;
+	//	lexical analyzer of c language.
 	LEXERC* lexer = 0 ;
-
+	//	initialize compling parameters:language of front-para,machine of back-para ect.
  	SCCompilerReady ( argc , argv ) ;
 
 	if ( !compiler ) return -1 ;
-
+	
 	compiler->stime = clock () ;
-
+	
 	SCClListSetIterator ( compiler->il , SCCLLISTSEEK_HEAD ) ;
-
 
 {
 
@@ -472,11 +478,15 @@ int SCCompile ( int argc , char** argv , int type ) {
 }
 
 	for ( ; SCClListIteratorPermit ( compiler->il ) ; SCClListListIteratorNext ( compiler->il ) ) {
-		
+
+		//	lgnosia codes
 		char* lac = 0 ;
+		//	assembly codes
 		char* asm = 0 ;
 		char* buffer = 0 ;
+		//	source file of codes
 		char* file = (char* ) SCClListIteratorGetElement ( compiler->il ) ;
+		//	objective files been compiled
 		char* o = 0 ;
 
 		int filen = 0 ;
@@ -499,8 +509,12 @@ int SCCompile ( int argc , char** argv , int type ) {
 		SCHalFileSeek ( inputfile , 0 , SEEK_HEAD ) ;
 		SCHalFileRead ( inputfile , buffer , 1 , filen ) ;
 
-		lexerc_set ( lexerc_new ( buffer , LEXERC_DEFAULT_MODE ) ) ; 		
-		
+		//	create a lexer for c language which is a low-level analyzer under the parser
+		//	lexer would cut the source streams as a 'lexical atom' to the parser.
+		if ( SC_C99 & compiler->parameter ) {
+			lexerc_set ( lexerc_new ( buffer , LEXERC_DEFAULT_MODE ) ) ; 		
+		}
+
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
  	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 		
@@ -517,6 +531,8 @@ int SCCompile ( int argc , char** argv , int type ) {
 		
 	}
 
+	//	objective files are saved with compiler->ol which is a SCClList.
+	//	its the parameter of LINKER.
 	if ( SC_LINK & compiler->parameter ) {
 		if ( SC_ELF & compiler->parameter ) {
 			compiler->LINKER = 0 ;
@@ -525,13 +541,14 @@ int SCCompile ( int argc , char** argv , int type ) {
 	}
 	
 	compiler->etime = clock () ;
-	
+
+	//	print compiling logs bellow
 	if ( compiler->lines && compiler->etime - compiler->stime )
-		preline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
+		perline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
 
 	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
 	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;
-	SCLog ("Compiling Speed : %1.3f\n" , preline ) ;
+	SCLog ("Compiling Speed : %1.3f\n" , perline ) ;
 	SCLog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
 	SCLog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
 	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
