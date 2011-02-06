@@ -3,7 +3,7 @@
 
 +	PARSER , part of SC front-para
 
-+	'Semo Compiler' is a multi-objective compiler which developing under the terms of the 
++	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
 +	The project lunched by Jelo Wang since 2.Feb.2008 from 'Techniques of Knowledge' community. 
 
