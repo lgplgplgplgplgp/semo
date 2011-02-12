@@ -287,7 +287,7 @@ void lacgentor_gen_funcdef () {
 
 	lgnosia = (LGNOSIA* ) lacgentor.lgnosia ;
 	azonal = (AZONAL* ) lgnosia->azonal ;
-
+	
 	LACAdd ( azonal->name , LAC_PROC , lacgentor.identor.deep ) ;
 	LACAdd ( "(" , -1 , -1 ) ;
 
@@ -597,13 +597,14 @@ void lacgentor_switcher ( LGNOSIA* lgnosia ) {
 		case ISA_VARIABLE :
 			lacgentor_gen_variable ( lgnosia , azonal ) ;
 		break ;
-		
+		case ISA_FUNCCAL :
+			lacgentor_gen_funccal ( lgnosia , azonal ) ;			
+		break ;	
 
 	}
 
 
 }
-
 
 void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
@@ -631,8 +632,7 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 		lacgentor_gen_expr ( (EXPR*)expression , 1 ) ;
 
-		name = SymboleDRCAdd ( azonal , lacgentor.identor.deep , GET_LACGENTOR_SCOPE() , GET_LACGENTOR_LGA() ) ;
-		
+		name = SymboleDRCAdd ( azonal , lacgentor.identor.deep , GET_LACGENTOR_SCOPE() , GET_LACGENTOR_LGA() ) ;		
 		SymboleDRCDropCFF ( azonal ) ;
 		
 		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
@@ -655,6 +655,41 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	SCFree ( lgnosia ) ;
 
+}
+
+void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+
+	//	author : Jelo Wang
+	//	since : 20110212
+	//	(C)TOK
+
+	char* name = 0 ;
+	SCClList* looper = 0 ;
+	
+	for ( looper = lgnosia->context.head ; looper ; looper=looper->next ) {
+
+		LGNOSIA* lga = (LGNOSIA* ) looper->element ;
+		AZONAL* anl = (AZONAL* ) lga->azonal ;
+		char* namenew = sc_strcat ( lacgentor_get_identor () , "%$PE " ) ;
+
+		name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+		
+		LACAdd ( namenew , -1 , -1 ) ;
+		LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;
+		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+
+		SCFree ( name ) ;
+		SCFree ( namenew ) ;
+		
+	}
+	
+	name = sc_strcat ( lacgentor_get_identor () , "%$CA " ) ;
+
+	LACAdd ( name , LAC_CR , -1 ) ;
+	LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
+	LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+	SCFree ( name ) ;
+	
 }
 
 int lacgentor_get_exp_deep ( EXPR* expression , EXPR* father , int deep , int* totall ) {

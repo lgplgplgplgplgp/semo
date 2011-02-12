@@ -122,7 +122,10 @@ int SymboleNew () {
 	
 	symbole->function.next = 0 ;
 	symbole->function.head = 0 ;	
-	
+
+	symbole->funccal.next = 0 ;
+	symbole->funccal.head = 0 ;	
+		
 	symbole->controlflow.next = 0 ;
 	symbole->controlflow.head = 0 ;
 	
@@ -206,6 +209,14 @@ AZONAL* SymboleAddVarAzonal (
 	}
 
 	symbole->vartotall ++ ;
+	
+	if ( azonal->isparam ) 
+	{
+		AZONAL* belonganl = (AZONAL*) belong ;
+		if ( ISA_FUNCTION == belonganl->azonaltype ) {
+			SymboleAddFunctionParameter ( belonganl , azonal ) ;
+		}
+	}
 
 	return azonal ;
 	
@@ -247,49 +258,19 @@ AZONAL* SymboleFindVarAzonal (
 
 	} else if ( scope ) {
 
-		/*
-		for ( azonal = symbole->variable.head ; azonal ; azonal = azonal->next ) {
-
-			if ( ( 0 == azonal->scope ) && !sc_strcmp ( azonal->name , name ) )
-				break ;
-			else if ( (azonal->scope) && (azonal->belong == belong) && !sc_strcmp ( azonal->name , name ) ) {
-				if ( azonal->scope <= scope ) {
-					break ;
-				}
-			}	
-			
-		}		
-		*/
-
 		//	找到每一个名字为name的变量，取出其lga，在其lga中查找当前lgabelong。
 
 		for ( azonal = symbole->variable.head ; azonal ; azonal = azonal->next ) {
 
 			if ( sc_strcmp ( azonal->name , name ) ) continue ;
 
-			if ( LgnosiaFindContext ( (LGNOSIA*)azonal->lgabelong , lgabelong ) ) {			
+			if ( LgnosiaFindContext ( (LGNOSIA*)azonal->lgabelong , lgabelong ) ) {
 				return azonal ;
 			}
 			
 		}
 		
-
-		
 	}
-
-
-/*
-	else if ( belong ) {
-	
-		AZONAL* function = (AZONAL* ) belong ;
-		AZONAL* cwalker = function->context.head ;
-		
-		for ( ; cwalker ; cwalker=cwalker->next ) {
-			if ( 0 == sc_strcmp ( cwalker->name , azonal->name ) ) return cwalker ;
-		}		
-		
-	}  
-*/
 
 	return azonal ;
 	
@@ -411,6 +392,38 @@ AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line )
 
 }
 
+AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int line ) {
+
+	//	author : Jelo Wang
+	//	20110212
+	//	(C)TOK
+
+	AZONAL* azonal = 0 ;
+	
+	ASSERT(name);
+
+	azonal = SCMalloc ( sizeof(AZONAL) ) ;
+	ASSERT(azonal) ;
+	
+	azonal->name = SCMalloc ( sc_strlen ( name ) + 1 ) ;
+	ASSERT(azonal->name);
+	sc_strcpy ( azonal->name , name ) ;
+
+	azonal->azonaltype = azonaltype ;
+	azonal->line = line ;
+			
+	if ( 0 == symbole->funccal.next ) {
+		symbole->funccal.next = azonal ;
+		symbole->funccal.head = azonal ;
+	} else {
+		symbole->funccal.next->next = azonal ;
+		symbole->funccal.next = azonal ;
+	}
+
+	return azonal ;
+	
+}
+
 int SymboleGetCurrentFuncNumber () {
 	
 	//	author : Jelo Wang
@@ -453,26 +466,15 @@ AZONAL* SymboleFindFunction ( char* name ) {
 
 }
 
-int  SymboleAddFunctionParameter ( AZONAL* function , AZONAL* para ) {
+int SymboleAddFunctionParameter ( AZONAL* function , AZONAL* azonal ) {
 
 	//	author : Jelo Wang	
 	//	input : AZONAL pointer
 	//	notes: add parameters of a function
 	//	(C)TOK
 	
-	AZONAL* azonal = 0 ;
-
-	if ( !para || !function || !symbole ) return 0 ;
+	ASSERT(symbole&&azonal&&function) ;
  	
-	azonal = (AZONAL* ) SCMalloc ( sizeof(AZONAL) ) ;
-	sc_strcpy ( azonal->name , para->name ) ;
-	azonal->azonaltype = para->azonaltype ;
-	azonal->datatype = para->datatype ;
-	azonal->head = 0 ;
-	azonal->next = 0 ;
-	azonal->number = para->number ;
-	azonal->size = para->size ;
-
 	if ( 0 == function->tack.next ) {
 		function->tack.next = azonal ;
 		function->tack.head = azonal ;
@@ -486,8 +488,6 @@ int  SymboleAddFunctionParameter ( AZONAL* function , AZONAL* para ) {
 	return 1 ;
 
 }
-
-
 
 void SymboleSetFunctionParameters ( AZONAL* function , int parameters ) {
 

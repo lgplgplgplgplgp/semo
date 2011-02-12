@@ -120,6 +120,8 @@
 # define LAC_FUNCCAL     			2037 //function call
 # define LAC_LABEL     				2038 //label
 # define LAC_VREG					2040
+# define LAC_PE						2041 //PARAMETER
+# define LAC_CA						2042 //function call
 	
 # define LAC_EOS         			'\0' //ending of string
 # define LAC_ENTER				2515

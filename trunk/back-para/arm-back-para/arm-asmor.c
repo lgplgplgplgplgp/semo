@@ -187,6 +187,32 @@ static int asmor_arm_read_virtual_reg () {
 
 }
 
+static int asmor_arm_read_peca () {
+
+	//	author : Jelo Wang
+	//	since : 20110212
+	//	(C)TOK
+	
+	if ( LAC_PE != lexac->v && LAC_CA != lexac->v ) return 0 ;
+
+	while ( !lexac->stop ) {
+
+		lexerac_genv () ;
+		
+		if ( LAC_CA == lexac->v ) {
+			lexerac_genv () ;
+			break ;
+		}
+		
+		else if ( LAC_PE == lexac->v ) {			
+			lexerac_genv () ;
+		}
+		
+	}
+
+	THUMB_BL(lexac->token) ;	
+	
+}
 
 static int asmor_arm_read_symbol_inf () {
 
@@ -200,6 +226,10 @@ static int asmor_arm_read_symbol_inf () {
 		break ;
 		case LAC_VREG :
 			return asmor_arm_read_virtual_reg () ;
+		break ;
+		case LAC_PE :
+		case LAC_CA :			
+			return asmor_arm_read_peca () ;
 		break ;
 		default : return 0 ;
 	}
