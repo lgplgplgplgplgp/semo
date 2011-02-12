@@ -546,6 +546,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	if ( compiler->lines && compiler->etime - compiler->stime )
 		perline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
 
+	SCLog ("\n") ;
 	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
 	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;
 	SCLog ("Compiling Speed : %1.3f\n" , perline ) ;

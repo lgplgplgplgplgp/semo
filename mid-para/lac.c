@@ -254,10 +254,10 @@ restart :
 	for ( llooper = orignallac ; llooper ; ) {
 
 		LAC* lacnode = 0 ;
-				
-readproc :
 
 		lacnode = LACAdd ( llooper->code.data , llooper->type , llooper->scope ) ;
+				
+readproc :
 
 		if ( LAC_PROC == llooper->type ) {
 

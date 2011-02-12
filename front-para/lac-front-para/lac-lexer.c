@@ -1433,7 +1433,19 @@ int lexerac_matchop ( int el ) {
 						lexac->v = LAC_VREG ;
 						lexac->token = LACTOK.data ;
 						
-					}					
+					} else if ( 'P' == LACTOK.data[0] && 'E' == LACTOK.data[1] ) {
+						
+						lexac->pv = lexac->v ;				
+						lexac->v = LAC_PE ;
+						lexac->token = LACTOK.data ;						
+
+ 					} else if ( 'C' == LACTOK.data[0] && 'A' == LACTOK.data[1] ) {
+
+						lexac->pv = lexac->v ;				
+						lexac->v = LAC_CA ;
+						lexac->token = LACTOK.data ;						
+
+					}
 					
 					return STATE;
 					

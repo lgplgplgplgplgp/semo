@@ -91,6 +91,12 @@
 	SCClStringAddStr ( &ArmAsm , "*4" ) ;\
 	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
 
+//	BL <target_addr>
+# define THUMB_BL(target)\
+	SCClStringAddStr ( &ArmAsm , "BL " ) ;\
+	SCClStringAddStr ( &ArmAsm , target ) ;\
+	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
+
 //	LDMIA <Rn>! , <register>
 # define THUMB_LDMIA(Rn)\
 	SCClStringAddStr ( &ArmAsm , sc_strcat ("LDMIA ",Rn) ) ;\

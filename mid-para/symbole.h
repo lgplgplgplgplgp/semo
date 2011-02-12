@@ -42,7 +42,7 @@ typedef enum {
 	ISA_VARIABLE ,
 	ISA_ARRAY ,		
 	ISA_FUNCTION ,
-	ISA_FUNCTIONCAL ,
+	ISA_FUNCCAL ,
 	ISA_CONST ,
 	ISA_STRUCTHEAD ,	
 	ISA_VARSTRUCT ,
@@ -231,8 +231,9 @@ typedef struct SNODE {
 	AZONAL variable ;
 	AZONAL array ;
 	AZONAL function ;
+	AZONAL funccal ;
 	AZONAL controlflow ;
-
+		
 	int vartotall ;
 	int arrtotall ;
 	int functotall ;
@@ -323,10 +324,12 @@ extern AZONAL* SymboleAddVarAzonal (
 	
 ) ;
 
+extern  int SymboleAddFunctionParameter ( AZONAL* function , AZONAL* azonal ) ;
 extern AZONAL* SymboleFindVarAzonal ( char* name ,int scope ,int belong ) ;
 extern AZONAL* SymboleVarAzonalSavable ( char* name ,int scope ,int lgabelong ) ;
 extern void SymboleAzonalRefInc ( AZONAL* azonal ) ;
 extern AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line ) ;
+extern AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int line ) ;
 extern AZONAL* SymboleFindFunction ( char* name ) ;
 extern int  SymboleAddFunctionParameter ( AZONAL* function , AZONAL* para ) ;
 extern void SymboleSetFunctionParameters ( AZONAL* function , int parameters ) ;

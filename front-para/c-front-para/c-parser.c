@@ -59,6 +59,7 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 
 # define SET_PARSER_SCOPE(sscope)\
 	SCClStackPush ( &parserc->scopestack , sscope ) ;\
+	parserc->scope = sscope ;\
 
 # define UNSET_PARSER_SCOPE()\
 	parserc->scope = SCClStackPop ( &parserc->scopestack ) ;\
@@ -229,9 +230,12 @@ static int parser_c_read_funccal () {
 	//	(C)TOK
 
 	int stack = 0 ;
-	int totall_para = 0 ;
+	int totall_para = 1 ;
 	int have_para = 1 ;
+
+	AZONAL* fcalanl = 0 ;
 	AZONAL* azonal = 0 ;
+	int lgnosia = 0 ;
 	
 	if ( C_FUNCCAL != lexc->v ) 
 		return 0 ;
@@ -239,7 +243,7 @@ static int parser_c_read_funccal () {
 	azonal = SymboleFindFunction ( lexc->token ) ;
 	
 	if ( !azonal ) {
-		cerror ( C_PARSER_MOD , IS_C_ERROR , "function '%s' is not defined , line : %d\n" , lexc->token , lexc->line ) ;
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - function '%s' is not defined , line : %d\n" , lexc->token , lexc->line ) ;
 		parser_c_skip_parenthesis_scope () ;
 		if ( 0 == MATCH_PARSER_SCOPE(PARSERC_SCOPE_PARAM) ) {
 			if ( C_FEN != lexerc_head_genv (1) ) {
@@ -249,30 +253,45 @@ static int parser_c_read_funccal () {
 		return 0 ;
 	}
 
+	fcalanl = SymboleAddFunctionCall ( azonal->name , ISA_FUNCCAL , lexc->line ) ;
+	
+	//	check is there has some parameters exits of the calling.
 	if ( C_XKR == lexerc_head_genv (2) ) {
 		have_para = 0 ;
+		//	send an error message if there hasnt parameters but azonal has.
+		if ( 0 < azonal->tack.totall ) {
+			cerror ( C_PARSER_MOD , IS_C_ERROR , "! - function '%s' needs parameters , line : %d\n" , lexc->token , lexc->line ) ;
+		}
 	}
-	
- 	SET_PARSER_SCOPE(PARSERC_SCOPE_PARAM);
+
+	//	create a LGA
+	lgnosia = LgnosiaNew ( (int) fcalanl , LGNOSIA_SYM_IDENT ) ;	
+	LgnosiaAddContext ( LgnosiaStackTop () , lgnosia , LGNOSIA_SYM_IDENT ) ;
+	LgnosiaStackPush ( lgnosia ) ;	
 	while ( !lexc->stop ) {
 		
 		lexerc_genv () ;
 		
 		if ( C_XKL == lexc->v )
 			stack ++ ;
-		if ( C_XKR == lexc->v )
+		else if ( C_XKR == lexc->v )
 			stack -- ;
+		else if ( C_DOU == lexc->v )
+			totall_para ++ ;
 			
 		if ( 0 == stack ) 
 			break ;
+
+		parser_c_read_symbol_inf () ;
 		
 	}
-	UNSET_PARSER_SCOPE();
+	LgnosiaStackPop () ;
 
-	//	check sematics of funccal.
-	//	totall parameters,data type
-	if ( have_para ) {
-		
+	//	check totall parameters and data type
+	if ( 0 < have_para ) {
+		if ( totall_para != azonal->tack.totall ) {
+			cerror ( C_PARSER_MOD , IS_C_ERROR , "! - function '%s' needs %d parameters , line : %d\n" , azonal->name , azonal->tack.totall , lexc->line ) ;
+		}		
 	}
 	
 	if ( 0 == MATCH_PARSER_SCOPE(PARSERC_SCOPE_PARAM) ) {
@@ -280,7 +299,7 @@ static int parser_c_read_funccal () {
 			parser_c_needs ( C_FEN , ";" ) ;
 		}
 	}
-				
+
 	return 1 ;
 	
 }
@@ -682,7 +701,7 @@ static int parser_c_read_variable_def () {
 	scope = SCOPER_GET () ;
 
 	if ( 0 == SymboleVarAzonalSavable ( lexc->token , scope , LgnosiaStackTop () ) ) {
-		cerror ( C_PARSER_MOD , IS_C_ERROR , "variable is multi-defined: '%s' , line : %d\n" , lexc->token , lexc->line ) ;
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - variable is multi-defined: '%s' , line : %d\n" , lexc->token , lexc->line ) ;
 	}
 	
 	azonal = SymboleAddVarAzonal (
@@ -690,7 +709,7 @@ static int parser_c_read_variable_def () {
 		lexc->headbit ,
 		ISA_VARIABLE ,
 		scope ,
-		( parserc->scope == PARSERC_SCOPE_PARAM ) ? (1) : (0) ,
+		( parserc->scope == PARSERC_SCOPE_PARAM ) ,
 		lexc->line ,
 		SymboleGetCurrentFunc () ,
 		(int) LgnosiaStackTop ()
@@ -764,7 +783,7 @@ static int parser_c_read_variable_inf () {
 	azonal = SymboleFindVarAzonal ( lexc->token , scope , LgnosiaStackTop () ) ;
 
 	if ( !azonal ) {
-		cerror ( C_PARSER_MOD , IS_C_ERROR , "undefined variable : '%s' , line : %d\n" , lexc->token , lexc->line ) ;
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - undefined variable : '%s' , line : %d\n" , lexc->token , lexc->line ) ;
 	}
 
 	SymboleAzonalRefInc ( azonal ) ;
