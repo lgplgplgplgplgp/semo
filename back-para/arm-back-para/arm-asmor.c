@@ -280,7 +280,7 @@ char* asmor_arm_run ( char* lac , char* asmout ) {
 	SCClStringInit ( &ArmAsm ) ;
 
   	SEMO_ASSEMBLER_COPYRIGHTS;
-		yyyyyyyyyyyy
+
 	for ( lexerac_genv () ; !lexac->stop ; lexerac_genv () ) {
 		if ( LAC_FUNCDEF == lexac->v ) {
 			asmor_arm_funcdef () ;
