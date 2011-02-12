@@ -59,20 +59,23 @@ typedef struct {
 
 # endif
 
-extern void read_define_head_flow () ;
-extern void parserc_ready () ;
-extern int parserc_genv () ;
-extern int parser_c_read_function () ;
-extern int parser_c_read_if () ;
-extern int parser_c_read_else () ;
-extern int parser_c_read_while () ;
-extern int parser_c_read_controlflow () ;
-extern int parser_c_is_controlflow ( int head ) ;
-extern int parser_c_read_symbol_inf () ;
-extern int parser_c_read_variable_def () ;
-extern int parser_c_read_variable_inf () ;
-extern int parser_c_read_symbol_def () ;
-extern int parser_c_read_expr () ;
-extern void parser_c_read_poroperator ( int side , int evalor_enable ) ;
+static void read_define_head_flow () ;
+static void parserc_ready () ;
+static int parserc_genv () ;
+static int parser_c_read_function () ;
+static int parser_c_read_if () ;
+static int parser_c_read_else () ;
+static int parser_c_read_while () ;
+static int parser_c_read_controlflow () ;
+static int parser_c_is_controlflow ( int head ) ;
+static int parser_c_read_symbol_inf () ;
+static int parser_c_read_variable_def () ;
+static int parser_c_read_variable_inf () ;
+static int parser_c_read_symbol_def () ;
+static int parser_c_read_intnum_inf () ;
+static int parser_c_read_funccal () ;
+static int parser_c_read_expr () ;
+static void parser_c_read_poroperator ( int side , int evalor_enable ) ;
+extern void parser_c_skip_parenthesis_scope () ;
 int parser_c_run ( int * line ) ;
 

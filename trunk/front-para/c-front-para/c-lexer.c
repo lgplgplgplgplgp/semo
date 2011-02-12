@@ -1087,13 +1087,26 @@ int lexerc_skip_bracket ( int bracket_type ) {
 		if ( bracket_left == lexc->c ) stack ++ ;
 		if ( bracket_right == lexc->c ) stack -- ;
 
+		//	为了出现语法错误时，尽快地结束扫描。
+		if ( ';' == lexc->c ) break ;
+		else if ( '(' == bracket_left || '[' == bracket_left ) {
+			if ( '{' == lexc->c || '}' == lexc->c ) 
+				break ;
+		}
+		
 		lexerc_next () ;
 
 		if ( 0 == stack ) break ;
 			
 	}
 
-	return 1 ;
+	//	brackets unmatched
+	if ( stack ) {
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "unmatched '%c' , line : %d\n" , bracket_right , lexc->line ) ;
+		return 0 ;
+	}
+		
+	return 1 ;	
 
 	
 	

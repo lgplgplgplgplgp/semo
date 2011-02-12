@@ -127,6 +127,18 @@ static int parserc_genv () {
 
 }
 
+static void parser_c_needs ( int lexv , char* symbol ) {
+
+	//	author : Jelo Wang
+	//	since : 20110211
+	//	(C)TOK
+
+	if ( lexv != lexc->v ) {
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "needs '%s' , line : %d\n" , symbol , lexc->line ) ;		
+	}
+	
+}
+
 static int parser_c_read_function () {
 
 	//	author : Jelo Wang
@@ -144,7 +156,7 @@ static int parser_c_read_function () {
 
 	azonal = SymboleFindFunction ( lexc->token ) ;
 	
-	if ( azonal ) cerror ( C_PARSER_MOD , IS_C_ERROR , "function '%s' multi-definited , line : %d\n" , lexc->token , lexc->line ) ;
+	if ( azonal ) cerror ( C_PARSER_MOD , IS_C_ERROR , "function '%s' multi-defined , line : %d\n" , lexc->token , lexc->line ) ;
 	else azonal = SymboleAddFunction ( lexc->token , ISA_FUNCTION , parserc->head , lexc->line ) ;
 	
 	//	create a LGA
@@ -170,11 +182,11 @@ static int parser_c_read_function () {
 	}
 	UNSET_PARSER_SCOPE();
 	
- 	if ( lexc->stop || stack ) {
-		cerror ( C_PARSER_MOD , IS_C_ERROR , "'()' is unmatched , line : %d\n" , lexc -> line ) ;
-		RESET_PARSER () ;
-		return 1 ;
-	}
+// 	if ( lexc->stop || stack ) {
+//		cerror ( C_PARSER_MOD , IS_C_ERROR , "'()' is unmatched , line : %d\n" , lexc->line ) ;
+//		RESET_PARSER () ;
+//		return 1 ;
+//	}
 	
 	LgnosiaStackPush ( (int) lgnosia ) ;
 	
@@ -210,6 +222,68 @@ static int parser_c_read_function () {
 
 }
 
+static int parser_c_read_funccal () {
+
+	//	author : Jelo Wang
+	//	since : 20110211
+	//	(C)TOK
+
+	int stack = 0 ;
+	int totall_para = 0 ;
+	int have_para = 1 ;
+	AZONAL* azonal = 0 ;
+	
+	if ( C_FUNCCAL != lexc->v ) 
+		return 0 ;
+
+	azonal = SymboleFindFunction ( lexc->token ) ;
+	
+	if ( !azonal ) {
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "function '%s' is not defined , line : %d\n" , lexc->token , lexc->line ) ;
+		parser_c_skip_parenthesis_scope () ;
+		if ( 0 == MATCH_PARSER_SCOPE(PARSERC_SCOPE_PARAM) ) {
+			if ( C_FEN != lexerc_head_genv (1) ) {
+				parser_c_needs ( C_FEN , ";" ) ;
+			}
+		}
+		return 0 ;
+	}
+
+	if ( C_XKR == lexerc_head_genv (2) ) {
+		have_para = 0 ;
+	}
+	
+ 	SET_PARSER_SCOPE(PARSERC_SCOPE_PARAM);
+	while ( !lexc->stop ) {
+		
+		lexerc_genv () ;
+		
+		if ( C_XKL == lexc->v )
+			stack ++ ;
+		if ( C_XKR == lexc->v )
+			stack -- ;
+			
+		if ( 0 == stack ) 
+			break ;
+		
+	}
+	UNSET_PARSER_SCOPE();
+
+	//	check sematics of funccal.
+	//	totall parameters,data type
+	if ( have_para ) {
+		
+	}
+	
+	if ( 0 == MATCH_PARSER_SCOPE(PARSERC_SCOPE_PARAM) ) {
+		if ( C_FEN != lexerc_head_genv (1) ) {
+			parser_c_needs ( C_FEN , ";" ) ;
+		}
+	}
+				
+	return 1 ;
+	
+}
 
 static int parser_c_read_if () {
 
@@ -523,8 +597,6 @@ static int parser_c_read_controlflow () {
 
 }
 
-
-
 static int parser_c_is_controlflow ( int head ) {
 
 	//	author : Jelo Wang
@@ -562,6 +634,9 @@ static int parser_c_read_symbol_inf () {
 		case C_INTNUM :
 			return parser_c_read_intnum_inf () ;
 		break ;
+		case C_FUNCCAL :
+			parser_c_read_funccal () ;			
+		break ;		
 		default : return 0 ;
 	}
 
@@ -580,7 +655,6 @@ static int parser_c_read_symbol_def () {
 		case C_VARDEF :
 			parser_c_read_variable_def () ;
 		break ;
-
 		default : return 0 ;
 	}
 
@@ -668,7 +742,6 @@ static int parser_c_read_intnum_inf () {
 	return (int)SymboleAndNumeric ( lexc->token , ISA_INTEGER ) ;
 
 }
-
 
 static int parser_c_read_variable_inf () {
 
@@ -807,6 +880,18 @@ static void parser_c_read_poroperator ( int side , int evalor_enable ) {
 		} else lexerc_genv () ;
 	}
 
+}
+
+void parser_c_skip_parenthesis_scope () {
+
+	//	author : Jelo Wang
+	//	since : 20110211
+	//	(C)TOK
+	
+	while ( !lexc->stop && C_XKR != lexc->v ) {
+		lexerc_genv () ;
+	}
+	
 }
 
 int parser_c_run ( int* lines ) {
