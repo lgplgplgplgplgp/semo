@@ -103,7 +103,7 @@ extern LEXERARM* lexarm ;
 
 extern LEXERARM* lexerarm_new ( char* asm , int set ) ;
 extern void lexerarm_set ( LEXERARM* lexerarm ) ;
-extern void lexerc_setmode ( int mode ) ;
+extern void lexerarm_setmode ( int mode ) ;
 extern int lexerarm_genv () ;
 extern int lexerarm_head_genv ( int border )  ;
 extern int lexerarm_destroy () ;

@@ -1470,7 +1470,7 @@ int lexerac_matchop ( int el ) {
 
 }
 
-void lexerac_genv ()  {
+int lexerac_genv ()  {
 
 	//	author : Jelo Wang
 	//	since : 2008
@@ -1951,6 +1951,8 @@ REDO :
 		}
 
 	}
+
+	return 0 ;
 
 }
 

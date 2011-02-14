@@ -120,7 +120,7 @@ extern void lexerac_skip_blank () ;
 extern void lexerac_skip_space () ;
 extern void lexerac_jump ( int step ) ;
 extern int lexerac_look ( int step ) ;
-extern void lexerac_genv () ;
+extern int lexerac_genv () ;
 extern LEXERLAC* lexerac_new ( unsigned char* data , int mmode ) ;
 extern void lexerac_set ( LEXERLAC* lexer ) ;
 extern void lexerac_clear_status () ;

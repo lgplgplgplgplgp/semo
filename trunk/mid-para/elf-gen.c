@@ -57,7 +57,7 @@ int ElfGenInsertTextRelaItem ( Elf32_Rela rela ) {
 	//	since : 20100727
 	//	(C)TOK
 
-	Elf32_Rela* elf32_rela = (Elf32_Rel* )SCMalloc ( sizeof(Elf32_Rela) ) ;
+	Elf32_Rela* elf32_rela = (Elf32_Rela* )SCMalloc ( sizeof(Elf32_Rela) ) ;
 
 	if ( !elf32_rela ) return 0 ;	
 
@@ -92,7 +92,7 @@ int ElfGenInsertDataRelaItem ( Elf32_Rela rela ) {
 	//	since : 20100727
 	//	(C)TOK
 	
-	Elf32_Rela* elf32_rela = (Elf32_Rel* )SCMalloc ( sizeof(Elf32_Rela) ) ;
+	Elf32_Rela* elf32_rela = (Elf32_Rela* )SCMalloc ( sizeof(Elf32_Rela) ) ;
 
 	if ( !elf32_rela ) return 0 ;	
 
