@@ -750,7 +750,7 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 		else 
 			name = azonal->name ;
 
-		expression->delt = (char* ) SCMalloc ( name + 1 ) ;
+		expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
 		sc_strcpy ( expression->delt  , name ) ;
 	
 		if ( ISA_INTEGER == azonal->azonaltype )

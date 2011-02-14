@@ -30,8 +30,8 @@
 # include <stdarg.h> 
 # include "schal.h"
 
-# define SCMalloc malloc
-# define SC_FREE free
+# define MALLOC malloc
+# define FREE free
 
 # ifdef MEMORY_MONITOR_ENABLE
 MEMORY_MONITOR mem_monitor = { 0 , 0 , 0 , 0 , 0 , 0 } ;
@@ -148,7 +148,7 @@ void SCLog ( const   char* SCLog , ... ) {
 } 
 
 
-void* SCNormalloc ( long int length , char* file , int line ) {
+void* SCNormalloc ( unsigned int length , char* file , int line ) {
 
 	//	author : Jelo Wang
 	//	notes : malloc
@@ -156,7 +156,7 @@ void* SCNormalloc ( long int length , char* file , int line ) {
 	
 	void* buffer = 0 ;
 	
-	buffer = (void*) SCMalloc ( length ) ;
+	buffer = (void*) MALLOC ( length ) ;
 
 	if ( buffer ) memset ( buffer , 0 , length ) ;
 
@@ -198,7 +198,7 @@ void* SCRemalloc ( void* buffer , long int bufferlen , long int length ) {
 	//	notes : SCRemalloc
 	//	since : 20090831
 	
-	unsigned char* memory = (unsigned char* ) SCMalloc ( length  ) ;
+	unsigned char* memory = (unsigned char* ) MALLOC ( length  ) ;
 
 	if ( memory ) memcpy ( memory , buffer , bufferlen ) ;
 	
@@ -219,7 +219,7 @@ int SCFree ( void* buffer ) {
 		MemoryMonitorFree ( &mem_monitor , (int)buffer ) ;
 	# endif
 
- 	SC_FREE ( buffer ) ;
+ 	FREE ( buffer ) ;
 
 	return 1 ;
 
@@ -236,7 +236,7 @@ int SCFreeEx ( void** buffer ) {
 		MemoryMonitorFree ( &mem_monitor , (int)*buffer ) ;
 	# endif
 
- 	SC_FREE ( *buffer ) ;
+ 	FREE ( *buffer ) ;
 
 	*buffer = 0 ;
 
@@ -401,7 +401,7 @@ void SCTerminate () {
 	
 }
 
-char* GetFilePath ( char* name ) {
+char* SCHalGetFilePath ( char* name ) {
 
 	//	author : Jelo Wang
 	//	notes : GetFilePath

@@ -34,7 +34,7 @@
 
 //# define MEMORY_MONITOR_ENABLE
 
-extern void* SCNormalloc ( long int length ) ;
+extern void* SCNormalloc ( unsigned int length , char* , int ) ;
 
 # define SCMalloc(length) SCNormalloc(length,__FILE__,__LINE__)
 
@@ -69,8 +69,8 @@ extern short int SCHalFileGetc ( int file ) ;
 extern int SCHalFileEnd ( int file ) ;
 extern int SCHalFileLength( int file ) ;
 extern int SCHalFileClose ( int file ) ;
-extern int sc_hal_file_puts ( const char* string , int file ) ;
-extern int sc_hal_file_putc ( int string , int file ) ;
+extern char* SCHalGetFilePath ( char* name ) ;
 extern void SCMemcpy ( void* target_memory , void* source_memory , int length ) ;
+extern void SCLog ( const	 char* SCLog , ... ) ;
 extern void SCTerminate () ;
 
