@@ -293,13 +293,12 @@ readproc :
 					if ( -1 != lsn ) {
 						value = sc_strcat ( "." , SCClItoa (lsn) ) ;					
 						SCClStringAddStr ( &lacnode->code , value ) ;
-						SCClStringAdd ( &lacnode->code , 0 ) ;
+						SCClStringAdd ( &lacnode->code , '\0' ) ;
 						SCFree ( value ) ;		
 					} else if ( -1 == lsn ) {
 						//	set register 0 as default if the ls hasnt defined
 						SCClStringAddStr ( &lacnode->code , ".0" ) ;
-						SCClStringAdd ( &lacnode->code , 0 ) ;
-						SCFree ( value ) ;	
+						SCClStringAdd ( &lacnode->code , '\0' ) ;
 					}
 					
 					if ( -1 < lsn ) {
