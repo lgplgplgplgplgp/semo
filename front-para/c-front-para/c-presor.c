@@ -234,7 +234,7 @@ static char* subparambody ( char* param_body , char* subedstr , int body_len , i
 
 	}
 	
-	return 1 ;
+	return subedstr ;
 	
 }
 
@@ -487,7 +487,7 @@ static void skip_macro  ()  {
 	//	(c)TOK
 	
 	if ( C_DEFINE != lexc->v )
-		return 0;
+		return ;
 
 	//	skip these junk streams that we donnt needed
 	lexerc_skip_space () ;
@@ -665,7 +665,7 @@ static int read_macro () {
 	SCClStringAdd ( &(nmc->body) , '\0' ) ;
 		
 	if ( lexc->file ) {
-		nmc->file = (char* ) SCMalloc ( lexc->file ) ;
+		nmc->file = (char* ) SCMalloc ( sc_strlen(lexc->file) + 1 ) ;
 
 		if ( !nmc->file ) {
 
@@ -713,7 +713,7 @@ static void read_include () {
 			lexc->token [ walker ] = lexc->token [ walker + 1 ] ;
 		}
 		
-		sc_strcpy ( abpath , GetFilePath(lexc->token) ) ;
+		sc_strcpy ( abpath , SCHalGetFilePath(lexc->token) ) ;
 
 		file = SCHalFileOpen ( abpath , "rb" ) ;
 			
@@ -731,7 +731,7 @@ static void read_include () {
 
 		if ( !buffer ) {
 			SCLog ( "[sc][c-presor][read_include] not enough memory %s,%d\n",__FILE__,__LINE__);
-			return 0 ;
+			return ;
 		}
 
 		for ( walker = lexc->code->get_walker ; walker >= 0 && '#' != lexc->code->data [walker] ; walker -- ) {
@@ -774,7 +774,7 @@ static void read_include () {
 
 		path [ walker ] = '\0' ;
 
-		sc_strcpy ( abpath , GetFilePath(path) ) ;
+		sc_strcpy ( abpath , SCHalGetFilePath(path) ) ;
 
 	}
 
