@@ -37,7 +37,7 @@
 	SCClStringAddStr ( &ArmAsm , "# Í»¿Ç¿ªÔ´\r\n\r\n") ;\
 	
 //	ADC <Rd> , <Rm>
-# define THUMB_ADD_RdRm(Rd,Rm)\
+# define THUMB_ADC_RdRm(Rd,Rm)\
 	SCClStringAddStr ( &ArmAsm , sc_strcat ("ADC ",Rd) ) ;\
 	SCClStringAddStr ( &ArmAsm , sc_strcat (",",Rm) ) ;\
 	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
@@ -180,7 +180,7 @@
 	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
 
 //	LDRSH <Rd> , [<Rn> , <Rm> ]
-# define THUMB_LDRSB_RdRnRm(Rd,Rn,Rm)\
+# define THUMB_LDRSH_RdRnRm(Rd,Rn,Rm)\
 	SCClStringAddStr ( &ArmAsm , sc_strcat ("LDRSH ",Rd) ) ;\
 	SCClStringAddStr ( &ArmAsm , sc_strcat (" , [ ",Rn) ) ;\
 	SCClStringAddStr ( &ArmAsm , sc_strcat ( "," , Rm) ) ;\

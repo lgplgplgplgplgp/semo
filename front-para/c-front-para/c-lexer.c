@@ -540,7 +540,7 @@ void lexerc_put_atom ( unsigned char atom )  {
 	//	(c)TOK
 	
 	if ( lexerc_overflowed () )
-		return 0;
+		return ;
 	
 	lexc->code->data [ lexc->code->get_walker ] = atom ;
 
@@ -1617,7 +1617,7 @@ int lexerc_matchop ( int el ) {
 
 }
 
-void lexerc_genv ()  {
+int lexerc_genv ()  {
 
 	//	author : Jelo Wang
 	//	since : 2008
@@ -2151,6 +2151,9 @@ REDO :
 		}
 
 	}
+
+	return 0 ;
+	
 
 }
 
