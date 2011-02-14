@@ -204,6 +204,7 @@ extern int SCClListListIteratorNext ( int lt ) ;
 extern int SCClListSearchBigestElement ( int lt ) ;
 extern void SCClListDeleteBetweenTwo ( int N1 , int N3 ) ;
 extern void SCClListDestroy ( SCClList* list ) ;
+extern int SCClAtoi ( char* number ) ;
 extern char* SCClItoa ( int number ) ;
 
 //	SCClStack
@@ -213,7 +214,7 @@ extern int SCClStackEqual ( SCClStack* stack  , int element ) ;
 extern int SCClStackEmpty ( SCClStack* stack ) ;
 extern void SCClStackPush ( SCClStack* stack , int element ) ;
 extern int SCClStackPop ( SCClStack* stack ) ;
-extern int SCClStack_look ( SCClStack* stack , int element ) ;
+extern int SCClStackLook ( SCClStack* stack , int element ) ;
 extern int SCClStackGetDeep ( SCClStack* stack ) ;
 extern void SCClStackDestroy ( SCClStack* stack ) ;
 

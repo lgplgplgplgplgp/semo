@@ -41,8 +41,6 @@
 //	in bit EXPR
 # define BITAND_SCOPE  4 
 
-extern void SCLog ( char* , ... ) ;
-
 SCClStack suffix_stack = { 0 , 0 , 0 } ;
 SCClStack evalor_stack = { 0 , 0 , 0 } ;
 EVALOR* evalor = 0 ;
@@ -274,7 +272,7 @@ static void c_gen_suffix_exp () {
 	SCClStack* ieval = (SCClStack* ) SCMalloc ( sizeof(SCClStack) ) ;
 	
 	if ( 0 == ieval ) {
-		return 0 ;
+		return ;
 	}
 
 	SCClStackInit ( ieval ) ;
@@ -290,10 +288,10 @@ static void c_gen_suffix_exp () {
 		if ( lexc -> v == C_CHROW  && lexc -> pv != C_ESCAPE )
 			break;
 		
-		if ( is_functer  ( lexc -> v , ARITHMETIC_SCOPE ) )
+		if ( is_functer  ( lexc -> v ) )
 			c_suffix_exp_build ( ieval , lexc -> v , ARITHMETIC_SCOPE ) ;
 		else {
-			SCClStackPush ( &suffix_stack , atoi ( lexc -> token ) ) ;
+			SCClStackPush ( &suffix_stack , SCClAtoi ( lexc -> token ) ) ;
 		}
 	}
 
@@ -421,7 +419,7 @@ void EvalorOperatorPush ( int operator ) {
 	EXPR* operand1 = 0 ;
 	EXPR* operand2 = 0 ;
 
-	if ( !expression ) return 0 ;
+	if ( !expression ) return ;
 	if ( !evalor ) return ;
 
 	expression->delt = 0 ;
