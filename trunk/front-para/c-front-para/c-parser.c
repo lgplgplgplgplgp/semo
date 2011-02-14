@@ -48,6 +48,8 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 # define PORL_OPERATOR(x) (x==C_XKL)
 # define PORR_OPERATOR(x) (x==C_XKR)
 
+# define DHEAD_FLOW(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
+
 # define RESET_PARSER()\
 	parserc->head = -1 ;\
 	parserc->form = -1 ;\
@@ -80,7 +82,7 @@ static void parserc_ready () {
 
 		SCLog ("[sc][c-front-para][parserc] initialization has failed\n") ;
 		SCTerminate () ;
-		return 0 ;
+		return ;
 		
 	}
 	
@@ -108,7 +110,7 @@ static int parserc_genv () {
 			
 			case 0 :
 
-				if ( is_define_head_flow ( lexc->v ) ) {
+				if ( DHEAD_FLOW ( lexc->v ) ) {
 					parserc->head = lexc->v ;
 					state = 0 ;
 				} else if ( C_VAR == lexc->v ) {
