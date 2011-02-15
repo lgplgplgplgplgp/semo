@@ -111,7 +111,7 @@ void RegocRegisterAlloc ( int graphp , int lstotall ) {
 	
 	regoclooper ++ ;
 
-	return 0 ;
+	return ;
 		
 	
 }	
