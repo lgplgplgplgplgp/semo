@@ -689,7 +689,7 @@ static void read_include () {
 	//	since : 20090831
 	//	(c)TOK
 	
-	int file = 0 ;
+	void* file = 0 ;
 
 	char* buffer = 0 ;
 	char abpath [ MAX_PATH ] = {0};
@@ -1092,7 +1092,8 @@ int presor_c_run ( char* presor_file ) {
 	char* subed = 0 ;
 	int line = 0 ;
 	
-	int file = 0 ;
+	void* file = 0 ;
+	
 int ok = 1 ;
 
 	ASSERT(presor_results) ;

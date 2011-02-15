@@ -97,7 +97,6 @@ char* lacgentor_gen_operator ( int operator ) {
 		case C_YHH : return "^" ;
 
 		case C_HE :	return "&" ;
-		return 6 ;
 
 		case C_HU :	return "|" ;
 
@@ -227,7 +226,7 @@ void lacgentor_ready () {
 	//	get LGA tree
 	lacgentor.tree = (SCClList* ) LgnosiaGet () ;
 
-	lacgentor.lgnosia = (LGNOSIA* ) lacgentor.tree->element ;
+	lacgentor.lgnosia = lacgentor.tree->element ;
 
 }
 
@@ -244,7 +243,7 @@ void lacgentor_next () {
 		return ;
 	}
 
-	lacgentor.lgnosia = (LGNOSIA* ) lacgentor.tree->element ;
+	lacgentor.lgnosia = lacgentor.tree->element ;
 
 }
 
@@ -927,7 +926,7 @@ char* gentor_lac_run ( char* lacfile ) {
 	}
 	
 	if ( SC_LAC & compiler->parameter ) {
-		int file = SCHalFileOpen ( lacfile , "wb+" ) ;
+		void* file = SCHalFileOpen ( lacfile , "wb+" ) ;
 		SCHalFileWrite ( file , lac , 1 , sc_strlen (lac) ) ;
 		SCHalFileClose ( file ) ;
 		//	release it here

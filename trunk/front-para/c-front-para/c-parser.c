@@ -40,6 +40,7 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 
 # define NUMERIC_FLOW(x) ((x==C_INTNUM) ||(x==C_FLTNUM) ||(x==C_HEXNUM)||(x==C_INTENUM)||(x==C_FLTENUM))
 # define OPERAND_FLOW(x) (NUMERIC_FLOW(x)||(x==C_VAR)||(x==C_ARRAY)||(x==C_FUNCCAL))
+# define DHEAD_FLOW(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
 
 # define DUA_OPERATOR(x) (C_SUB <= x && x <= C_HE)
 # define CMA_OPERATOR(x) ((x==C_DOU))
@@ -47,8 +48,6 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 //	prior operator
 # define PORL_OPERATOR(x) (x==C_XKL)
 # define PORR_OPERATOR(x) (x==C_XKR)
-
-# define DHEAD_FLOW(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
 
 # define RESET_PARSER()\
 	parserc->head = -1 ;\

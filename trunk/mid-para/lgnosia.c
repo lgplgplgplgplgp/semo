@@ -262,6 +262,8 @@ int LgnosiaBFSNormalize( int lgnosiaa ) {
 	}
 
 	SCClListDestroy ( &samelayernode ) ;
+	
+	return 1 ;
 
 }
 
@@ -277,7 +279,7 @@ int LgnosiaGenPOC ( int lgnosia , int azonal ) {
 	
 	LGNOSIA* lgnosiap = (LGNOSIA* )lgnosia ;
 	
-	if ( !lgnosiap ) return ;
+	if ( !lgnosiap ) return 0 ;
 
 	lgnosiap->po_chain = (LGNOSIA* ) SCMalloc ( sizeof(LGNOSIA) ) ;
 	if ( lgnosiap->po_chain ) lgnosiap->po_chain->azonal = azonal ;
@@ -298,7 +300,7 @@ int LgnosiaGenNEC ( int lgnosia , int azonal ) {
 	
 	LGNOSIA* lgnosiap = (LGNOSIA* )lgnosia ;
 	
-	if ( !lgnosiap ) return ;
+	if ( !lgnosiap ) return 0 ;
 	
 	lgnosiap->ne_chain = (LGNOSIA* ) SCMalloc ( sizeof(LGNOSIA) ) ;
 	if ( lgnosiap->ne_chain ) lgnosiap->ne_chain->azonal = azonal ;
