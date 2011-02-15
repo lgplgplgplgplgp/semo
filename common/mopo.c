@@ -93,7 +93,7 @@ int MOPOOutputPanel ( char* path ) {
 	
 	short* panel16 = (short* )((MOPO*)mopo)->buffer ;
 	
-	int file = SCHalFileOpen ( path , "wb+" ) ;
+	void* file = SCHalFileOpen ( path , "wb+" ) ;
 	
 	if ( !file ) return 0 ;
 

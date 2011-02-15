@@ -282,17 +282,17 @@ int SCHalMemoryLeaked () {
 	return 0 ;
 }
 
-int SCHalFileOpen ( char* path , char* flag ) {
+void* SCHalFileOpen ( char* path , char* flag ) {
 
 	//	author : Jelo Wang
 	//	notes : fopen
 	//	since : 20090809
 
- 	return fopen ( path , flag ) ;
+ 	return (void* ) fopen ( path , flag ) ;
 
 }
 
-int SCHalFileSeek ( int file , int offset , int direct ) {
+int SCHalFileSeek ( void* file , int offset , int direct ) {
 
 	//	author : Jelo Wang
 	//	notes : fseek
@@ -302,7 +302,7 @@ int SCHalFileSeek ( int file , int offset , int direct ) {
 
 }
 
-int SCHalFileRead ( int file , void* buffer , int size , int counter ) {
+int SCHalFileRead ( void* file , void* buffer , int size , int counter ) {
 
 	//	author : Jelo Wang
 	//	notes : fread
@@ -312,7 +312,7 @@ int SCHalFileRead ( int file , void* buffer , int size , int counter ) {
 
 }
 
-int SCHalFileWrite ( int file , void* buffer , int size , int counter ) {
+int SCHalFileWrite ( void* file , void* buffer , int size , int counter ) {
 	
 	//	author : Jelo Wang
 	//	notes : fwrite
@@ -322,7 +322,7 @@ int SCHalFileWrite ( int file , void* buffer , int size , int counter ) {
 
 }
 
-short int SCHalFileGetc ( int file ) {
+short int SCHalFileGetc ( void* file ) {
 	
 	//	author : Jelo Wang
 	//	notes : fwrite
@@ -332,7 +332,7 @@ short int SCHalFileGetc ( int file ) {
 
 }
 
-int SCHalFileEnd ( int file ) {
+int SCHalFileEnd ( void* file ) {
 	
 	//	author : Jelo Wang
 	//	notes : fwrite
@@ -343,7 +343,7 @@ int SCHalFileEnd ( int file ) {
 }
 
 
-int SCHalFileLength ( int file ) {
+int SCHalFileLength ( void* file ) {
 
 	//	author : Jelo Wang
 	//	notes : fseek
@@ -368,7 +368,7 @@ int SCHalFileLength ( int file ) {
 
 
 
-int SCHalFileClose ( int file ) {
+int SCHalFileClose ( void* file ) {
 	
 	//	author : Jelo Wang
 	//	notes : fclose
@@ -406,7 +406,11 @@ char* SCHalGetFilePath ( char* name ) {
 	//	author : Jelo Wang
 	//	notes : GetFilePath
 	//	since : 20090831
-		
+
+
+	extern int sc_strlen ( char* ) ;
+	extern void sc_back_insert ( char* , char* , int ) ;
+
 	static char path [ 1024 ] ; 
 
 	int slash = 0 ;
