@@ -217,6 +217,7 @@ int sc_strcmplen ( char* T , char* S ) {
 	else if ( tlen == slen ) return 0 ;
 	else if ( tlen > slen ) return 1 ;
 	
+	return 1 ;
 
 }
 
@@ -725,6 +726,8 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 		string->add_walker ++ ;
 
 	}
+	
+	return 1 ;
 
 }
 
@@ -969,7 +972,7 @@ SCClList* SCClListNew () {
 
 }
 
-void SCClListInsert ( SCClList* list , int el ) {
+void SCClListInsert ( SCClList* list , void* el ) {
 
 	//	author : Jelo Wang
 	//	since : 20091123
@@ -994,13 +997,13 @@ void SCClListInsert ( SCClList* list , int el ) {
 	} else {
 		list->next->next = listnew ;
 		listnew->front = list->next ;
-		list->next = listnew ;		
+		list->next = listnew ;
 		list->totall ++ ;
  	}
 	
 }
 
-void SCClListInsertEx ( SCClList* list , int el , int eltype ) {
+void SCClListInsertEx ( SCClList* list , void* el , int eltype ) {
 
 	//	author : Jelo Wang
 	//	since : 20100718
@@ -1043,7 +1046,7 @@ int SCClListEmpty ( SCClList* list ) {
 	
 }
 
-int SCClListSetIterator ( int lt , int position ) {
+int SCClListSetIterator ( void* lt , int position ) {
 
 	//	author : Jelo Wang
 	//	since : 20100609
@@ -1069,7 +1072,7 @@ int SCClListSetIterator ( int lt , int position ) {
 
 }
 
-int SCClListIteratorPermit ( int lt ) {
+int SCClListIteratorPermit ( void* lt ) {
 
 	//	author : Jelo Wang
 	//	since : 20100609
@@ -1087,7 +1090,7 @@ int SCClListIteratorPermit ( int lt ) {
 
 }
 
-int SCClListIteratorGetElement ( int lt ) {
+void* SCClListIteratorGetElement ( void* lt ) {
 
 	//	author : Jelo Wang
 	//	since : 20100609
@@ -1104,7 +1107,7 @@ int SCClListIteratorGetElement ( int lt ) {
 
 }
 
-int SCClListListIteratorNext ( int lt ) {
+int SCClListListIteratorNext ( void* lt ) {
 
 	//	author : Jelo Wang
 	//	since : 20100609
@@ -1123,14 +1126,14 @@ int SCClListListIteratorNext ( int lt ) {
 
 }
 
-int SCClListSearchBigestElement ( int lt ) {
+void* SCClListSearchBigestElement ( void* lt ) {
 
 	//	author : Jelo Wang
 	//	since : 20100805
 	//	(C)TOK
 
-	int cv = 0 ;
-	int lv = 0 ;
+	void* cv = 0 ;
+	void* lv = 0 ;
 	
 	SCClList* looper = 0 ;
 	
@@ -1143,7 +1146,7 @@ int SCClListSearchBigestElement ( int lt ) {
 
 }
 
-void SCClListDeleteBetweenTwo ( int N1 , int N3 ) {
+void SCClListDeleteBetweenTwo ( void* N1 , void* N3 ) {
 
 	//	author : Jelo Wang
 	//	since : 20100811
@@ -1169,7 +1172,7 @@ void SCClListDeleteBetweenTwo ( int N1 , int N3 ) {
 	
 }
 
-void SCClListConect ( int N1 , int element , int N3  ) {
+void SCClListConect ( void* N1 , void* element , void* N3  ) {
 
 	//	author : Jelo Wang
 	//	since : 20100806
@@ -1263,7 +1266,7 @@ int SCClStackGet ( SCClStack* istack  ) {
 	
 }
 
-int SCClStackEqual ( SCClStack* istack  , int element ) {
+int SCClStackEqual ( SCClStack* istack  , void* element ) {
 
 	//	author : Jelo Wang
 	//	since : 20091123
@@ -1281,7 +1284,7 @@ long int SCClStackEmpty ( SCClStack* istack ) {
 	
 }
 
-void SCClStackPush ( SCClStack* istack , int eelement ) {
+void SCClStackPush ( SCClStack* istack , void* eelement ) {
 
 	//	author	: Jelo Wang
 	//	since	: 20090819
@@ -1301,7 +1304,7 @@ void SCClStackPush ( SCClStack* istack , int eelement ) {
 	
 }
 
-int SCClStackPop ( SCClStack* istack ) {
+void* SCClStackPop ( SCClStack* istack ) {
 
 	//	author	: Jelo Wang
 	//	since	: 20090819
@@ -1327,7 +1330,7 @@ int SCClStackPop ( SCClStack* istack ) {
 	
 }
 
-int SCClStackLook ( SCClStack* istack , int eelement ) {
+int SCClStackLook ( SCClStack* istack , void* eelement ) {
 
 	//	author	: Jelo Wang
 	//	since	: 20090819
@@ -1386,7 +1389,7 @@ int SCClQueueEmpty ( SCClQueue* queue ) {
 	
 }
 
-void SCClQueueEnter ( SCClQueue* queue , int element ) {
+void SCClQueueEnter ( SCClQueue* queue , void* element ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100425
@@ -1453,7 +1456,7 @@ SCClGraph* SCClGraphCreate () {
 	
 }
 
-SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , int handle ) {
+SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , void* handle ) {
 
 	//	author : Jelo Wang
 	//	since : 20100831
@@ -1479,7 +1482,7 @@ SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , int handle ) {
 	node->color = -1 ;
 	node->handle = handle ;
 
-	SCClListInsert ( &graph->nl , (int)node  ) ;
+	SCClListInsert ( &graph->nl , (void* )node  ) ;
 	graph->totall ++ ;
 
 	return node ;
@@ -1528,8 +1531,8 @@ void SCClGraphAddEdge (  SCClGraph* graph , int N1 , int N2 ) {
 
 	if ( !node2 ) return ;
 
-	SCClListInsert ( &node1->nei , (int)node2 ) ;
-	SCClListInsert ( &node2->nei , (int)node1 ) ;
+	SCClListInsert ( &node1->nei , (void* )node2 ) ;
+	SCClListInsert ( &node2->nei , (void* )node1 ) ;
 
 	node1->degree ++ ;
 	node2->degree ++ ;
@@ -1545,15 +1548,15 @@ int SCClGraphHaveEdge ( SCClGraph* graph , int N1 , int N2 ) {
 	SCClGraphNode* node1 = 0 ;
 	SCClGraphNode* node2 = 0 ;
 	
-	if ( !graph ) return ;
+	if ( !graph ) return 0 ;
 
 	node1 = SCClGraphSearchNode ( graph , N1 ) ;
 
-	if ( !node1 ) return ;
+	if ( !node1 ) return 0 ;
 	
 	node2 = SCClGraphSearchNode ( graph , N2 ) ;
 
-	if ( !node2 ) return ;
+	if ( !node2 ) return 0 ;
 	
 	SCClListSetIterator ( &node1->nei , SCCLLISTSEEK_HEAD ) ;
 
@@ -1713,7 +1716,7 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 		node = (SCClGraphNode* ) llooper->element ;
 
 		//	node->handle is a handle of LAC
-		if ( node->degree >= totall_colors ) return node->handle ;
+		if ( node->degree >= totall_colors ) return (int )node->handle ;
 
 		if ( -1 == node->color ) node->color = SCClGraphGetColor ( node , totall_colors ) ;
 
@@ -1724,7 +1727,7 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 
 			//	node->handle is a handle of LAC
 			if ( innode->degree >= totall_colors ) 
-				return innode->handle ;
+				return (int )innode->handle ;
 		
 			if ( -1 == innode->color ) innode->color = SCClGraphGetColor ( innode , totall_colors ) ;
 			

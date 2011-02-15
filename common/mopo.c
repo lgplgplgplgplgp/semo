@@ -119,7 +119,7 @@ int MOPOOutputPanel ( char* path ) {
 
 }
 
-int MOPODestroyPanel () {
+void MOPODestroyPanel () {
 	
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -153,7 +153,7 @@ void MOPODrawPixel ( int x , int y , int red , int green , int blue ) {
 }  
 
 
-int MOPODrawLine ( int x0 , int y0 , int x1 , int y1 , int red , int green , int blue ) {
+void MOPODrawLine ( int x0 , int y0 , int x1 , int y1 , int red , int green , int blue ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -242,7 +242,7 @@ int MOPODrawLine ( int x0 , int y0 , int x1 , int y1 , int red , int green , int
 }
 
 
-int MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue ) {
+void MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -263,7 +263,7 @@ int MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue
 	
 }
 
-int MOPOFillCircle ( int x , int y , int raduis , int red , int green , int blue ) {
+void MOPOFillCircle ( int x , int y , int raduis , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -446,7 +446,7 @@ void MOPOStretch ( int cx , int cy , float radius , int dx , int dy ) {
 	
 }
 
-static int MOPODrawTextModel ( int x , int y , const char* words , int red , int green , int blue ) {
+static void MOPODrawTextModel ( int x , int y , const char* words , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -460,7 +460,7 @@ static int MOPODrawTextModel ( int x , int y , const char* words , int red , int
 	//	14x14 µãÕó
 	# define MATRIXSCALE 14
 
-	if ( !words ) return 0 ;
+	if ( !words ) return ;
 
 	wdlen = (MATRIXSCALE) / 8 ;
 
@@ -511,7 +511,7 @@ void MOPODrawText ( int x , int y , const char* text , int red , int green , int
 
 }
 
-void MOPOExpDFSRender ( int exp , int x , int y ) {
+void MOPOExpDFSRender ( void* exp , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -526,9 +526,8 @@ void MOPOExpDFSRender ( int exp , int x , int y ) {
 
 	AZONAL* azonal = 0 ;
 	
-	if ( !expression ) {
-		return 0 ;
-	}
+	if ( !expression ) 
+		return ;
 
 	if ( EXP_OPERATOR == expression->type ) {
 		
@@ -563,11 +562,11 @@ void MOPOExpDFSRender ( int exp , int x , int y ) {
 
 	}
 	
-	return 1 ;
+	return ;
 	
 }
 
-int MOPOExpBFSRender ( int exp , int x , int y ) {
+int MOPOExpBFSRender ( void* exp , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100802
@@ -583,7 +582,7 @@ int MOPOExpBFSRender ( int exp , int x , int y ) {
 	EXPR* expression = (EXPR* )exp ;
 
 	SCClQueueInit ( &queue ) ;
-	SCClQueueEnter ( &queue , (int)expression ) ;
+	SCClQueueEnter ( &queue , (void* )expression ) ;
 
 	while ( expression ) {
 
@@ -596,10 +595,10 @@ int MOPOExpBFSRender ( int exp , int x , int y ) {
 		if ( !expression ) break ;
 
 		if ( expression->left ) 
-			SCClQueueEnter ( &queue , (int)expression->left ) ;
+			SCClQueueEnter ( &queue , (void* )expression->left ) ;
 
 		if ( expression->right ) 
-			SCClQueueEnter ( &queue , (int)expression->right ) ;
+			SCClQueueEnter ( &queue , (void* )expression->right ) ;
 
 		thedeep = expression->deep ;	
 		
@@ -676,7 +675,7 @@ int MOPOExpBFSRender ( int exp , int x , int y ) {
 }
 
 
-int MOPOLgaExpRender ( int lgnosiaa , int anltype , int x , int y ) {
+int MOPOLgaExpRender ( void* lgnosiaa , int anltype , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100803
@@ -721,7 +720,7 @@ int MOPOLgaExpRender ( int lgnosiaa , int anltype , int x , int y ) {
 		lgnosia = (LGNOSIA*)listlooper->element ;
 		azonal = (AZONAL* ) lgnosia->azonal ;
 		
-		if ( !azonal ) return ;
+		if ( !azonal ) return 0 ;
 		
 		switch ( azonal->azonaltype ) {
 
@@ -781,7 +780,7 @@ int MOPOLgaExpRender ( int lgnosiaa , int anltype , int x , int y ) {
 }
 
 
-int MOPOCFBFSRender ( int lgnosiaa , int x , int y ) {
+void MOPOCFBFSRender ( void* lgnosiaa , int x , int y ) {
 
 	//	author : Jelo Wang
 	//	since : 20100804
@@ -821,13 +820,13 @@ int MOPOCFBFSRender ( int lgnosiaa , int x , int y ) {
 		
 		if ( LGNOSIA_CP_IDENT == lgnosia->type ) {
 			if (lgnosia->po_chain)
-				SCClQueueEnter ( &queue , (int)lgnosia->po_chain ) ;
+				SCClQueueEnter ( &queue , (void* )lgnosia->po_chain ) ;
 			if (lgnosia->ne_chain)
-				SCClQueueEnter ( &queue , (int)lgnosia->ne_chain ) ;
+				SCClQueueEnter ( &queue , (void* )lgnosia->ne_chain ) ;
 		} else {
 
 			for ( looper = lgnosia->context.head ; looper ; looper = looper->next ) {
-				if ( looper->element ) SCClQueueEnter ( &queue , (int)looper->element ) ;
+				if ( looper->element ) SCClQueueEnter ( &queue , (void* )looper->element ) ;
 			}
 
 		}
@@ -931,7 +930,7 @@ int MOPOCFBFSRender ( int lgnosiaa , int x , int y ) {
 	
 }
 
-int MOPOCFDFSRender ( int lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) {
+int MOPOCFDFSRender ( void* lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) {
 
 	//	author : Jelo Wang
 	//	since : 20100804
@@ -975,8 +974,8 @@ int MOPOCFDFSRender ( int lgnosiaa , int type , int x , int y , int fx , int fy 
 			
 			MOPOFillCircle ( xx , y , 3 , 0 , 0 , 255 ) ;
 
-			MOPOCFDFSRender ( poc , LGNOSIA_POC_IDENT , xx - (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
-			MOPOCFDFSRender ( nec , LGNOSIA_NEC_IDENT , xx + (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
+			MOPOCFDFSRender ( (void* )poc , LGNOSIA_POC_IDENT , xx - (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
+			MOPOCFDFSRender ( (void* )nec , LGNOSIA_NEC_IDENT , xx + (lga->allinyer+400)*(1.0/deep) , y + 30 , xx , y , deep + 1 ) ;
 		
 			xx = xx + (lga->allinyer+400)*(1.0/deep) ;
 
@@ -1001,7 +1000,7 @@ void MOPOIGBFSRender ( SCClGraph* graph , int x , int y ) {
 	SCClList* looper = 0 ;	
 	SCClList* inlooper = 0 ;	
 	
-	if ( !graph ) return 0 ;
+	if ( !graph ) return ;
 	
 	visited = (int* ) SCMalloc ( sizeof(int)*graph->totall ) ;
 
@@ -1015,7 +1014,7 @@ void MOPOIGBFSRender ( SCClGraph* graph , int x , int y ) {
 
 	for ( looper = graph->nl.head ; looper ; looper = looper->next ) {
 				
-		SCClQueueEnter ( &queue , (int)looper->element ) ;
+		SCClQueueEnter ( &queue , (void* )looper->element ) ;
 		
 		while( !SCClQueueEmpty ( &queue) ) {
 
@@ -1043,7 +1042,7 @@ void MOPOIGBFSRender ( SCClGraph* graph , int x , int y ) {
 					innode->y = sc_randex ( 100 , 500 ) ;
 					
 	 				MOPOFillCircle ( innode->x , innode->y , 15 , innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) , 0 ) ;					
-					SCClQueueEnter ( &queue , (int)innode ) ;
+					SCClQueueEnter ( &queue , (void* )innode ) ;
 					
 				}
 

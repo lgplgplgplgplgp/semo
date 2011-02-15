@@ -56,7 +56,6 @@ typedef struct MMN {
 
 # endif
 
-
 extern void* SCRealloc ( void* buffer , long int length ) ;
 extern void* SCRemalloc ( void* buffer , long int bufferlen , long int length )  ;
 extern int SCFree ( void* buffer ) ;

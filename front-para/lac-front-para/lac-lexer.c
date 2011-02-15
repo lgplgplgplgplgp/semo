@@ -1482,8 +1482,6 @@ int lexerac_genv ()  {
 
 	SCClStringReset ( &LACTOK ) ;
 
-REDO :		
-	
 	while ( !lexac->stop ) {
 		
 		lexerac_get_atom () ;

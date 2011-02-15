@@ -565,8 +565,8 @@ void lexerc_backup () {
 	//	since : 20100308
 	//	(C)TOK
 
-	SCClStackPush ( lexc->scstack , lexc->code->get_walker ) ;
-	SCClStackPush ( lexc->scstack , lexc->stop ) ;
+	SCClStackPush ( lexc->scstack , (void* )lexc->code->get_walker ) ;
+	SCClStackPush ( lexc->scstack , (void* )lexc->stop ) ;
 	
 	
 	

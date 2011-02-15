@@ -192,11 +192,11 @@ static void c_suffix_exp_build ( SCClStack* SCClStack , int value , int scope ) 
 
 	switch( value ) {
 
-		case C_XKL : SCClStackPush ( SCClStack , C_XKL ) ; break ;
+		case C_XKL : SCClStackPush ( SCClStack , (void* )C_XKL ) ; break ;
 
 		case C_XKR :
 			
-			while( !SCClStackEqual ( SCClStack , C_XKL ) && !SCClStackEmpty ( SCClStack ) ) {
+			while( !SCClStackEqual ( SCClStack , (void* )C_XKL ) && !SCClStackEmpty ( SCClStack ) ) {
 				SCClStackPush ( &suffix_stack , SCClStackPop( SCClStack ) ) ;
 			}
 			
@@ -208,7 +208,7 @@ static void c_suffix_exp_build ( SCClStack* SCClStack , int value , int scope ) 
 
 			if( SCClStackEmpty ( SCClStack ) ) {
 
-				SCClStackPush ( SCClStack ,  value ) ;
+				SCClStackPush ( SCClStack ,  (void* )value ) ;
 				
 			} else if( -1 == have_priority ( functer_priority ( value , scope ) , functer_priority ( SCClStackGet ( SCClStack ) , scope ) ) ) {
 				
@@ -216,7 +216,7 @@ static void c_suffix_exp_build ( SCClStack* SCClStack , int value , int scope ) 
 					
 					int priority = have_priority (functer_priority ( value , scope ) , functer_priority ( SCClStackGet ( SCClStack ) , scope ) ) ;
 					
-					if( SCClStackEqual ( SCClStack , C_XKL ) ) {
+					if( SCClStackEqual ( SCClStack , (void* )C_XKL ) ) {
 
 						SCClStackPop ( SCClStack ) ;
 						
@@ -233,10 +233,10 @@ static void c_suffix_exp_build ( SCClStack* SCClStack , int value , int scope ) 
 					
 				}
 				
-				SCClStackPush ( SCClStack ,  value ) ;
+				SCClStackPush ( SCClStack ,  (void* )value ) ;
 			 
 			} else
-				SCClStackPush ( SCClStack ,  value ) ;
+				SCClStackPush ( SCClStack ,  (void* )value ) ;
 
 	}
 
@@ -250,7 +250,7 @@ static void suffix_exp_done ( SCClStack* SCClStack ) {
 
 	while ( !SCClStackEmpty ( SCClStack ) )
 
-		if ( !SCClStackEqual ( SCClStack , C_XKL ) )  {
+		if ( !SCClStackEqual ( SCClStack , (void* )C_XKL ) )  {
 
 			SCClStackPush ( &suffix_stack , SCClStackPop( SCClStack ) ) ;
 
@@ -291,7 +291,7 @@ static void c_gen_suffix_exp () {
 		if ( is_functer  ( lexc -> v ) )
 			c_suffix_exp_build ( ieval , lexc -> v , ARITHMETIC_SCOPE ) ;
 		else {
-			SCClStackPush ( &suffix_stack , SCClAtoi ( lexc -> token ) ) ;
+			SCClStackPush ( &suffix_stack , (void* )SCClAtoi ( lexc -> token ) ) ;
 		}
 	}
 
@@ -309,18 +309,18 @@ static long int c_suffix_exp_evalor () {
 	
 //	for ( ; !SCClStackEmpty ( &suffix_stack ) ;) {
 
-		int functer = SCClStackPop ( &suffix_stack ) ;
+		int functer = (int )SCClStackPop ( &suffix_stack ) ;
 
-		int op_2 = SCClStackPop ( &suffix_stack ) ;
-		int op_1 = SCClStackPop ( &suffix_stack ) ;
+		int op_2 = (int )SCClStackPop ( &suffix_stack ) ;
+		int op_1 = (int )SCClStackPop ( &suffix_stack ) ;
 
-		SCClStackPush ( &suffix_stack , value_calac ( op_1 , op_2 , functer ) ) ;
+		SCClStackPush ( &suffix_stack , (void* )value_calac ( op_1 , op_2 , functer ) ) ;
 			
 		
 		
 //	}
 
-	results = SCClStackPop ( &suffix_stack ) ;
+	results = (int )SCClStackPop ( &suffix_stack ) ;
 
 	return results ;
 
@@ -367,7 +367,7 @@ void EvalorSetCurrent ( EVALOR* eva ) {
 	//	since : 20100427
 	//	(c)TOK
 
-	SCClStackPush ( &evalor_stack , (int) evalor ) ;
+	SCClStackPush ( &evalor_stack , (void* ) evalor ) ;
 	evalor = eva ;
 	
 }
@@ -402,7 +402,7 @@ void EvalorOperandPush ( int operand ) {
 	expression->right = 0 ;
 	expression->brother = 0 ;
 	
-	SCClListInsert ( &evalor->suffix , (int)expression ) ;
+	SCClListInsert ( &evalor->suffix , (void* )expression ) ;
 
 	
 }
@@ -442,7 +442,7 @@ void EvalorOperatorPush ( int operator ) {
 
 				if ( C_XKL == tree->handle ) break ;
 
-				SCClListInsert ( &evalor->suffix , (int)tree ) ; 
+				SCClListInsert ( &evalor->suffix , (void* )tree ) ; 
 
 			}
 			
@@ -458,17 +458,17 @@ void EvalorOperatorPush ( int operator ) {
 
 				int priority = 0 ;
 
-				stackexp = SCClStackGet ( &evalor->operator ) ;
+				stackexp = (EXPR* )SCClStackGet ( &evalor->operator ) ;
 
 				priority = have_priority ( expression->handle , stackexp->handle ) ;
 
 				if ( -1 != priority ) {
-					SCClStackPush ( &evalor->operator , (int)expression ) ;
+					SCClStackPush ( &evalor->operator , (void* )expression ) ;
 				} else {
 					
 					while( !SCClStackEmpty ( &evalor->operator ) ) {
 						
-						stackexp = SCClStackGet ( &evalor->operator ) ;
+						stackexp = (EXPR* )SCClStackGet ( &evalor->operator ) ;
 
 						priority = have_priority ( expression->handle , stackexp->handle ) ;
 						
@@ -480,7 +480,7 @@ void EvalorOperatorPush ( int operator ) {
 
 						} else if ( -1 == priority ) {		
 							
-							SCClListInsert ( &evalor->suffix , (int)SCClStackPop ( &evalor->operator ) ) ; 
+							SCClListInsert ( &evalor->suffix , (void* )SCClStackPop ( &evalor->operator ) ) ; 
 
 						} else if( -1 != priority ) {
 		
@@ -544,7 +544,7 @@ void EvalorFinish () {
 				tree->left = SCClStackPop ( &suffix_stack );
 				tree->right->brother = tree->left ;
 				tree->left->brother = tree->right ;
-				SCClStackPush ( &suffix_stack , (int)tree );
+				SCClStackPush ( &suffix_stack , (void* )tree );
 				
 			break ;
 			
@@ -557,7 +557,7 @@ void EvalorFinish () {
 				}
 				# endif
 
-				SCClStackPush ( &suffix_stack , (int)tree );
+				SCClStackPush ( &suffix_stack , (void* )tree );
 				
 		}
 	}

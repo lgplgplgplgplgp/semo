@@ -25,6 +25,7 @@
 
 */
 
+# include "time.h"
 # include "c-lexer.h"
 # include "c-presor.h"
 # include "c-parser.h"
@@ -245,7 +246,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 				SCClStringAdd ( &str , '\0' ) ;
 				SCClStringReset ( &str ) ;
 
-				SCClListInsert ( compiler->il , (int)sc_strnew ( str.data ) ) ;
+				SCClListInsert ( (SCClList* )compiler->il , (void* )sc_strnew ( str.data ) ) ;
 
 				lexerc_skip_blank () ;
 				
@@ -428,20 +429,20 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 	
 	if ( SC_C99 & compiler->parameter ) {
 		//	preprocessor of c lanuage
-		compiler->PRESOR = presor_c_run ;
+		compiler->PRESOR = (void* )presor_c_run ;
 		//	parser of c lanuage
-		compiler->PARSER = parser_c_run ;
+		compiler->PARSER = (void* )parser_c_run ;
 	}
 
 	if ( SC_ARM & compiler->parameter ) {
 		//	ARMv assembly codes generator.
-		compiler->ASMOR = asmor_arm_run ;
+		compiler->ASMOR = (void* )asmor_arm_run ;
 		//	ARMv assembler. 		
-		compiler->ASSEMER = assemer_arm_run ;
+		compiler->ASSEMER = (void* )assemer_arm_run ;
 	}
 	
-	compiler->GENTOR = gentor_lac_run ;
-	compiler->RELEASE = SCCompilerDestroy ;
+	compiler->GENTOR = (void* )gentor_lac_run ;
+	compiler->RELEASE = (void* )SCCompilerDestroy ;
 	
 	return 1 ;
 
@@ -490,11 +491,11 @@ int SCCompile ( int argc , char** argv , int type ) {
 		char* o = 0 ;
 
 		int filen = 0 ;
-		//int inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
+		//void* inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		//int inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
+		//void* inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\Debug\\ssa1.txt" , "rb" ) ;
 
-		int inputfile = SCHalFileOpen ( file , "rb" ) ;
+		void* inputfile = SCHalFileOpen ( file , "rb" ) ;
 				
 		if ( !inputfile ) {
 			SCLog ("Can not open the file '%s'\n" , file ) ;
@@ -522,7 +523,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;
-		SCClListInsert  ( compiler->ol , o ) ;
+		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
 		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
 
 		SCHalFileClose ( inputfile ) ;

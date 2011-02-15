@@ -74,8 +74,9 @@ typedef struct ILN {
 
 	//	data type of element
 	int eltype ;
-	int element ;
 	int totall ;
+
+	void* element ;
 	
 	struct ILN* head ;
 	struct ILN* front ;
@@ -89,7 +90,8 @@ typedef struct ISTK {
 	//	since : 20090819
 	//	(c)TOK
 	
-	int element ;
+	void* element ;
+
 	int deep ;
 	int number ;
 	
@@ -120,8 +122,10 @@ typedef struct {
 	int id ;
 	int degree ;
 	int color ;
+
 	//	handle to anothers 
-	int handle ;
+	void* handle ;
+	
 	int x ; 
 	int y ;	
 	
@@ -194,16 +198,16 @@ extern void SCClStringDestroyKernal ( SCClString* string ) ;
 //	SCClList
 extern void SCClListInit ( SCClList* list ) ;
 extern SCClList* SCClListNew () ;
-extern void SCClListInsert ( SCClList* listwalker , int el ) ;
-extern void SCClListInsertEx ( SCClList* list , int el , int eltype ) ;
+extern void SCClListInsert ( SCClList* listwalker , void* el ) ;
+extern void SCClListInsertEx ( SCClList* list , void* el , int eltype ) ;
 extern int SCClListEmpty ( SCClList* list ) ;
-extern void SCClListConect ( int N1 , int element , int N3  ) ;
-extern int SCClListSetIterator ( int lt , int position ) ;
-extern int SCClListIteratorPermit ( int lt ) ;
-extern int SCClListIteratorGetElement ( int lt ) ;
-extern int SCClListListIteratorNext ( int lt ) ;
-extern int SCClListSearchBigestElement ( int lt ) ;
-extern void SCClListDeleteBetweenTwo ( int N1 , int N3 ) ;
+extern void SCClListConect ( void* N1 , void* element , void* N3  ) ;
+extern int SCClListSetIterator ( void* lt , int position ) ;
+extern int SCClListIteratorPermit ( void* lt ) ;
+extern void* SCClListIteratorGetElement ( void* lt ) ;
+extern int SCClListListIteratorNext ( void* lt ) ;
+extern void* SCClListSearchBigestElement ( void* lt ) ;
+extern void SCClListDeleteBetweenTwo ( void* N1 , void* N3 ) ;
 extern void SCClListDestroy ( SCClList* list ) ;
 extern int SCClAtoi ( char* number ) ;
 extern char* SCClItoa ( int number ) ;
@@ -211,17 +215,17 @@ extern char* SCClItoa ( int number ) ;
 //	SCClStack
 extern void SCClStackInit ( SCClStack* stack ) ;
 extern int SCClStackGet ( SCClStack* stack  ) ;
-extern int SCClStackEqual ( SCClStack* stack  , int element ) ;
+extern int SCClStackEqual ( SCClStack* stack  , void* element ) ;
 extern int SCClStackEmpty ( SCClStack* stack ) ;
-extern void SCClStackPush ( SCClStack* stack , int element ) ;
-extern int SCClStackPop ( SCClStack* stack ) ;
-extern int SCClStackLook ( SCClStack* stack , int element ) ;
+extern void SCClStackPush ( SCClStack* stack , void* element ) ;
+extern void* SCClStackPop ( SCClStack* stack ) ;
+extern int SCClStackLook ( SCClStack* stack , void* element ) ;
 extern int SCClStackGetDeep ( SCClStack* stack ) ;
 extern void SCClStackDestroy ( SCClStack* stack ) ;
 
 //	SCClQueue
 extern void SCClQueueInit ( SCClQueue* queue ) ;
-extern void SCClQueueEnter ( SCClQueue* queue , int element ) ;
+extern void SCClQueueEnter ( SCClQueue* queue , void* element ) ;
 extern int SCClQueueOut ( SCClQueue* queue ) ;
 extern int SCClQueueEmpty ( SCClQueue* queue ) ;
 extern void SCClQueueDestroy ( SCClQueue* queue ) ;
@@ -229,7 +233,7 @@ extern void SCClQueueDestroy ( SCClQueue* queue ) ;
 //	SCClGraph
 extern void SCClGraphInit ( SCClGraph* graph ) ;
 extern SCClGraph* SCClGraphCreate () ;
-extern SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , int handle ) ;
+extern SCClGraphNode* SCClGraphAddNode ( SCClGraph* graph , int N , void* handle ) ;
 extern SCClGraphNode* SCClGraphSearchNode ( SCClGraph* graph , int N ) ;
 extern void SCClGraphAddEdge (  SCClGraph* graph , int N1 , int N2 ) ;
 extern int SCClGraphHaveEdge ( SCClGraph* graph , int N1 , int N2 ) ; 

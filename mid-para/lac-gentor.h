@@ -69,7 +69,7 @@ extern int gentorlac_gen_expr ( EXPR* expression , int drop ) ;
 extern void gentorlac_disp_expr (  EXPR* expression ) ;
 extern char* gentor_lac_run ( char* lacfile ) ;
 extern void lacgentor_switcher ( LGNOSIA* lgnosia ) ;
-extern void lacgentor_gen_variable ( AZONAL* azonal ) ; 
+extern void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) ; 
 extern void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
 extern void lacgentor_gen_pochain ( LGNOSIA* po_chain ) ;
 extern void lacgentor_gen_nechain ( LGNOSIA* ne_chain ) ;

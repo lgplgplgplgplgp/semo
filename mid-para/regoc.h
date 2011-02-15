@@ -40,7 +40,7 @@ typedef struct {
 	char live [ LIVE_NAME_LENGTH ] ;
 
 	//	a handle to LAC
-	int lac ;
+	void* lac ;
 
 	//	number of live scope
 	int number ; 
@@ -61,7 +61,7 @@ extern void RegocBuildRefGraph ( char* code , int position ) ;
 extern void RegocLiveScopeMoiCreate () ;
 extern void RegocLiveScopeMoiDestroy () ;
 extern int RegocLiveScopeGetLAC () ;
-extern int RegocLiveScopeAdd ( char* live , int scope , int line , int lac ) ; 
+extern int RegocLiveScopeAdd ( char* live , int scope , int line , void* lac ) ; 
 extern int RegocCheckLiveScope ( char* live , int scope , int line ) ;
 extern int RegocIGraphCreate () ;
 extern void RegocLiveScopeClear () ;

@@ -46,7 +46,7 @@ int mopo = 0 ;
 	lacgentor.form = -1;\
 
 # define SET_LACGENTOR_DELT(deltn)\
-	SCClStackPush ( &lacgentor.deltstack, lacgentor.delt );\
+	SCClStackPush ( &lacgentor.deltstack, (void* )lacgentor.delt );\
 	lacgentor.delt = deltn;\
 
 # define UNSET_LACGENTOR_DELT()\
@@ -55,13 +55,13 @@ int mopo = 0 ;
 # define GET_LACGENTOR_SCOPE() SCClStackGet( &lacgentor.scopestack )
 
 # define SET_LACGENTOR_SCOPE(sscope)\
-	SCClStackPush ( &lacgentor.scopestack , sscope ) ;\
+	SCClStackPush ( &lacgentor.scopestack , (void* )sscope ) ;\
 
 # define UNSET_LACGENTOR_SCOPE()\
 	SCClStackPop ( &lacgentor.scopestack ) ;\
 
 # define PUSH_LACGENTOR_LGA(lga)\
-	SCClStackPush ( &lacgentor.lgastack  , lga ) ;\
+	SCClStackPush ( &lacgentor.lgastack  , (void* )lga ) ;\
 	
 # define GET_LACGENTOR_LGA() SCClStackGet( &lacgentor.lgastack )
 
@@ -114,7 +114,7 @@ static void LACIdentorPush () {
 	//	since : 20100130
 	//	(C)TOK
 
-	SCClStackPush ( &lacgentor.identor , 1 ) ;
+	SCClStackPush ( &lacgentor.identor , (void* )1 ) ;
 	
 }
 
@@ -312,7 +312,7 @@ void lacgentor_gen_funcdef () {
 	LACAdd ( "}" , LAC_CR , -1 ) ;
 	LACAdd ("\r\n",LAC_CR,-1);
 	
-	SCFree ( lacgentor.lgnosia ) ;
+	SCFree ( (void* )lacgentor.lgnosia ) ;
 
 }
 
@@ -345,8 +345,8 @@ void lacgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	//	push lga and lac 
 	//	for if-flow label generating
-	SCClStackPush ( &LabelStack , lac ) ;
-	SCClStackPush ( &LabelStack , lgnosia ) ;
+	SCClStackPush ( &LabelStack , (void* )lac ) ;
+	SCClStackPush ( &LabelStack , (void* )lgnosia ) ;
 	
 	ifflow_deep ++ ;
 
@@ -424,8 +424,8 @@ void lacgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	//	push lga and lac 
 	//	for if-flow label generating
-	SCClStackPush ( &LabelStack , lac ) ;
-	SCClStackPush ( &LabelStack , lgnosia ) ;
+	SCClStackPush ( &LabelStack , (void* )lac ) ;
+	SCClStackPush ( &LabelStack , (void* )lgnosia ) ;
 
 //	SET_LACGENTOR_DELT(0);
 //	LACIdentorPush () ;			
@@ -892,9 +892,9 @@ char* gentor_lac_run ( char* lacfile ) {
 				if ( SC_CR & compiler->parameter ) {		
 
 					if ( SC_EXP & compiler->parameter )
-						lgay = MOPOLgaExpRender ( mopo , lacgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
+						lgay = MOPOLgaExpRender ( lacgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
 					if ( SC_LGA & compiler->parameter )
-						MOPOCFDFSRender ( mopo , lacgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
+						MOPOCFDFSRender ( lacgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
 	 				//MOPOCFBFSRender ( mopo , lacgentor.lgnosia , 200 , lgay ) ;
 				}
 				
