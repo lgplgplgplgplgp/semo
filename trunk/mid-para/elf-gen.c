@@ -45,7 +45,7 @@ int ElfGenInsertTextRelItem ( Elf32_Rel rel ) {
 
 	SCMemcpy ( elf32_rel , &rel , sizeof (Elf32_Rel) ) ;
 	
-	SCClListInsert ( &ElfGentor.TextRel , (int)elf32_rel ) ;	
+	SCClListInsert ( &ElfGentor.TextRel , (void* )elf32_rel ) ;	
 	
 	return 1 ;
 
@@ -63,7 +63,7 @@ int ElfGenInsertTextRelaItem ( Elf32_Rela rela ) {
 
 	SCMemcpy ( elf32_rela , &rela , sizeof (Elf32_Rela) ) ;
 
-	SCClListInsert ( &ElfGentor.TextRela , (int)elf32_rela ) ;
+	SCClListInsert ( &ElfGentor.TextRela , (void* )elf32_rela ) ;
 
 	return 1 ;
 	
@@ -80,7 +80,7 @@ int ElfGenInsertDataRelItem ( Elf32_Rel rel ) {
 
 	SCMemcpy ( elf32_rel , &rel , sizeof (Elf32_Rel) ) ;
 
-	SCClListInsert ( &ElfGentor.DataRel , (int)elf32_rel ) ;	
+	SCClListInsert ( &ElfGentor.DataRel , (void* )elf32_rel ) ;	
 
 	return 1 ;
 
@@ -98,7 +98,7 @@ int ElfGenInsertDataRelaItem ( Elf32_Rela rela ) {
 
 	SCMemcpy ( elf32_rela , &rela , sizeof (Elf32_Rela) ) ;
 
-	SCClListInsert ( &ElfGentor.DataRela , (int)elf32_rela ) ;
+	SCClListInsert ( &ElfGentor.DataRela , (void* )elf32_rela ) ;
 	
 	return 1 ;
 
@@ -128,7 +128,7 @@ int ElfGenSymtabInsertSymbol ( Elf32_Sym sym ) {
 
 	SCMemcpy ( elf32_sym , &sym , sizeof (Elf32_Sym) ) ;
 	
-	SCClListInsert ( &ElfGentor.Symtab , (int)elf32_sym ) ;
+	SCClListInsert ( &ElfGentor.Symtab , (void* )elf32_sym ) ;
 
 	return 1 ;
 
@@ -146,7 +146,7 @@ int ElfGenShstrtabInsertString ( char* string ) {
 	
 	sc_strcpy_ex ( &s , string ) ;
 
-	SCClListInsert ( &ElfGentor.Shstrtab , (int)s ) ;
+	SCClListInsert ( &ElfGentor.Shstrtab , (void* )s ) ;
 
 	return 1 ;
 
@@ -178,7 +178,7 @@ int ElfGenStrtabInsertString ( char* string ) {
 	
 	sc_strcpy_ex ( &s , string ) ;
 
-	SCClListInsert ( &ElfGentor.Strtab , (int)s ) ;
+	SCClListInsert ( &ElfGentor.Strtab , (void* )s ) ;
 
 	return 1 ;
 	
@@ -217,7 +217,7 @@ int ElfGenAddTextValue ( int value ) {
 	//	since : 20100727
 	//	(C)TOK
 
-	SCClListInsert ( &ElfGentor.Text , value ) ;
+	SCClListInsert ( &ElfGentor.Text , (void* )value ) ;
 
 	return 1 ;
 	
@@ -322,11 +322,11 @@ int ElfGen ( char* out , int setscale ) {
 	ElfGentor.sect[ELF_TEXT].sh_offset = sectoffset[ELF_STRTAB]+sizeof(Elf32_Shdr) ;
 	ElfGentor.sect[ELF_TEXT].sh_size = ElfGenGetTextScale ( setscale ) ;
 		
-	for ( SCClListSetIterator ((int)&ElfGentor.Text , SCCLLISTSEEK_HEAD ) ; 
-		SCClListIteratorPermit ((int)&ElfGentor.Text) ; 
-		SCClListListIteratorNext ((int)&ElfGentor.Text) ) 
+	for ( SCClListSetIterator ((void* )&ElfGentor.Text , SCCLLISTSEEK_HEAD ) ; 
+		SCClListIteratorPermit ((void* )&ElfGentor.Text) ; 
+		SCClListListIteratorNext ((void* )&ElfGentor.Text) ) 
 	{
-		int value = SCClListIteratorGetElement ( (int)&ElfGentor.Text ) ;
+		int value = (int )SCClListIteratorGetElement ( (void* )&ElfGentor.Text ) ;
 		SCHalFileWrite ( file , &value , setscale , 1 ) ;
 	}
 
@@ -341,13 +341,13 @@ int ElfGen ( char* out , int setscale ) {
 		SCHalFileWrite ( file , &value , 1 , 1 ) ;
 		ElfGentor.sect[ELF_SHSTRTAB].sh_size ++ ;
 	}
-	for ( SCClListSetIterator ((int)&ElfGentor.Shstrtab , SCCLLISTSEEK_HEAD ) ; 
-		SCClListIteratorPermit ((int)&ElfGentor.Shstrtab) ; 
-		SCClListListIteratorNext ((int)&ElfGentor.Shstrtab) ) 
+	for ( SCClListSetIterator ((void* )&ElfGentor.Shstrtab , SCCLLISTSEEK_HEAD ) ; 
+		SCClListIteratorPermit ((void* )&ElfGentor.Shstrtab) ; 
+		SCClListListIteratorNext ((void* )&ElfGentor.Shstrtab) ) 
 	{
 		int lens = 0 ;
 		int value = 0 ;
-		char* string = (char* )SCClListIteratorGetElement ( (int)&ElfGentor.Shstrtab ) ;
+		char* string = (char* )SCClListIteratorGetElement ( (void* )&ElfGentor.Shstrtab ) ;
 		lens = sc_strlen (string) ;
 		SCHalFileWrite ( file , string , 1 , lens ) ;
 		SCHalFileWrite ( file , &value , 1 , 1 ) ;
@@ -365,13 +365,13 @@ int ElfGen ( char* out , int setscale ) {
 		SCHalFileWrite ( file , &value , 1 , 1 ) ;
 		ElfGentor.sect[ELF_STRTAB].sh_size ++ ;
 	}
-	for ( SCClListSetIterator ((int)&ElfGentor.Strtab , SCCLLISTSEEK_HEAD ) ; 
-		SCClListIteratorPermit ((int)&ElfGentor.Strtab) ; 
-		SCClListListIteratorNext ((int)&ElfGentor.Strtab) ) 
+	for ( SCClListSetIterator ((void* )&ElfGentor.Strtab , SCCLLISTSEEK_HEAD ) ; 
+		SCClListIteratorPermit ((void* )&ElfGentor.Strtab) ; 
+		SCClListListIteratorNext ((void* )&ElfGentor.Strtab) ) 
 	{
 		int lens = 0 ;
 		int value = 0 ;
-		char* string = (char* )SCClListIteratorGetElement ( (int)&ElfGentor.Strtab ) ;
+		char* string = (char* )SCClListIteratorGetElement ( (void* )&ElfGentor.Strtab ) ;
 		lens = sc_strlen (string) ;
 		SCHalFileWrite ( file , string , 1 , lens ) ;
 		SCHalFileWrite ( file , &value , 1 , 1 ) ;
@@ -385,11 +385,11 @@ int ElfGen ( char* out , int setscale ) {
 	
 	//	write .symtab contents
 	SCHalFileSeek ( file , ElfGentor.sect[ELF_SYMTAB].sh_offset , SEEK_HEAD ) ;
-	for ( SCClListSetIterator ((int)&ElfGentor.Symtab , SCCLLISTSEEK_HEAD ) ; 
-		SCClListIteratorPermit ((int)&ElfGentor.Symtab) ; 
-		SCClListListIteratorNext ((int)&ElfGentor.Symtab) ) 
+	for ( SCClListSetIterator ((void* )&ElfGentor.Symtab , SCCLLISTSEEK_HEAD ) ; 
+		SCClListIteratorPermit ((void* )&ElfGentor.Symtab) ; 
+		SCClListListIteratorNext ((void* )&ElfGentor.Symtab) ) 
 	{
-		Elf32_Sym* elf32_sym = (Elf32_Sym* )SCClListIteratorGetElement ( (int)&ElfGentor.Symtab ) ;
+		Elf32_Sym* elf32_sym = (Elf32_Sym* )SCClListIteratorGetElement ( (void* )&ElfGentor.Symtab ) ;
 		SCHalFileWrite ( file , elf32_sym , sizeof (Elf32_Sym) , 1 ) ;
 		SCFree ( elf32_sym ) ;
 	}

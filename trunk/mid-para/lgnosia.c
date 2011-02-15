@@ -55,7 +55,7 @@ int LgnosiaNew ( int azonal , LGNOSIA_IDENT type ) {
 	lgnosia->azonal = azonal ;
 
 	if ( LGNOSIA_TOP_IDENT == lgnosia->type ) 
-		SCClListInsert ( &LgaGentor.pool , (int)lgnosia ) ;
+		SCClListInsert ( &LgaGentor.pool , (void* )lgnosia ) ;
 
 	return (int )lgnosia ;
 	
@@ -73,7 +73,7 @@ void LgnosiaAddContext ( int lgnosia , int handle , LGNOSIA_IDENT type ) {
 	
 	if ( !lgnosiap ) return ;
 
-	SCClListInsertEx ( &lgnosiap->context , handle , (int)type ) ;	
+	SCClListInsertEx ( &lgnosiap->context , (void* )handle , (int)type ) ;	
 	
 }
 
@@ -90,7 +90,7 @@ void LgnosiaAddParameter ( int lgnosia , int handle , LGNOSIA_IDENT type ) {
 	
 	if ( !lgnosiap ) return ;
 
-	SCClListInsertEx ( &lgnosiap->parameter , handle , (int)type ) ;	
+	SCClListInsertEx ( &lgnosiap->parameter , (void* )handle , type ) ;	
 
 	
 }
@@ -173,8 +173,8 @@ int LgnosiaDFSNormalize ( int lga , int flga , int deep ) {
 			rd = LgnosiaDFSNormalize ( nec , lga , deep+1 ) ;
 			recdeep -- ;
 
-			SCClListInsert ( &deeplist , ld ) ;
-			SCClListInsert ( &deeplist , rd ) ;
+			SCClListInsert ( &deeplist , (void* )ld ) ;
+			SCClListInsert ( &deeplist , (void* )rd ) ;
 
 		}
 
@@ -207,7 +207,7 @@ int LgnosiaBFSNormalize( int lgnosiaa ) {
 	LGNOSIA* lgnosia = (LGNOSIA* )lgnosiaa ;
 	
 	SCClQueueInit ( &queue ) ;
-	SCClQueueEnter ( &queue , (int)lgnosia ) ;
+	SCClQueueEnter ( &queue , (void* )lgnosia ) ;
 
 	LgnosiaDFSNormalize ( lgnosiaa , 0 , 1 ) ;
 
@@ -223,13 +223,13 @@ int LgnosiaBFSNormalize( int lgnosiaa ) {
 		
 		if ( LGNOSIA_CP_IDENT == lgnosia->type ) {
 			if (lgnosia->po_chain)
-				SCClQueueEnter ( &queue , (int)lgnosia->po_chain ) ;
+				SCClQueueEnter ( &queue , (void* )lgnosia->po_chain ) ;
 			if (lgnosia->ne_chain)
-				SCClQueueEnter ( &queue , (int)lgnosia->ne_chain ) ;
+				SCClQueueEnter ( &queue , (void* )lgnosia->ne_chain ) ;
 		} else {
 
 			for ( looper = lgnosia->context.head ; looper ; looper = looper->next ) {
-				SCClQueueEnter ( &queue , (int)looper->element ) ;
+				SCClQueueEnter ( &queue , (void*)looper->element ) ;
 			}
 
 		}
@@ -240,7 +240,7 @@ int LgnosiaBFSNormalize( int lgnosiaa ) {
 			
 			allinlayerc ++ ;
 
-			SCClListInsert ( &samelayernode , (int)lgnosia ) ;
+			SCClListInsert ( &samelayernode , (void* )lgnosia ) ;
 		
 		} else {
 
@@ -254,7 +254,7 @@ int LgnosiaBFSNormalize( int lgnosiaa ) {
 				
 			allinlayerc = 1 ;
 
-			SCClListInsert ( &samelayernode , (int)lgnosia ) ;
+			SCClListInsert ( &samelayernode , (void* )lgnosia ) ;
 			
 		}
 
@@ -320,7 +320,7 @@ int LgnosiaGet () {
 	//	notes : get lgnostic tree
 
 	if ( LgaGentor.pool.head )
-		return LgaGentor.pool.head ;
+		return (int )LgaGentor.pool.head ;
 	
 	else return 0 ;
 
@@ -364,7 +364,7 @@ void LgnosiaStackPush ( int handle ) {
 	//	since : 20100717
 	//	(C)TOK
 
-	SCClStackPush ( &LgaGentor.stack , handle ) ;
+	SCClStackPush ( &LgaGentor.stack , (void* )handle ) ;
 	
 }
 
@@ -374,7 +374,7 @@ int LgnosiaStackPop () {
 	//	since : 20100717
 	//	(C)TOK
 
-	return SCClStackPop ( &LgaGentor.stack ) ;
+	return (int )SCClStackPop ( &LgaGentor.stack ) ;
 	
 }
 
@@ -394,7 +394,7 @@ void LgnosiaQueueEnter ( int lgnosia ) {
 	//	since : 20100719
 	//	(C)TOK
 
-	SCClListInsert ( &LgaGentor.queue , (int)lgnosia ) ;
+	SCClListInsert ( &LgaGentor.queue , (void* )lgnosia ) ;
 	
 }
 

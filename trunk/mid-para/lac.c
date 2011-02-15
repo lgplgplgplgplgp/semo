@@ -229,7 +229,7 @@ void LACLiveScopeGenerate ( int degreesmax ) {
 	//	3. color the i-graphs
 	//	4. alloc register for the live scope based on colored i-graphs
 
-	int iG = 0 ;
+	SCClGraph* iG = 0 ;
 	int totall_colors = degreesmax ;	
 	int laclsnumber = 0 ;
 
@@ -273,7 +273,7 @@ readproc :
 
 					//	添加生命域
 					//	将原始的llooper加入LiveScopeMonitor，因为生命域分列时需要操作它
-					int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line , llooper ) ;
+					int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line , (void* )llooper ) ;
 					//	生命域编号
 					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
 					SCClStringAddStr ( &lacnode->code , value ) ;

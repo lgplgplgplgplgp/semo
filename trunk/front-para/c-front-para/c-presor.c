@@ -370,7 +370,7 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 	//	we need a lexer to walkthrough macro body here
 	
 	//	save the current lexer in SCClStack
-	SCClStackPush ( &stack , (long int) lexc ) ;
+	SCClStackPush ( &stack , (void* ) lexc ) ;
 
 	//	get a new lexer
 	macro_lexer = lexerc_new ( macrobody.data , LEXERC_DEFAULT_MODE ) ;
@@ -421,7 +421,7 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 				
 					}
 					
-					SCClStackPush ( &macro_stack , (int)macro_finder -> name ) ;
+					SCClStackPush ( &macro_stack , (void* )macro_finder -> name ) ;
 					bodystr = macro_subsit ( macro_finder , macro , get_macro_param(lexc->code->data,lexc->code->get_walker) ) ;
 					
 					//	skip the body of macro's param
@@ -678,7 +678,8 @@ static int read_macro () {
 	}
 
 	macro_insert ( nmc ) ;
-
+	
+	return 1 ;
 
 }
 
@@ -1055,6 +1056,7 @@ redo :
 
 	}
 	
+	return 1 ;
 	
 }
 
@@ -1094,8 +1096,6 @@ int presor_c_run ( char* presor_file ) {
 	
 	void* file = 0 ;
 	
-int ok = 1 ;
-
 	ASSERT(presor_results) ;
 
 	precompiling () ;
@@ -1116,10 +1116,10 @@ int ok = 1 ;
 			macro_finder = macro_find ( lexc->token ) ;
 			
 			if ( macro_finder ) {
-ok = 0 ;			
-				SCClStackPush ( &stack , (long int) lexc ) ;
+		
+				SCClStackPush ( &stack , (void* ) lexc ) ;
 
-				SCClStackPush ( &macro_stack , (int)macro_finder->name ) ;
+				SCClStackPush ( &macro_stack , (void* )macro_finder->name ) ;
 				
 				subed = macro_subsit ( macro_finder , macro_finder , get_macro_param ( lexc->code->data , lexc->code->get_walker )) ;
 				if ( MACRO_FUNC == macro_finder->type ) skip_smart_brackets_scope () ; 
@@ -1165,7 +1165,7 @@ ok = 0 ;
  	SCClStringDestroy ( presor_results ) ;
 
 	macro_destroy () ;
-return ok ;
+
 	return 1 ;
 
 

@@ -57,21 +57,21 @@ typedef struct {
 
 extern int MOPOCreatePanel ( int format , int width , int height ) ;
 extern int MOPOOutputPanel ( char* path ) ;
-extern int MOPODestroyPanel () ;
+extern void MOPODestroyPanel () ;
 
 extern void MOPODrawPixel ( int x , int y , int red , int green , int blue ) ;
-extern int MOPODrawLine ( int x1 , int y1 , int x2 , int y2 , int red , int green , int blue ) ;
-extern int MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue ) ;
-extern int MOPOFillCircle ( int x , int y , int raduis , int red , int green , int blue ) ;
+extern void MOPODrawLine ( int x1 , int y1 , int x2 , int y2 , int red , int green , int blue ) ;
+extern void MOPODrawCircle ( int x , int y , int raduis , int red , int green , int blue ) ;
+extern void MOPOFillCircle ( int x , int y , int raduis , int red , int green , int blue ) ;
 extern void MOPODrawText ( int x , int y , const char* text , int red , int green , int blue ) ;
 extern void MOPODrawRect ( int x , int y , int x_scale , int y_scale , int linewidth , int red , int green , int blue ) ;
 extern void MOPOStretch ( int cx , int cy , float radius , int dx , int dy ) ;
 extern void MOPODrawGrid ( int red , int green , int blue ) ;
 
-extern void MOPOExpDFSRender ( int exp , int x , int y ) ;
-extern int MOPOLgaExpRender ( int lgnosiaa , int anltype , int x , int y ) ;
-extern int MOPOCFBFSRender ( int lgnosiaa , int x , int y ) ;
-extern int MOPOCFDFSRender ( int lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) ;
-extern int MOPOExpBFSRender ( int exp , int x , int y ) ;	
+extern void MOPOExpDFSRender ( void* exp , int x , int y ) ;
+extern int MOPOLgaExpRender ( void* lgnosiaa , int anltype , int x , int y ) ;
+extern void MOPOCFBFSRender ( void* lgnosiaa , int x , int y ) ;
+extern int MOPOCFDFSRender ( void* lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) ;
+extern int MOPOExpBFSRender ( void* exp , int x , int y ) ;	
 extern void MOPOIGBFSRender ( SCClGraph* graph  ) ;
 

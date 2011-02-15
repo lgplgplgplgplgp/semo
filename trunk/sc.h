@@ -98,9 +98,10 @@ typedef struct COMPILER_NODE {
 	//	(c)TOK
 
 	//	input files list , a handle to SCCllist*
-	int il  ;
+	void* il  ;
 	//	object files list , a handle to SCCllist*	
-	int ol ;
+	void* ol ;
+	
 	int parameter ;	
 	//	register allocation costs
 	int regoccosts ;
@@ -114,7 +115,7 @@ typedef struct COMPILER_NODE {
 	char* (*GENTOR)( char* ) ;
 	char* (*ASMOR)( char* , char* ) ;
 	void (*ASSEMER)( char* , char* , int* ) ;
-	void (*LINKER ) ( int ) ;
+	void (*LINKER ) ( void* ) ;
 	void (*RELEASE)() ;
 
 	long stime ; 

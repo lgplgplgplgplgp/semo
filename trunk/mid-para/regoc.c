@@ -234,7 +234,7 @@ static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 }
 
 
-int RegocLiveScopeAdd ( char* live , int scope , int line , int lac ) {
+int RegocLiveScopeAdd ( char* live , int scope , int line , void* lac ) {
 
 	//	author : Jelo Wang
 	//	since : 20110107
@@ -300,7 +300,7 @@ int RegocIGraphCreate () {
 			
 			if ( RegocLiveScopeICheck ( ls_1 , ls_2 ) ) {
 		
-				SCClGraphAddNode ( iG , ls_2->number , ls_2->lac ) ;
+				SCClGraphAddNode ( iG , ls_2->number , (void* )ls_2->lac ) ;
 				//	add ref edge bettwen ls_1 and ls_2
 				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;
 //				printf("%d- %d\n",ls_1->number , ls_2->number );

@@ -182,7 +182,7 @@ void lexerarm_backup () {
 	//	since : 20100723
 	//	(C)TOK
 
-	SCClStackPush ( &lexarm->stack , lexarm->code->get_walker ) ;
+	SCClStackPush ( &lexarm->stack , (void* )lexarm->code->get_walker ) ;
 	
 }
 

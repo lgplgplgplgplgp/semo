@@ -1026,7 +1026,7 @@ static char* SymboleDRCConvertCFFSETtoSSA ( AZONAL* azonal , ANLDRC* cff ) {
 
 	//	notes : Convert CFFSET to SSA form
 	
-	char error [] = { "SymboleDRCConvertCFFSETtoSSA error" } ;
+	static char error [] = { "SymboleDRCConvertCFFSETtoSSA error" } ;
 
 	SCClList* looper = 0 ;
 	SCClString* cffset = 0 ;
@@ -1136,7 +1136,7 @@ static char* SymboleDRCConvertCFFToSSA ( AZONAL* azonal , ANLDRC* cff ) {
 
 	//	Convert CFF to SSA Form
 	
-	char error [] = { "SymboleDRCConvertCFFToSSA error" } ;
+	static char error [] = { "SymboleDRCConvertCFFToSSA error" } ;
 	
 	SCClList* looper = 0 ;
 	SCClString* cffstring = 0 ;
@@ -1211,7 +1211,7 @@ char* SymboleDRCAdd ( AZONAL* azonal , int scope , int cf , int lga ) {
 
 	//	Add a DRC record
 	
-	char error [] = { "SymboleDRCAdd error" } ;
+	static char error [] = { "SymboleDRCAdd error" } ;
 
 	ANLDRC* drc = 0 ;	
 	ANLDRC* anldrc = SymboleDRCGetTheCurrentDRC ( azonal ) ;
@@ -1262,7 +1262,7 @@ char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) {
 
 	//	notes : Get DRC record
 	
-	char error [] = { "SymboleDRCGetDRC error" } ;
+	static char error [] = { "SymboleDRCGetDRC error" } ;
 
 	ANLDRC* drc = 0 ;	
 	ANLDRC* drcpre = 0 ;
@@ -1357,11 +1357,11 @@ char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) {
 					drcnext = (ANLDRC* ) looper->next->element ; 					
 					//	不属于同一个lga
 					if ( drcnext && drcnext->lga != drc->lga ) {
-						SCClListInsert ( &cfflist , drc->alias ) ;
+						SCClListInsert ( &cfflist , (void* )drc->alias ) ;
 					} //else SCClListInsert ( &cfflist , drc->alias ) ;
 
 				} else {
-					SCClListInsert ( &cfflist , drc->alias ) ;
+					SCClListInsert ( &cfflist , (void* )drc->alias ) ;
 				}
 
 			}			
@@ -1410,9 +1410,9 @@ SSADEF :
 			if ( !drc ) break ;
 						
 			if ( drcpre && drcpre->lga != drc->lga ) {
-				SCClListInsert ( &cfflist , drc->alias ) ;
+				SCClListInsert ( &cfflist , (void* )drc->alias ) ;
 			} else if ( !drcpre ){
-				SCClListInsert ( &cfflist , drc->alias ) ;
+				SCClListInsert ( &cfflist , (void* )drc->alias ) ;
 			}					
 		
 		}
@@ -1491,9 +1491,9 @@ ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) {
 		//	get the next DRC node
 		//	and check its LGA value 		
 		if ( drcpre && drcpre->lga != drc->lga ) {
-			SCClListInsert ( cffset , drc->alias ) ;
+			SCClListInsert ( cffset , (void* )drc->alias ) ;
 		} else if ( !drcpre ){
-			SCClListInsert ( cffset , drc->alias ) ;
+			SCClListInsert ( cffset , (void* )drc->alias ) ;
 		}		
 		
 		if ( looper->front ) drcfront = (ANLDRC* ) looper->front->element ; 
@@ -1502,13 +1502,13 @@ ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) {
 		if ( !drcfront ) {
 			//	save CFF HEAD
 			//	the first DRC front of CFF		
-			if ( drc ) SCClListInsert ( cffset , drc->alias ) ;
+			if ( drc ) SCClListInsert ( cffset , (void* )drc->alias ) ;
 			cff_head = looper->next ;
 			break ;
 		} else if ( drcfront->scope != drc->scope && !SYMBOLE_DRCDISTUB(drcfront->cf) ) {
 			//	save CFF HEAD
 			//	the first DRC front of CFF		
-			if ( drcfront ) SCClListInsert ( cffset , drcfront->alias ) ;
+			if ( drcfront ) SCClListInsert ( cffset , (void* )drcfront->alias ) ;
 			cff_head = looper->next ;
 			break ;
 		}
@@ -1528,8 +1528,8 @@ ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) {
 	cff->cffset.type = 1 ;
 	cff->cffset.handle = (void*)cffset ;	
 
-	SCClListDeleteBetweenTwo ( cff_head , cff_tail ) ;
-	SCClListConect ( cff_head , cff , cff_tail ) ;	
+	SCClListDeleteBetweenTwo ( (void* )cff_head , (void* )cff_tail ) ;
+	SCClListConect ( (void* )cff_head , (void* )cff , (void* )cff_tail ) ;	
 		
 	return (int)cff ;
 	

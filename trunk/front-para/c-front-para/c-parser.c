@@ -59,11 +59,11 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 	(sscope==SCClStackGet( &parserc->scopestack ))
 
 # define SET_PARSER_SCOPE(sscope)\
-	SCClStackPush ( &parserc->scopestack , sscope ) ;\
+	SCClStackPush ( &parserc->scopestack , (void* )sscope ) ;\
 	parserc->scope = sscope ;\
 
 # define UNSET_PARSER_SCOPE()\
-	parserc->scope = SCClStackPop ( &parserc->scopestack ) ;\
+	parserc->scope = (int )SCClStackPop ( &parserc->scopestack ) ;\
 
 # define SCOPER_PUSH()\
 	parserc->stack ++ ;\
@@ -346,8 +346,8 @@ static int parser_c_read_if () {
 
 	//	push if-flow
 	//	we use this for ne_chain generating
-	SCClStackPush ( &cfstack , lgnosia ) ;
-	SCClStackPush ( &cfstack , parserc->stack ) ;
+	SCClStackPush ( &cfstack , (void* )lgnosia ) ;
+	SCClStackPush ( &cfstack , (void* )parserc->stack ) ;
 
 	//	parsing body
 	stack = 1 ;
@@ -419,15 +419,15 @@ static int parser_c_read_else () {
 	
 		//	generate ne_chain of LGNOSIA_CP_IDENT.
 		
-		int deep = 	SCClStackPop ( &cfstack ) ;
-		int lga = SCClStackPop ( &cfstack ) ;
+		int deep = (int )SCClStackPop ( &cfstack ) ;
+		int lga = (int )SCClStackPop ( &cfstack ) ;
 
 		while ( deep > parserc->stack ) {
 			
 			if ( SCClStackEmpty(&cfstack) ) break ; 
 
-			deep = 	SCClStackPop ( &cfstack ) ;
-			lga = SCClStackPop ( &cfstack ) ;
+			deep = (int )SCClStackPop ( &cfstack ) ;
+			lga = (int )SCClStackPop ( &cfstack ) ;
 
 		}
 
@@ -461,8 +461,8 @@ static int parser_c_read_else () {
 
 		//	push if-flow
 		//	we use this for ne_chain generating
-		SCClStackPush ( &cfstack , lgnosia ) ;
-		SCClStackPush ( &cfstack , parserc->stack ) ;
+		SCClStackPush ( &cfstack , (void* )lgnosia ) ;
+		SCClStackPush ( &cfstack , (void* )parserc->stack ) ;
 
 		//	parsing body
 		stack = 1 ;
