@@ -58,17 +58,18 @@ typedef struct MMN {
 
 
 extern void* SCRealloc ( void* buffer , long int length ) ;
+extern void* SCRemalloc ( void* buffer , long int bufferlen , long int length )  ;
 extern int SCFree ( void* buffer ) ;
 extern int SCFreeEx ( void** buffer ) ;
 extern int SCHalMemoryLeaked () ;
-extern int SCHalFileOpen ( char* path , char* flag ) ;
-extern int SCHalFileSeek( int file , int offset , int direct ) ;
-extern int SCHalFileRead ( int file , void* buffer , int size , int counter ) ;
-extern int SCHalFileWrite ( int file , void* buffer , int size , int counter ) ;
-extern short int SCHalFileGetc ( int file ) ;
-extern int SCHalFileEnd ( int file ) ;
-extern int SCHalFileLength( int file ) ;
-extern int SCHalFileClose ( int file ) ;
+extern void* SCHalFileOpen ( char* path , char* flag ) ;
+extern int SCHalFileSeek( void* file , int offset , int direct ) ;
+extern int SCHalFileRead ( void* file , void* buffer , int size , int counter ) ;
+extern int SCHalFileWrite ( void* file , void* buffer , int size , int counter ) ;
+extern short int SCHalFileGetc ( void* file ) ;
+extern int SCHalFileEnd ( void* file ) ;
+extern int SCHalFileLength( void* file ) ;
+extern int SCHalFileClose ( void* file ) ;
 extern char* SCHalGetFilePath ( char* name ) ;
 extern void SCMemcpy ( void* target_memory , void* source_memory , int length ) ;
 extern void SCLog ( const	 char* SCLog , ... ) ;

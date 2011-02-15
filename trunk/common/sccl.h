@@ -156,6 +156,7 @@ extern int sc_is_alpha ( char el ) ;
 extern int sc_is_digit ( char el ) ;
 extern int sc_is_symbol ( char el ) ;
 extern int sc_strlen ( char* str ) ;
+extern int sc_strcpy_ex ( char** T , char* S ) ;
 extern int sc_strcpy ( char* T , char* S ) ;
 extern int sc_strcpy_withlen ( char* T , char* S , int length ) ;
 extern int sc_strcmp ( char* T , char* S )  ;
