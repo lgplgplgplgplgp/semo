@@ -247,7 +247,7 @@ typedef enum {
 	THUMB16_SET_UXTH ,
 	
 		//	ASM Keyword : 2	
-	THUMB16_KEY_PROC ,
+	THUMB16_KEY_PROC ,
 	THUMB16_KEY_CALL ,
 	THUMB16_KEY_END ,		
 	
