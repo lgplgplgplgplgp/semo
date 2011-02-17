@@ -1,7 +1,7 @@
 
 /*
 
-+	Semo Compiler Common Library 
++	Semo Compiler HAL 
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
