@@ -68,12 +68,20 @@ enum {
 	SC_MS = 0x2000 ,	
 	//	compile for the ARM architecture by default
 	SC_ARM = 0x4000 ,
-	//	compile for the x80386 architecture
-	SC_X80386 = 0x8000 ,
+	//	compile for the X86 architecture
+	SC_X86 = 0x8000 ,
 	//	both dc and ms features by default , = 2^17
 	SC_DM = 0x10000 ,				
 	//	interference graph of live scope , = 2^18
-	SC_IG = 0x20000	
+	SC_IG = 0x20000	,
+	//	__stdcall , = 2^19
+	SC_C0 = 0x40000 ,
+	//	__cdecll ,= 2^20
+	SC_C1 = 0x80000 ,
+	//	__fastcall , = 2^21
+	SC_C2 = 0x100000 ,
+	//	__armcall , = 2^22
+	SC_C3 = 0x200000	
 	
 } ;
 
