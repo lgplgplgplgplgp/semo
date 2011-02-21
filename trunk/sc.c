@@ -57,11 +57,15 @@ Options :\n\
 \t -lac \t\t export IR to external file\n\
 \t -sasm \t\t export semo assembly code to external file\n\
 \t -cr \t\t enable compiling-render and export results\n\
-\t -elf \t\t generate object-file with ELF format as default\n\
+\t -elf \t\t generate object-file with ELF format as defaul\n\
 \t -link \t\t compile and link\n\
 \t -nlink \t compile only as default\n\
 \t -arm \t\t compile for the ARM architecture as default\n\
-\t -x80386 \t compile for the x80386 architecture\n\
+\t -X86 \t\t compile for the X86 architecture\n\
+\t -c0 \t\t using '__stdcall' for parameters transfer\n\
+\t -c1 \t\t using '__cdecl' for parameters transfer\n\
+\t -c2 \t\t using '__fastcall' for parameters transfer\n\
+\t -c3 \t\t using '__armcall' for parameters transfer as default\n\
 \n\
 SET :\n\
 \t module : po pre-compiling\n\
@@ -78,7 +82,7 @@ SET :\n\
 \t parameter : file1 file2...filen\n\
 \n\
 Example :\n\
-\t sc test.c -c -x80386\n\
+\t sc test.c -c -X86\n\
 \t sc -c -lac -sasm test.c test2.c test3.c\n\
 \t sc -c -lac -sasm -cr -arm SET po=dc,ms SET cr=lga test.c test2.c\n\
 \t sc test.c SET linker=test2.lib test3.lib\n\
@@ -100,6 +104,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 	
 	int walker = 0 ;
 	int state = 0 ;
+	int results = 0 ;
 
 	SCClString str = {0} ;
 	
@@ -198,6 +203,17 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 				} else if ( !sc_strcmp ( lexc->token , "cr" ) ) {
 					compiler->parameter |= SC_CR ;						
 
+				} else if ( !sc_strcmp ( lexc->token , "c0" ) ) {
+					compiler->parameter |= SC_C0 ;						
+
+				} else if ( !sc_strcmp ( lexc->token , "c1" ) ) {
+					compiler->parameter |= SC_C1 ;						
+
+				} else if ( !sc_strcmp ( lexc->token , "c2" ) ) {
+					compiler->parameter |= SC_C2 ;						
+
+				} else if ( !sc_strcmp ( lexc->token , "c3" ) ) {
+					compiler->parameter |= SC_C3 ;						
 				} else if ( !sc_strcmp ( lexc->token , "elf" ) ) {
 					compiler->parameter |= SC_ELF ;						
 
@@ -216,16 +232,16 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 
 				} else if ( !sc_strcmp ( lexc->token , "arm" ) ) {
 					compiler->parameter |= SC_ARM ;		
-					if ( compiler->parameter & SC_X80386 ) {
-						SCLog ( "Architecture '-x80386' has already specified\n" ) ;
+					if ( compiler->parameter & SC_X86 ) {
+						SCLog ( "Architecture '-X86' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
 
-				} else if ( !sc_strcmp ( lexc->token , "x80386" ) ) {
-					compiler->parameter |= SC_X80386 ;		
+				} else if ( !sc_strcmp ( lexc->token , "X86" ) ) {
+					compiler->parameter |= SC_X86 ;		
 					if ( compiler->parameter & SC_ARM ) {
 						SCLog ( "Architecture '-arm' has already specified\n" ) ;
-						SCLog ( "The compiler is not supports x80386 yet\n" ) ;
+						SCLog ( "The compiler is not supports X86 yet\n" ) ;
 						goto ErrorRelease ;						
 					}							
 				}  else {
@@ -306,14 +322,28 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 		
 	}
 
-	//	parameters of default 
-	compiler->parameter |= SC_C99 ;
-	compiler->parameter |= SC_ARM ;
-	compiler->parameter |= SC_NLINK ;
+	//	check language
+	results = ( SC_CPP & compiler->parameter ) || ( SC_JAVA & compiler->parameter ) ;
+	//	if SC_CPP,SC_JAVA is not setting , set SC_C99 as default
+	if ( 0 == results ) compiler->parameter |= SC_C99 ;
 
-	if ( SC_CR & compiler->parameter )
+	//	check architecture
+	results = SC_X86 & compiler->parameter ;
+	if ( 0 == results ) compiler->parameter |= SC_ARM ;
+
+	//	check linker
+	results = SC_LINK & compiler->parameter ;
+	if ( 0 == results ) compiler->parameter |= SC_NLINK ;
+
+	//	check parameter transfer type	
+	results = ( SC_C0 & compiler->parameter ) || ( SC_C1 & compiler->parameter ) || ( SC_C2 & compiler->parameter ) ;
+	//	if SC_0,SC_1,SC2 is not setting , set SC_C3 as default
+	if ( 0 == results ) compiler->parameter |= SC_C3 ;
+		
+	if ( SC_CR & compiler->parameter ) {
 		if ( !(SC_EXP & compiler->parameter ) && !(SC_LGA & compiler->parameter )  )
 			compiler->parameter |= SC_IG ;
+	}
 	
 	lexerc_destroy () ;
 
