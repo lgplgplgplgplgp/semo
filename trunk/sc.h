@@ -12,7 +12,7 @@
 +	that it will be useful,but without any warranty.without even the implied warranty of merchantability 
 +	or fitness for a particular purpose.																					
 																												
-+	(C)	çªå£³å¼€æºTechniques of Knowledge
++	(C)	Í»¿Ç¿ªÔ´Techniques of Knowledge
 +		an open source community since 2008
 +		Community : http://www.tok.cc
 +		Contact Us : jelo.wang@gmail.com
@@ -20,8 +20,8 @@
 +		-Thanks to Our Committers and Friends
 +		-Best Wish to all who Contributed and Inspired
 +		-Techniques of Knowledge 
-+		-è‡´ä¼™ä¼´ä»¬æœ€ç¾å¥½ç¥æ„¿
-+		-çªå£³å¼€æºç¤¾åŒº
++		-ÖÂ»ï°éÃÇ×îÃÀºÃ×£Ô¸
++		-Í»¿Ç¿ªÔ´ÉçÇø
 
 */ 
 
