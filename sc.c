@@ -25,7 +25,7 @@
 
 */
 
-# include "time.h"
+# include <time.h>
 # include "c-lexer.h"
 # include "c-presor.h"
 # include "c-parser.h"
@@ -158,95 +158,135 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 			case 1 :
 				
 				if ( !sc_strcmp ( lexc->token , "c" ) ) {
+
 					compiler->parameter |= SC_C99 ;
+
 					if ( compiler->parameter & SC_CPP ) {
 						SCLog ( "Language '-cpp' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}	
+
 					if ( compiler->parameter & SC_JAVA ) {
 						SCLog ( "Language '-java' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
+
 				} else if ( !sc_strcmp ( lexc->token , "cpp" ) ) {
+
 					compiler->parameter |= SC_CPP ;				
 					SCLog ( "The compiler is not supports CPP yet \n" ) ;						
+
 					if ( compiler->parameter & SC_C99 ) {
 						SCLog ( "Language '-c' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}	
+					
 					if ( compiler->parameter & SC_JAVA ) {
 						SCLog ( "Language '-java' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
+
 					goto ErrorRelease ;
+
 				} else if ( !sc_strcmp ( lexc->token , "java" ) ) {
+
 					compiler->parameter |= SC_JAVA ;			
 					SCLog ( "The compiler is not supports JAVA yet \n" ) ;
+
 					if ( compiler->parameter & SC_C99 ) {
 						SCLog ( "Language '-c' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}	
+
 					if ( compiler->parameter & SC_CPP ) {
 						SCLog ( "Language '-cpp' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}						
+
 					goto ErrorRelease ;
+
 				} else if ( !sc_strcmp ( lexc->token , "po" ) ) {
+
 					compiler->parameter |= SC_PO ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "lac" ) ) {
+
 					compiler->parameter |= SC_LAC ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "sasm" ) ) {
+
 					compiler->parameter |= SC_SASM ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "cr" ) ) {
+
 					compiler->parameter |= SC_CR ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "c0" ) ) {
+
+					//	__stdcall
 					compiler->parameter |= SC_C0 ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "c1" ) ) {
+
+					//	__cdcel				
 					compiler->parameter |= SC_C1 ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "c2" ) ) {
+
+					//	__fastcall				
 					compiler->parameter |= SC_C2 ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "c3" ) ) {
+
+					//	__armcall				
 					compiler->parameter |= SC_C3 ;						
+
 				} else if ( !sc_strcmp ( lexc->token , "elf" ) ) {
+
 					compiler->parameter |= SC_ELF ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "link" ) ) {
+
 					compiler->parameter |= SC_LINK ;			
+
 					if ( compiler->parameter & SC_NLINK ) {
 						SCLog ( "Linker is multi-defined with '-nlink'\n" ) ;
 						goto ErrorRelease ;						
 					}	
+
 				} else if ( !sc_strcmp ( lexc->token , "nlink" ) ) {
+				
 					compiler->parameter |= SC_NLINK ;	
+
 					if ( compiler->parameter & SC_LINK ) {
 						SCLog ( "Linker is multi-defined with '-link'\n" ) ;
 						goto ErrorRelease ;						
 					}						
 
 				} else if ( !sc_strcmp ( lexc->token , "arm" ) ) {
+
 					compiler->parameter |= SC_ARM ;		
+
 					if ( compiler->parameter & SC_X86 ) {
 						SCLog ( "Architecture '-X86' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
 
 				} else if ( !sc_strcmp ( lexc->token , "X86" ) ) {
+
 					compiler->parameter |= SC_X86 ;		
+
 					if ( compiler->parameter & SC_ARM ) {
 						SCLog ( "Architecture '-arm' has already specified\n" ) ;
 						SCLog ( "The compiler is not supports X86 yet\n" ) ;
 						goto ErrorRelease ;						
-					}							
+					}
+					
 				}  else {
+
 					SCLog ( "Undefined parameter\n" ) ;
-					goto ErrorRelease ;						
+					goto ErrorRelease ;				
+					
 				}
 
 				lexerc_skip_blank () ;
@@ -565,9 +605,6 @@ int SCCompile ( int argc , char** argv , int type ) {
 	//	objective files are saved with compiler->ol which is a SCClList.
 	//	its the parameter of LINKER.
 	if ( SC_LINK & compiler->parameter ) {
-		if ( SC_ELF & compiler->parameter ) {
-			compiler->LINKER = 0 ;
-		}
 		compiler->LINKER ( compiler->ol ) ;
 	}
 	
@@ -577,12 +614,15 @@ int SCCompile ( int argc , char** argv , int type ) {
 	if ( compiler->lines && compiler->etime - compiler->stime )
 		perline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
 
+	//	print compiling logs
 	SCLog ("\n") ;
 	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
 	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;
 	SCLog ("Compiling Speed : %1.3f\n" , perline ) ;
 	SCLog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
+	//	live-scopes spliting times of York-Town allocator
 	SCLog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
+	//	register allocation times
 	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
 	SCLog ("\n" ) ;
 
