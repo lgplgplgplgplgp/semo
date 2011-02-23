@@ -392,7 +392,7 @@ AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line )
 
 }
 
-AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int line ) {
+AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int tacktotall , int line ) {
 
 	//	author : Jelo Wang
 	//	20110212
@@ -410,8 +410,9 @@ AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int line ) {
 	sc_strcpy ( azonal->name , name ) ;
 
 	azonal->azonaltype = azonaltype ;
+	azonal->tack.totall = tacktotall ;
 	azonal->line = line ;
-			
+
 	if ( 0 == symbole->funccal.next ) {
 		symbole->funccal.next = azonal ;
 		symbole->funccal.head = azonal ;

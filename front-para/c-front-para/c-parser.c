@@ -254,7 +254,7 @@ static int parser_c_read_funccal () {
 		return 0 ;
 	}
 
-	fcalanl = SymboleAddFunctionCall ( azonal->name , ISA_FUNCCAL , lexc->line ) ;
+	fcalanl = SymboleAddFunctionCall ( azonal->name , ISA_FUNCCAL , azonal->tack.totall , lexc->line ) ;
 	
 	//	check is there has some parameters exits of the calling.
 	if ( C_XKR == lexerc_head_genv (2) ) {

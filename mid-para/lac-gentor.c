@@ -656,6 +656,65 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 }
 
+static void lacgentor_gen_calltransfer ( AZONAL* azonal , int type ) {
+
+	//	author : Jelo Wang
+	//	since : 20110223
+	//	(C)TOK
+
+	//	generate __stdcall,__cdecl,__fastcall,__armcall pattern
+
+	int counter = 0 ;
+	
+	//	before calling
+	if ( 0 == type ) {
+
+		if ( SC_C0 & compiler->parameter ) {
+
+			//	for __stdcall type			
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
+			LACAdd ( "%$STACK INIT " , -1 , -1 ) ;
+			LACAdd ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
+			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+		
+		} else if ( SC_C3 & compiler->parameter ) {
+		
+			//	for __armcall type						
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
+//			LACAdd ( "%$STACK INIT " , -1 , -1 ) ;
+//			LACAdd ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
+//			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+
+			if ( 5 > azonal->tack.totall ) {
+				AZONAL* looper = azonal->tack.head ;
+				while ( looper ) {
+					LACAdd ( "%$V1 = " , -1 , -1 ) ;
+					LACAdd ( looper->name , -1 , -1 ) ;
+					LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+					looper = looper->next ;
+				}
+			}
+		
+		}
+
+		
+ 	} else if ( 1 == type ) {
+
+		//	after calling
+		if ( SC_C3 & compiler->parameter ) {
+		
+			//	for __armcall type						
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
+			LACAdd ( "%$STACK UNIT " , -1 , -1 ) ;
+			LACAdd ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
+			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+		
+		}
+		
+	}
+
+}
+
 void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	//	author : Jelo Wang
@@ -663,10 +722,131 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	//	(C)TOK
 
 	char* name = 0 ;
+	char* vn [ 4 ] = { "%$V1" , "%$V2" , "%$V3" , "%$V4" } ;
+
+	int walker = 0 ;
+	int counter = 0 ;
+
 	SCClList* looper = 0 ;
+
+	//	backup V1,V2,V3,V4
+	for ( walker = 0 ; walker < azonal->tack.totall && 0 != walker-4 ; walker ++ ) {
+		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 											
+		LACAdd ( "STACK IN " , -1 , -1 ) ;				
+		LACAdd ( vn[walker] , -1 , -1 ) ;				
+		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 						
+	}
+
+	//	generate __armcall pattern
+	if ( SC_C3 & compiler->parameter ) {
+
+		//	totall parameters is <= 4
+		if ( 4 >= azonal->tack.totall ) {
+			
+			for ( counter = 0 , looper = lgnosia->context.head ; looper ; looper=looper->next , counter ++ ) {
+
+				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
+				AZONAL* anl = (AZONAL* ) lga->azonal ;
+				
+				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;	
+
+				{
+
+					LACAdd ( vn[walker] , -1 , -1 ) ;				
+					LACAdd ( " = " , -1 , -1 ) ;
+
+					name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+					LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
+					SCFree ( name ) ;
+					LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
+
+				}
+				
+			}
+
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
+			LACAdd ( "%$CA " , -1 , -1 ) ;
+			LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
+			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			
+		} else if ( 4 < azonal->tack.totall ) {
+
+			//	skip REGSITER usage
+			for ( counter = 0 , looper = lgnosia->context.head ; counter < 4 ; counter ++ ) {
+				looper = looper->next ;
+			}
+
+			//	generate STACK usage
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
+			LACAdd ( "%$STACK INIT " , -1 , -1 ) ;
+			LACAdd ( SCClItoa ( azonal->tack.totall - counter ) , -1 , -1 ) ;
+			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			
+			for ( ; looper ; looper = looper->next ) {
+			
+				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
+				AZONAL* anl = (AZONAL* ) lga->azonal ;				
+			
+				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 								
+				LACAdd ( "%$STACK IN " , -1 , -1 ) ;
+				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ; 	
+				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 		
+				SCFree ( name ) ;
+				
+			}
+			//	end here
+			
+
+			for ( counter = 0 , looper = lgnosia->context.head ; looper && counter < 4 ; looper = looper->next , counter ++ ) {
+		
+				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
+				AZONAL* anl = (AZONAL* ) lga->azonal ;
+				
+				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;	
+
+				LACAdd ( vn[counter] , -1 , -1 ) ;				
+				LACAdd ( " = " , -1 , -1 ) ;
+
+				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
+				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
+				SCFree ( name ) ;
+				
+			}
+
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
+			LACAdd ( "%$CA " , -1 , -1 ) ;
+			LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
+			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			
+			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 								
+			LACAdd ( "%$STACK UNIT " , -1 , -1 ) ;
+			LACAdd ( SCClItoa ( azonal->tack.totall - counter ) , -1 , -1 ) ;
+			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			
+		}
+
+	}
+
+	for ( walker = 0 ; walker < azonal->tack.totall && 0 != walker-4 ; walker ++ ) {
+		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 							
+		LACAdd ( "STACK OUT " , -1 , -1 ) ; 	 		
+		LACAdd ( vn[walker] , -1 , -1 ) ;				
+		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 						
+	}
+
+/* 
+	char* name = 0 ;
+	SCClList* looper = 0 ;
+
+	//	if the function has parameters , generate parameter transfer pattern
+	if ( 0 < azonal->tack.totall  ) {
+		lacgentor_gen_calltransfer ( azonal , 0 ) ;
+	}
 	
 	for ( looper = lgnosia->context.head ; looper ; looper=looper->next ) {
-
+		
 		LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 		AZONAL* anl = (AZONAL* ) lga->azonal ;
 		char* namenew = sc_strcat ( lacgentor_get_identor () , "%$PE " ) ;
@@ -688,6 +868,16 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
 	LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
 	SCFree ( name ) ;
+
+	//	if the function has parameters , generate parameter transfer pattern
+	if ( 0 < azonal->tack.totall  ) {
+				
+		lacgentor_gen_calltransfer ( azonal , 1 ) ;
+		
+	}
+
+*/
+	
 	
 }
 
