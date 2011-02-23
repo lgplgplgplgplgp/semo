@@ -91,8 +91,7 @@ int LACAdd ( char* string , LAC_ATOM type , int scope ) {
 	LAC* lacn = (LAC* ) SCMalloc ( sizeof(LAC) ) ;
 	
 	SCClStringInitEx ( &lacn->code , sc_strlen ( string ) ) ;
- 	SCClStringAddStr ( &lacn->code , string ) ;
-	
+	SCClStringAddStr ( &lacn->code , string ) ;	
 	SCClStringAdd ( &lacn->code , '\0' ) ;
 	
 	lacn->havelabel = 0 ;

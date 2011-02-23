@@ -28,7 +28,7 @@
 # ifndef __SMART_COMPILER
 # define __SMART_COMPILER
 
-//# define SEMO_DEBUG 
+//define SEMO_DEBUG 
 
 enum {
 
@@ -47,7 +47,7 @@ enum {
 	//	export pre-compiling results to external file
 	SC_PO = 0x8 ,
 	//	export IR to external file
-	SC_LAC = 0xa ,
+	SC_LAC = 0x10,
 	//	export semo assembly code to external file
 	SC_SASM = 0x20 ,
 	//	enable compiling-render and export results

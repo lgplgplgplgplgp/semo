@@ -219,16 +219,18 @@ void lacgentor_ready () {
 	lacgentor.delt = 0 ;
 	lacgentor.label = 0 ;
 	lacgentor.tree = 0 ;
+	lacgentor.lgnosia = 0 ;
 	
 	SCClStackInit ( &lacgentor.identor ) ;
 	SCClStackInit ( &lacgentor.deltstack ) ;
 
 	//	get LGA tree
 	lacgentor.tree = (SCClList* ) LgnosiaGet () ;
+	
+	if ( lacgentor.tree ) 
+		lacgentor.lgnosia = lacgentor.tree->element ;
 
-	lacgentor.lgnosia = lacgentor.tree->element ;
-
-}
+} 
 
 void lacgentor_next () {
 	
@@ -743,24 +745,21 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		//	totall parameters is <= 4
 		if ( 4 >= azonal->tack.totall ) {
 			
-			for ( counter = 0 , looper = lgnosia->context.head ; looper ; looper=looper->next , counter ++ ) {
+			for ( counter = 0 , looper = lgnosia->context.head ; looper ; looper = looper->next , counter ++ ) {
 
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 				AZONAL* anl = (AZONAL* ) lga->azonal ;
 				
 				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;	
 
-				{
+				LACAdd ( vn[walker] , -1 , -1 ) ;				
+				LACAdd ( " = " , -1 , -1 ) ;
 
-					LACAdd ( vn[walker] , -1 , -1 ) ;				
-					LACAdd ( " = " , -1 , -1 ) ;
+				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
+				SCFree ( name ) ;
+				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
 
-					name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-					LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
-					SCFree ( name ) ;
-					LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
-
-				}
 				
 			}
 
@@ -795,26 +794,24 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				SCFree ( name ) ;
 				
 			}
-			//	end here
-			
+			//	end her			
 
 			for ( counter = 0 , looper = lgnosia->context.head ; looper && counter < 4 ; looper = looper->next , counter ++ ) {
-		
+
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 				AZONAL* anl = (AZONAL* ) lga->azonal ;
 				
 				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;	
-
 				LACAdd ( vn[counter] , -1 , -1 ) ;				
 				LACAdd ( " = " , -1 , -1 ) ;
 
 				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
 				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
 				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
-				SCFree ( name ) ;
+//				SCFree ( name ) ;
 				
 			}
-
+			
 			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
 			LACAdd ( "%$CA " , -1 , -1 ) ;
 			LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
