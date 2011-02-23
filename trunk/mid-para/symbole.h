@@ -189,7 +189,7 @@ typedef struct ANODE {
 	//	a handle to LGA
 	//	representing  the AZONAL which field is belong to
 	int lgabelong ;
-	int used ;				
+	int used ;
 	int line ;
 	int isparam ;			
 	int number ;			
@@ -329,7 +329,7 @@ extern AZONAL* SymboleFindVarAzonal ( char* name ,int scope ,int belong ) ;
 extern AZONAL* SymboleVarAzonalSavable ( char* name ,int scope ,int lgabelong ) ;
 extern void SymboleAzonalRefInc ( AZONAL* azonal ) ;
 extern AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line ) ;
-extern AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int line ) ;
+extern AZONAL* SymboleAddFunctionCall ( char* name , int azonaltype , int tacktotall , int line ) ;
 extern AZONAL* SymboleFindFunction ( char* name ) ;
 extern int  SymboleAddFunctionParameter ( AZONAL* function , AZONAL* para ) ;
 extern void SymboleSetFunctionParameters ( AZONAL* function , int parameters ) ;
@@ -345,3 +345,4 @@ extern ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) ;
 extern void SymboleDRCDropCFF ( AZONAL* azonal ) ;
 extern void SymboleDRCDropDRC ( AZONAL* azonal ) ;
 extern AZONAL* SymboleAndNumeric ( char* name , int type ) ;
+
