@@ -11,7 +11,7 @@ int main ( int argc , char* argv [] ) {
 		char* value [] = {
 			
 			"sc",
-			"ssa1.txt" ,
+			"ca.txt" ,
 			" -cr" ,
 			" -lac" ,
 

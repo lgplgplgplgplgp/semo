@@ -1188,7 +1188,6 @@ static char* SymboleDRCConvertCFFToSSA ( AZONAL* azonal , ANLDRC* cff ) {
 
 }
 
-
 static ANLDRC* SymboleDRCGetTheCurrentDRC ( AZONAL* azonal ) {
 
 	//	author : Jelo Wang

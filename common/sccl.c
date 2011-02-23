@@ -338,6 +338,7 @@ char* sc_strcat ( char* A , char* B ) {
 	C [ walker ] = '\0' ;
 
 	return C ;
+	
 }
 
 void sc_strcat_ex ( char* A , char* B , char* C ) {
@@ -572,7 +573,11 @@ SCClString* SCClStringNew () {
 	//	since : 20100430
 	//	(C)TOK
 
-	return (SCClString* ) SCMalloc ( sizeof(SCClString ) ) ;
+	SCClString* string = SCMalloc ( sizeof(SCClString ) ) ;
+
+	SCClStringInit ( string ) ;
+
+	return string ;
 	
 }
 
@@ -694,28 +699,29 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 
 	ellen = sc_strlen (el) ;
 
+	//	the first time of adding
 	if ( 0 == string->length && ellen ) {
 
 		string->data = (char* ) SCMalloc ( ellen + 1 ) ;
 		string->length = ellen ;
 		string->add_walker = string->length ;
-		sc_strcpy ( string->data , el );
+		sc_strcpy ( string->data , el ) ;
 
 		return 1 ;
 
 	} 
 
+	//	if added and already ends with '\0'
 	if ( 0 < string->add_walker && '\0' == string->data [string->add_walker-1] ) {
 		
 		string->add_walker = string->add_walker - 1 ;
 		string->length = string->length - 1 ;
 
 	} 
-
+	
 	if ( string->add_walker >= string->length ) {
 
 		string->data = (char* ) SCRealloc ( string->data , string->length + ellen ) ;
-
 		string->length += ellen ;
 
 	}
