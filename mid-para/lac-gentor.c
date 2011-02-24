@@ -276,7 +276,7 @@ void lacgentor_gen_funcdef () {
 	//	author : Jelo Wang
 	//	since : 20100107
 	//	(C)TOK
-	
+
 	AZONAL* azonal = 0 ;	
 	LGNOSIA* lgnosia = 0 ;
 	SCClList* listlooper = 0 ;
@@ -286,13 +286,30 @@ void lacgentor_gen_funcdef () {
 		return ;
 	}
 
+	LACCallFrameInit () ;
+		
 	lgnosia = (LGNOSIA* ) lacgentor.lgnosia ;
 	azonal = (AZONAL* ) lgnosia->azonal ;
-	
+
 	LACAdd ( azonal->name , LAC_PROC , lacgentor.identor.deep ) ;
 	LACAdd ( "(" , -1 , -1 ) ;
 
-	//	gen para
+	//	gen __armcall para	
+	if ( 0 < azonal->tack.totall ) {
+		
+		int counter = 0 ;
+		char* vn [ 4 ] = { "%$V1" , "%$V2" , "%$V3" , "%$V4" } ;
+
+		AZONAL* anl = 0 ;
+		SCClList* looper = 0 ;
+		
+		for ( listlooper = azonal->tack.head ; listlooper ; listlooper = listlooper->next ) {
+			anl = (AZONAL* ) listlooper->element ;
+			LACCallFrameAdd ( LAC_REG_CFRAME , anl->name , vn[counter] ) ;
+			LACAdd ( vn[counter] , LAC_L_DELT , -1 ) ;
+		}
+		
+	}
 	
 	LACAdd ( ")\r\n" , LAC_CR , -1 ) ;
 	LACAdd ( "{\r\n" , LAC_CR , -1 ) ;
@@ -302,9 +319,7 @@ void lacgentor_gen_funcdef () {
 	SET_LACGENTOR_DELT(0);
 	LACIdentorPush () ;
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
-
-		lacgentor_switcher ( (LGNOSIA*)listlooper->element ) ;
-		
+		lacgentor_switcher ( (LGNOSIA*)listlooper->element ) ;		
 	}
 	LACIdentorPop () ;
 	UNSET_LACGENTOR_DELT();
@@ -595,6 +610,7 @@ void lacgentor_switcher ( LGNOSIA* lgnosia ) {
 		case ISA_WHILECF :
 			lacgentor_gen_while ( lgnosia , azonal ) ;
 		break ;
+
 		case ISA_VARIABLE :
 			lacgentor_gen_variable ( lgnosia , azonal ) ;
 		break ;
@@ -734,18 +750,18 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	//	backup V1,V2,V3,V4
 	for ( walker = 0 ; walker < azonal->tack.totall && 0 != walker-4 ; walker ++ ) {
 		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 											
-		LACAdd ( "STACK IN " , -1 , -1 ) ;				
+		LACAdd ( "%$STACK IN " , -1 , -1 ) ;				
 		LACAdd ( vn[walker] , -1 , -1 ) ;				
 		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 						
 	}
-
+	
 	//	generate __armcall pattern
 	if ( SC_C3 & compiler->parameter ) {
-
+		
 		//	totall parameters is <= 4
-		if ( 4 >= azonal->tack.totall ) {
+		if ( 4 >= azonal->tack.totall ) {			
 			
-			for ( counter = 0 , looper = lgnosia->context.head ; looper ; looper = looper->next , counter ++ ) {
+			for ( walker = 0 , counter = 0 , looper = lgnosia->context.head ; looper ; looper = looper->next , counter ++ ) {
 
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 				AZONAL* anl = (AZONAL* ) lga->azonal ;
@@ -828,54 +844,12 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	for ( walker = 0 ; walker < azonal->tack.totall && 0 != walker-4 ; walker ++ ) {
 		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 							
-		LACAdd ( "STACK OUT " , -1 , -1 ) ; 	 		
+		LACAdd ( "%$STACK OUT " , -1 , -1 ) ; 	 		
 		LACAdd ( vn[walker] , -1 , -1 ) ;				
 		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 						
 	}
-
-/* 
-	char* name = 0 ;
-	SCClList* looper = 0 ;
-
-	//	if the function has parameters , generate parameter transfer pattern
-	if ( 0 < azonal->tack.totall  ) {
-		lacgentor_gen_calltransfer ( azonal , 0 ) ;
-	}
 	
-	for ( looper = lgnosia->context.head ; looper ; looper=looper->next ) {
-		
-		LGNOSIA* lga = (LGNOSIA* ) looper->element ;
-		AZONAL* anl = (AZONAL* ) lga->azonal ;
-		char* namenew = sc_strcat ( lacgentor_get_identor () , "%$PE " ) ;
 
-		name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-		
-		LACAdd ( namenew , -1 , -1 ) ;
-		LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;
-		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
-
-		SCFree ( name ) ;
-		SCFree ( namenew ) ;
-		
-	}
-	
-	name = sc_strcat ( lacgentor_get_identor () , "%$CA " ) ;
-
-	LACAdd ( name , LAC_CR , -1 ) ;
-	LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
-	LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
-	SCFree ( name ) ;
-
-	//	if the function has parameters , generate parameter transfer pattern
-	if ( 0 < azonal->tack.totall  ) {
-				
-		lacgentor_gen_calltransfer ( azonal , 1 ) ;
-		
-	}
-
-*/
-	
-	
 }
 
 int lacgentor_get_exp_deep ( EXPR* expression , EXPR* father , int deep , int* totall ) {
@@ -931,21 +905,33 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 		char* name = 0 ; 
 		AZONAL* azonal = expression->handle ;
 
- 		if ( ISA_INTEGER != azonal->azonaltype ) 
-			name = SymboleDRCGetDRC ( azonal , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-		else 
-			name = azonal->name ;
+		//	if this azonal is not a parameter
+		//	else it would be in LAC-CALL-FRAME
+		if ( 0 == azonal->isparam ) {
+			
+	 		if ( ISA_INTEGER != azonal->azonaltype ) 
+				name = SymboleDRCGetDRC ( azonal , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+			else 
+				name = azonal->name ;
 
-		expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
-		sc_strcpy ( expression->delt  , name ) ;
-	
-		if ( ISA_INTEGER == azonal->azonaltype )
-			expression->delttype = EXP_DELT_ANLNUMERIC ;
-		else 
-			expression->delttype = EXP_DELT_ANLDATA ;
+			expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
+			sc_strcpy ( expression->delt  , name ) ;
+		
+			if ( ISA_INTEGER == azonal->azonaltype )
+				expression->delttype = EXP_DELT_ANLNUMERIC ;
+			else 
+				expression->delttype = EXP_DELT_ANLDATA ;
 
-//		SCFree ( name ) ;
-	
+	//		SCFree ( name ) ;
+
+		} else {
+			char* frame = LACCallFrameGet ( LAC_REG_CFRAME , azonal->name ) ;
+			//	get LAC-CALL-FRAME
+			expression->delt = (char* ) SCMalloc ( sc_strlen (frame) + 1 ) ;
+			sc_strcpy ( expression->delt  , frame ) ;		
+			expression->delttype = EXP_DELT_ANLDATA ;			
+		}
+		
 		
 	} else if ( EXP_OPERATOR == expression->type ) {
 
@@ -1091,8 +1077,7 @@ char* gentor_lac_run ( char* lacfile ) {
 			
 		}
 
-		LgnosiaDestroy ( lacgentor.lgnosia ) ;
-		
+		LgnosiaDestroy ( lacgentor.lgnosia ) ;		
 		lacgentor_next () ;
 
 	}

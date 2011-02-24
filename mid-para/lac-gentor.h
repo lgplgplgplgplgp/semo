@@ -25,8 +25,8 @@
 
 */ 
 
-# ifndef __LAC_GENTOR__
-# define __LAC_GENTOR__
+# ifndef __LAC_GENTOR
+# define __LAC_GENTOR
 	
 # include "symbole.h"
 # include "lgnosia.h"
@@ -43,7 +43,10 @@ typedef struct {
 	int delt ;
 	int label ;
 	int lgnosia ;
+
+	//	a set of lgnosia
 	SCClList* tree ;
+
 	SCClStack identor ;
 	SCClStack deltstack ;
 	SCClStack scopestack ;

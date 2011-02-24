@@ -197,16 +197,19 @@ typedef struct ANODE {
 	int size ;
 	int scale ;
 
-	struct {
+//	struct {
 
 		//	tack , SC use tack to handling additional information about a ANL , like a function which parameters are handled here
 
-		int totall ;
+//		int totall ;
 		
-		struct ANODE* head ;
-		struct ANODE* next ;
+//		struct ANODE* head ;
+//		struct ANODE* next ;
 		
-	} tack ;
+//	} tack ;
+
+	//	tack , SC use tack to handling additional information about a ANL , like a function which parameters are handled here
+	SCClList tack ;
 
 	struct {
 
@@ -337,7 +340,8 @@ extern int SymboleGetFunctionNumber ( char* name ) ;
 extern AZONAL* SymboleAddControlAzonal ( int azonaltype , int line ) ; 
 extern void SymboleUninstall () ;
 extern int SymboleGetCurrentFuncNumber () ;
-extern int SymboleGetCurrentFunc () ; 
+extern void* SymboleGetCurrentFunc () ; 
+extern void* SymboleGetFuncParameter ( void* azonal , char* name ) ;
 
 extern char* SymboleDRCAdd ( AZONAL* azonal , int scope , int cf , int lga ) ;
 extern char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) ;

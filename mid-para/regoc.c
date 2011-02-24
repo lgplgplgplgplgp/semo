@@ -68,12 +68,12 @@ void RegocAllocDestory () {
 	//	notes : destroy register allocations
 
 	int looper = 0 ;
-	
+
 	for ( looper = 0 ; looper < regoclooper ; looper ++ ) {
-		SCFree ( regoc[looper] ) ;
+//		SCFree ( regoc[looper] ) ;
 	}
 
-	SCFree ( regoc ) ;
+//	SCFree ( regoc ) ;
 	
 }
 

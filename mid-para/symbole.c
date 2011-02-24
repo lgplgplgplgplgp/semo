@@ -375,6 +375,7 @@ AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line )
 	azonal->tack.head = 0 ;
 	azonal->tack.next = 0 ;
 	azonal->tack.totall = 0 ;
+	
 	azonal->number = ++ symbole->functotall ;
 	azonal->next = 0 ;
 
@@ -437,7 +438,7 @@ int SymboleGetCurrentFuncNumber () {
 	
 }
 
-int SymboleGetCurrentFunc() {
+void* SymboleGetCurrentFunc() {
 	
 	//	author : Jelo Wang
 	//	since : 20100508
@@ -448,6 +449,25 @@ int SymboleGetCurrentFunc() {
 	return (int)symbole->function.next ;
 	
 }
+
+void* SymboleGetFuncParameter ( void* azonal , char* name ) {
+
+	//	author : Jelo Wang
+	//	since : 20110224
+	//	(C)TOK
+
+	SCClList* tacklooper = 0 ;
+	AZONAL* anlnode = 0 ;
+
+	for ( tacklooper = ((AZONAL*)azonal)->tack.head ; tacklooper ; tacklooper = tacklooper->next ) {
+		anlnode = (AZONAL* ) tacklooper->element ;
+		if ( !sc_strcmp ( anlnode->name , name ) ) return (void* )anlnode ;
+	}
+
+	return 0 ;	
+	
+}
+
 
 AZONAL* SymboleFindFunction ( char* name ) {
 
@@ -475,17 +495,9 @@ int SymboleAddFunctionParameter ( AZONAL* function , AZONAL* azonal ) {
 	//	(C)TOK
 	
 	ASSERT(symbole&&azonal&&function) ;
- 	
-	if ( 0 == function->tack.next ) {
-		function->tack.next = azonal ;
-		function->tack.head = azonal ;
-	} else {
-		function->tack.next->next = azonal ;
-		function->tack.next = azonal ;
-	}	
 
-	function->tack.totall ++ ;
-
+	SCClListInsert ( &function->tack , azonal ) ;
+	
 	return 1 ;
 
 }

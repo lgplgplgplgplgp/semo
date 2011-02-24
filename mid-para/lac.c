@@ -35,6 +35,67 @@
 static LAC* lac = 0 ;
 static LAC* lacswaper = 0 ;
 static LABELMOI* labelmoi = 0 ;
+//	LAC-CALL-FRAME
+static SCClList regcallframe = {0} ;
+static SCClList stkcallframe = {0} ;
+
+void LACCallFrameInit () {
+
+	//	author : Jelo Wang
+	//	since : 20110224
+	//	(C)TOK
+
+	SCClListInit ( &regcallframe ) ;
+	SCClListInit ( &stkcallframe ) ;
+
+}
+
+void LACCallFrameAdd ( int type , char* var , char* frame ) {
+
+	//	author : Jelo Wang
+	//	since : 20100505
+	//	(C)TOK
+
+	LACCallFrame* callframe = (LACCallFrame* ) SCMalloc ( sizeof(LACCallFrame) ) ;
+
+	ASSERT(callframe) ;
+
+	callframe->type = type ;
+	callframe->variable = sc_strnew ( var ) ;
+	callframe->frame = sc_strnew ( frame ) ;
+
+	if ( LAC_REG_CFRAME == type ) {
+		SCClListInsert ( &regcallframe , callframe ) ;
+	} else if ( LAC_STK_CFRAME == type ) {
+		SCClListInsert ( &stkcallframe , callframe ) ;
+	}
+
+}
+
+char* LACCallFrameGet ( int type , char* var ) {
+
+	//	author : Jelo Wang
+	//	since : 20100505
+	//	(C)TOK
+
+	SCClList* looper = 0 ;
+
+	if ( LAC_REG_CFRAME == type ) {
+		looper = regcallframe.head ;
+	} else if ( LAC_STK_CFRAME == type ) {
+		looper = stkcallframe.head ;\
+	}
+
+	for ( ; looper ; looper = looper->next ) {
+		LACCallFrame* callframe = looper->element ;
+		if ( !sc_strcmp ( callframe->variable , var ) ) {
+			return callframe->frame ;
+		}
+	}
+
+	return 0 ;
+
+}
 
 int LACNew () {
 
@@ -258,13 +319,18 @@ restart :
 				
 readproc :
 
-		if ( LAC_PROC == llooper->type ) {
+		if ( LAC_PROC != llooper->type ) {
+			
+			llooper = llooper->next ;
+			
+		} else {
 
 			laclsnumber = 0 ;
 						
 			RegocLiveScopeMoiCreate () ;
-			
-			for ( llooper = llooper->next ; llooper ; ) {			
+
+			//	get next looper
+			for ( llooper = llooper->next ; llooper ; llooper = llooper->next ) {			
 
 				lacnode = LACAdd ( llooper->code.data , llooper->type , llooper->scope ) ; 
 				
@@ -283,7 +349,6 @@ readproc :
 					
 				} else if ( LAC_R_DELT == lacnode->type ) {
 
-{
 					//	生命域引用
 					//	获取其编号
 					int lsn = RegocCheckLiveScope ( lacnode->code.data , lacnode->scope , lacnode->line ) ;
@@ -303,53 +368,56 @@ readproc :
 					if ( -1 < lsn ) {
 						//	将lac 添加到其引用链
 						int lac = 0 ;					
-						lac = RegocLiveScopeGetLAC () ;								
+						lac = RegocLiveScopeGetLAC () ;
 						LACRefChainInsert ( lac , lacnode ) ;
 					}
 					
-}
-				} else if ( LAC_PROC == lacnode->type || 0 == llooper->next ) {
 
-					//	get another lac proc
-					//	coloring the graph of the last proc
-					int lac = 0 ;
+				} else if ( LAC_PROC == llooper->type || 0 == llooper->next ) {
 
-					iG = RegocIGraphCreate () ;
-					lac = SCClGraphColoring ( iG , degreesmax ) ;	
-					
-					if ( -1 != lac && lac ) {						
-						//	graph coloring is failed if lac itsnt equal -1
-						//	split the problem
-						LACLiveScopeSplit ( lac ) ;
-						RegocLiveScopeMoiDestroy () ;
-						SCClGraphDestroy ( iG ) ;							
-//	Needs debug			LACClear () ;
+					if ( 0 < laclsnumber ) {
+						//	get another lac proc
+						//	coloring the graph of the last proc
+						int lac = 0 ;
 						
-						goto restart ;
+						iG = RegocIGraphCreate () ;
+						lac = SCClGraphColoring ( iG , degreesmax ) ;	
 						
+						if ( -1 != lac && lac ) {						
+							//	graph coloring is failed if lac itsnt equal -1
+							//	split the problem
+							LACLiveScopeSplit ( lac ) ;
+							RegocLiveScopeMoiDestroy () ;
+							SCClGraphDestroy ( iG ) ;							
+							//LACClear () ;
+							
+							goto restart ;
+							
+						}
+						
+						if ( SC_IG & compiler->parameter ) {
+							MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
+						}
+
+						//	start register allocation based on interference-graph					
+						RegocRegisterAlloc ( iG , laclsnumber ) ;
+						RegocLiveScopeMoiDestroy () ;	
+
 					}
 					
-					if ( SC_IG & compiler->parameter ) {
-						MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
+					if ( 0 == llooper->next ) {
+						goto success ;
 					}
-
-					//	start register allocation based on interference-graph					
-					RegocRegisterAlloc ( iG , laclsnumber ) ;
-					RegocLiveScopeMoiDestroy () ;	
 
 					//	end of LAC flow
-					if ( 0 == lacnode ) goto success ;
 					goto readproc ;
 					
 				}
-
-				llooper = llooper->next ;				
+				
 				
 			}
 
 			
-		} else {
-			llooper = llooper->next ;
 		}
 
 		

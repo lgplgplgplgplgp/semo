@@ -78,6 +78,34 @@ typedef enum {
 	
 } LAC_ATOM ;
 
+typedef enum {
+
+	//	author : Jelo Wang
+	//	since : 20100107
+	//	(C)TOK
+
+	LAC_REG_CFRAME ,
+	LAC_STK_CFRAME ,
+
+} ;
+
+typedef struct {
+
+	//	author : Jelo Wang
+	//	since : 20100107
+	//	(C)TOK
+
+	//	LAC-CALL-FRAME
+	//	call-frame is a manager for the parameter transfer of function-calling 
+
+	//	type of frame , value bettwen LAC_REG_CFRAME , LAC_STK_CFRAME
+	int type ;
+	
+	char* variable ;
+	char* frame ;
+	
+} LACCallFrame ;
+
 typedef struct {
 
 	//	author : Jelo Wang
@@ -203,3 +231,7 @@ extern void LACLabelMoiSetContext ( int monitor ) ;
 extern void LACLabelMoiAdd ( int lac ) ;
 extern void LACLabelMoiSetLabel ( char* label ) ;
 extern void LACLabelMoiClear () ;
+extern void LACCallFrameInit () ;
+extern void LACCallFrameAdd ( int type , char* var , char* frame ) ;
+extern char* LACCallFrameGet ( int type , char* var ) ;
+ 
