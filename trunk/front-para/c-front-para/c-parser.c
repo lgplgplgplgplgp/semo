@@ -63,7 +63,8 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 	parserc->scope = sscope ;\
 
 # define UNSET_PARSER_SCOPE()\
-	parserc->scope = (int )SCClStackPop ( &parserc->scopestack ) ;\
+	SCClStackPop ( &parserc->scopestack ) ;\
+	parserc->scope = (int) SCClStackGet ( &parserc->scopestack ) ;\
 
 # define SCOPER_PUSH()\
 	parserc->stack ++ ;\
@@ -701,10 +702,16 @@ static int parser_c_read_variable_def () {
 	//	gen scope value
 	scope = SCOPER_GET () ;
 
-	if ( 0 == SymboleVarAzonalSavable ( lexc->token , scope , LgnosiaStackTop () ) ) {
+	//	if the inf isnt exits on the scope and search for it in funtion parameter list then
+	azonal = (AZONAL* ) SymboleGetCurrentFunc () ;
+	azonal = (AZONAL* ) SymboleGetFuncParameter ( azonal , lexc->token ) ;
+
+	if ( azonal ) {
+		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - variable is multi-defined: '%s' , line : %d\n" , lexc->token , lexc->line ) ;		
+	} else if ( 0 == SymboleVarAzonalSavable ( lexc->token , scope , LgnosiaStackTop () ) ) {
 		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - variable is multi-defined: '%s' , line : %d\n" , lexc->token , lexc->line ) ;
-	}
-	
+	} 
+
 	azonal = SymboleAddVarAzonal (
 		lexc->token ,
 		lexc->headbit ,
@@ -782,6 +789,12 @@ static int parser_c_read_variable_inf () {
 	scope = SCOPER_GET () ;
 
 	azonal = SymboleFindVarAzonal ( lexc->token , scope , LgnosiaStackTop () ) ;
+
+	if ( !azonal ) {
+		//	if the inf isnt exits on the scope and search for it in funtion parameter list then
+		azonal = (AZONAL* ) SymboleGetCurrentFunc () ;
+		azonal = (AZONAL* ) SymboleGetFuncParameter ( azonal , lexc->token ) ;
+	}
 
 	if ( !azonal ) {
 		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - undefined variable : '%s' , line : %d\n" , lexc->token , lexc->line ) ;
