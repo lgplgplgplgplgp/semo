@@ -909,20 +909,20 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 		//	else it would be in LAC-CALL-FRAME
 		if ( 0 == azonal->isparam ) {
 			
-	 		if ( ISA_INTEGER != azonal->azonaltype ) 
+	 		if ( ISA_INTEGER != azonal->azonaltype ) {
 				name = SymboleDRCGetDRC ( azonal , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-			else 
-				name = azonal->name ;
-
-			expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
-			sc_strcpy ( expression->delt  , name ) ;
+				expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
+				sc_strcpy ( expression->delt  , name ) ;
+				SCFree ( name ) ;
+			} else {
+				expression->delt = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
+				sc_strcpy ( expression->delt  , azonal->name ) ;
+			}
 		
 			if ( ISA_INTEGER == azonal->azonaltype )
 				expression->delttype = EXP_DELT_ANLNUMERIC ;
 			else 
 				expression->delttype = EXP_DELT_ANLDATA ;
-
-	//		SCFree ( name ) ;
 
 		} else {
 			char* frame = LACCallFrameGet ( LAC_REG_CFRAME , azonal->name ) ;
