@@ -294,7 +294,7 @@ void lacgentor_gen_funcdef () {
 	LACAdd ( azonal->name , LAC_PROC , lacgentor.identor.deep ) ;
 	LACAdd ( "(" , -1 , -1 ) ;
 
-	//	gen __armcall para	
+	//	gen __armcall para	 pattern
 	if ( 0 < azonal->tack.totall ) {
 		
 		int counter = 0 ;
@@ -302,11 +302,19 @@ void lacgentor_gen_funcdef () {
 
 		AZONAL* anl = 0 ;
 		SCClList* looper = 0 ;
-		
-		for ( listlooper = azonal->tack.head ; listlooper ; listlooper = listlooper->next ) {
+
+		//	get parameters
+		for ( listlooper = azonal->tack.head ; listlooper ; listlooper = listlooper->next , counter ++ ) {
+
 			anl = (AZONAL* ) listlooper->element ;
-			LACCallFrameAdd ( LAC_REG_CFRAME , anl->name , vn[counter] ) ;
-			LACAdd ( vn[counter] , LAC_L_DELT , -1 ) ;
+
+			if ( counter < 4 ) {
+				LACCallFrameAdd ( LAC_REG_CFRAME , anl->name , vn[counter] ) ;
+				LACAdd ( vn[counter] , LAC_L_DELT , -1 ) ;
+			} else {
+				LACCallFrameAdd ( LAC_STK_CFRAME , anl->name , vn[counter] ) ;
+			}
+				
 		}
 		
 	}
@@ -925,7 +933,7 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 				expression->delttype = EXP_DELT_ANLDATA ;
 
 		} else {
-			char* frame = LACCallFrameGet ( LAC_REG_CFRAME , azonal->name ) ;
+			char* frame = LACCallFrameGet ( azonal->name ) ;
 			//	get LAC-CALL-FRAME
 			expression->delt = (char* ) SCMalloc ( sc_strlen (frame) + 1 ) ;
 			sc_strcpy ( expression->delt  , frame ) ;		

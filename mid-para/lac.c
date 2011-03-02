@@ -36,17 +36,21 @@ static LAC* lac = 0 ;
 static LAC* lacswaper = 0 ;
 static LABELMOI* labelmoi = 0 ;
 //	LAC-CALL-FRAME
-static SCClList regcallframe = {0} ;
-static SCClList stkcallframe = {0} ;
+static SCClList callframe = {0} ;
+//	STACK of CALL-FRAME
+static int STACK = 0 ;
 
-void LACCallFrameInit () {
+void LACCallFrameInit ( int stack_append ) {
 
 	//	author : Jelo Wang
 	//	since : 20110224
 	//	(C)TOK
 
-	SCClListInit ( &regcallframe ) ;
-	SCClListInit ( &stkcallframe ) ;
+	//	stack_append is the totall memory needs of parameters from a function
+		
+	STACK = STACK + stack_append ;
+	
+	SCClListInit ( &callframe ) ;
 
 }
 
@@ -64,15 +68,16 @@ void LACCallFrameAdd ( int type , char* var , char* frame ) {
 	callframe->variable = sc_strnew ( var ) ;
 	callframe->frame = sc_strnew ( frame ) ;
 
-	if ( LAC_REG_CFRAME == type ) {
-		SCClListInsert ( &regcallframe , callframe ) ;
-	} else if ( LAC_STK_CFRAME == type ) {
-		SCClListInsert ( &stkcallframe , callframe ) ;
+	if ( LAC_STK_CFRAME == type ) {
+		callframe->stack.top = STACK + 1 ;
+		STACK = STACK + 1 ; 
 	}
+	
+	SCClListInsert ( &callframe , callframe ) ;
 
 }
 
-char* LACCallFrameGet ( int type , char* var ) {
+char* LACCallFrameGet ( char* var ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
@@ -80,16 +85,10 @@ char* LACCallFrameGet ( int type , char* var ) {
 
 	SCClList* looper = 0 ;
 
-	if ( LAC_REG_CFRAME == type ) {
-		looper = regcallframe.head ;
-	} else if ( LAC_STK_CFRAME == type ) {
-		looper = stkcallframe.head ;\
-	}
-
-	for ( ; looper ; looper = looper->next ) {
-		LACCallFrame* callframe = looper->element ;
-		if ( !sc_strcmp ( callframe->variable , var ) ) {
-			return callframe->frame ;
+	for ( looper = callframe.head ; looper ; looper = looper->next ) {
+		LACCallFrame* calf = looper->element ;
+		if ( !sc_strcmp ( calf->variable , var ) ) {
+			return calf->frame ;
 		}
 	}
 
