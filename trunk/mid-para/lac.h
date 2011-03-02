@@ -103,6 +103,12 @@ typedef struct {
 	
 	char* variable ;
 	char* frame ;
+
+	struct {
+
+		int top ;
+
+	} stack ;
 	
 } LACCallFrame ;
 
@@ -231,7 +237,7 @@ extern void LACLabelMoiSetContext ( int monitor ) ;
 extern void LACLabelMoiAdd ( int lac ) ;
 extern void LACLabelMoiSetLabel ( char* label ) ;
 extern void LACLabelMoiClear () ;
-extern void LACCallFrameInit () ;
+extern void LACCallFrameInit ( int stack_append ) ;
 extern void LACCallFrameAdd ( int type , char* var , char* frame ) ;
-extern char* LACCallFrameGet ( int type , char* var ) ;
+extern char* LACCallFrameGet ( char* var ) ;
  
