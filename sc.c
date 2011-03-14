@@ -505,9 +505,9 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 	}
 
 	if ( SC_ARM & compiler->parameter ) {
-		//	ARMv assembly codes generator.
+		//	ARMv6 assembly codes generator.
 		compiler->ASMOR = (void* )asmor_arm_run ;
-		//	ARMv assembler. 		
+		//	ARMv6 assembler. 		
 		compiler->ASSEMER = (void* )assemer_arm_run ;
 	}
 	
