@@ -1218,6 +1218,7 @@ void SCClListDestroy ( SCClList* list ) {
 
 	while ( walker ) {
 		list->next = walker->next ;
+		if ( walker->element ) SCFree ( walker->element ) ;
 		SCFree ( walker ) ;
 		walker = list->next ;
 	}
