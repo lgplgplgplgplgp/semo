@@ -286,7 +286,7 @@ void lacgentor_gen_funcdef () {
 		return ;
 	}
 
-	LACCallFrameInit () ;
+	LACCallFrameInit ( 10 ) ;
 		
 	lgnosia = (LGNOSIA* ) lacgentor.lgnosia ;
 	azonal = (AZONAL* ) lgnosia->azonal ;
