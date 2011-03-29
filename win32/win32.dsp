@@ -64,7 +64,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "...\\" /I "...\common" /I "...\front-para\c-front-para" /I "...\mid-para" /I "...\back-para\arm-back-para" /I "...\front-para\lac-front-para" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FD /GZ /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "...\\" /I "...\common" /I "...\front-para\c-front-para" /I "...\mid-para" /I "...\back-para\arm-back-para" /I "...\front-para\lac-front-para" /I "...\back-para\jvm-back-para" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x804 /d "_DEBUG"
 # ADD RSC /l 0x804 /d "_DEBUG"
@@ -263,6 +263,14 @@ SOURCE="..\back-para\arm-back-para\arm-assemer.c"
 # Begin Source File
 
 SOURCE="..\back-para\arm-back-para\arm-assemer.h"
+# End Source File
+# Begin Source File
+
+SOURCE="..\back-para\jvm-back-para\jvm-class.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\back-para\jvm-back-para\jvm-class.h"
 # End Source File
 # End Group
 # Begin Source File

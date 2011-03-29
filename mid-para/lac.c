@@ -46,7 +46,7 @@ void LACCallFrameInit ( int stack_append ) {
 	//	since : 20110224
 	//	(C)TOK
 
-	//	stack_append is the totall memory needs of parameters from a function
+	//	stack_append is the totall memory needs of parameters of a function
 		
 	STACK = STACK + stack_append ;
 	
