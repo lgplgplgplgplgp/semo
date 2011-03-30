@@ -246,10 +246,6 @@ SOURCE="..\back-para\arm-back-para\arm-asm.h"
 # End Source File
 # Begin Source File
 
-SOURCE="..\back-para\arm-back-para\arm-asmmap.c"
-# End Source File
-# Begin Source File
-
 SOURCE="..\back-para\arm-back-para\arm-asmor.c"
 # End Source File
 # Begin Source File
@@ -266,11 +262,27 @@ SOURCE="..\back-para\arm-back-para\arm-assemer.h"
 # End Source File
 # Begin Source File
 
+SOURCE="..\back-para\arm-back-para\arm-setmap.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\back-para\jvm-back-para\jvm-assemer.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\back-para\jvm-back-para\jvm-assemer.h"
+# End Source File
+# Begin Source File
+
 SOURCE="..\back-para\jvm-back-para\jvm-class.c"
 # End Source File
 # Begin Source File
 
 SOURCE="..\back-para\jvm-back-para\jvm-class.h"
+# End Source File
+# Begin Source File
+
+SOURCE="..\back-para\jvm-back-para\jvm-setmap.c"
 # End Source File
 # End Group
 # Begin Source File
