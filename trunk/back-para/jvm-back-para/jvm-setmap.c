@@ -27,7 +27,7 @@
 
 # include "jvm-assemer.h"
 
-JVM_SETMAP JvmSetMap = {
+JVM_SETMAP JvmSetMap [] = {
 	
 	//	author : Jelo Wang
 	//	since : 20100723
