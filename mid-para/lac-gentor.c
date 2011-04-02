@@ -34,13 +34,13 @@
 # include "lgnosia.h"
 # include "lac-gentor.h"
 # include "lac.h"
-# include "mopo.h"
+# include "corenr.h"
 
 SCClStack LabelStack = { 0 , 0 , 0 , 0 , 0 } ;
 SCClString* lacgentor_results = 0 ;
 LAC_GENTOR lacgentor = { -1 , 0 , 0 , 0 , 0 , 0 , 0 } ;
 
-int mopo = 0 ;
+int corenr = 0 ;
 
 # define LACGENTOR_STATUS_RESET()\
 	lacgentor.form = -1;\
@@ -1055,10 +1055,10 @@ char* gentor_lac_run ( char* lacfile ) {
 	//	use compiling-render
 	if ( SC_CR & compiler->parameter ) {
 
-		MOPOCreatePanel ( MOPO_RGB565 , 2048 , 2048 ) ;
-		MOPODrawText ( 15 , 10 , "Semo C()mpiler Compiling-Render" , 200 , 200 , 200 ) ;	
-		MOPODrawText ( 15 , 10+14 , "(C)Techniques of Knowledge" , 200 , 200 , 200 ) ;	
-		MOPODrawText ( 15 , 10+14+14 , "   http://www.tok.cc" , 200 , 200 , 200 ) ;	
+		CORENRCreatePanel ( CORENR_RGB565 , 2048 , 2048 ) ;
+		CORENRDrawText ( 15 , 10 , "Semo C()mpiler Compiling-Render" , 200 , 200 , 200 ) ;	
+		CORENRDrawText ( 15 , 10+14 , "(C)Techniques of Knowledge" , 200 , 200 , 200 ) ;	
+		CORENRDrawText ( 15 , 10+14+14 , "   http://www.tok.cc" , 200 , 200 , 200 ) ;	
 
 	}
 	
@@ -1073,10 +1073,10 @@ char* gentor_lac_run ( char* lacfile ) {
 				if ( SC_CR & compiler->parameter ) {		
 
 					if ( SC_EXP & compiler->parameter )
-						lgay = MOPOLgaExpRender ( lacgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
+						lgay = CORENRLgaExpRender ( lacgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
 					if ( SC_LGA & compiler->parameter )
-						MOPOCFDFSRender ( lacgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
-	 				//MOPOCFBFSRender ( mopo , lacgentor.lgnosia , 200 , lgay ) ;
+						CORENRCFDFSRender ( lacgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
+	 				//CORENRCFBFSRender ( corenr , lacgentor.lgnosia , 200 , lgay ) ;
 				}
 				
 				lacgentor_gen_funcdef () ; 
@@ -1100,8 +1100,8 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	if ( SC_CR & compiler->parameter ) {
 		char* file = sc_strcat ( lacfile , ".cr.bmp" ) ;		
-		MOPOOutputPanel ( file ) ;
-		MOPODestroyPanel () ;
+		CORENROutputPanel ( file ) ;
+		CORENRDestroyPanel () ;
 		SCFree ( file ) ;
 	}
 	

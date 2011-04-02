@@ -1,7 +1,7 @@
 
 /*
 
-+	Compiling-Render ,  part of SC mid-para
++	Corenr : Compiling-Render ,  part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -26,8 +26,8 @@
 */ 
 
 
-# ifndef __MOPOTEXT
-# define __MOPOTEXT
+# ifndef __CORENRTEXT
+# define __CORENRTEXT
 
 #define EX_FONT_CHAR(value) (value)
 #define EX_FONT_UNICODE_VAL(value) (value),
