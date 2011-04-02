@@ -86,6 +86,18 @@ LINK32=link.exe
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE="..\common\corenr-text.h"
+# End Source File
+# Begin Source File
+
+SOURCE=..\common\corenr.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\common\corenr.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\common\elf.h
 # End Source File
 # Begin Source File
@@ -95,18 +107,6 @@ SOURCE=..\common\evalor.c
 # Begin Source File
 
 SOURCE=..\common\evalor.h
-# End Source File
-# Begin Source File
-
-SOURCE="..\common\mopo-text.h"
-# End Source File
-# Begin Source File
-
-SOURCE=..\common\mopo.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\common\mopo.h
 # End Source File
 # Begin Source File
 

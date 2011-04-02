@@ -30,7 +30,7 @@
 # include "sccl.h"
 # include "lac.h"
 # include "regoc.h"
-# include "mopo.h"
+# include "corenr.h"
 
 static LAC* lac = 0 ;
 static LAC* lacswaper = 0 ;
@@ -49,6 +49,7 @@ void LACCallFrameInit ( int stack_append ) {
 	//	stack_append is the totall memory needs of parameters of a function
 		
 	STACK = STACK + stack_append ;
+return ;
 	
 	SCClListInit ( &callframe ) ;
 
@@ -61,7 +62,7 @@ void LACCallFrameAdd ( int type , char* var , char* frame ) {
 	//	(C)TOK
 
 	LACCallFrame* callframe = (LACCallFrame* ) SCMalloc ( sizeof(LACCallFrame) ) ;
-
+return ;
 	ASSERT(callframe) ;
 
 	callframe->type = type ;
@@ -84,6 +85,7 @@ char* LACCallFrameGet ( char* var ) {
 	//	(C)TOK
 
 	SCClList* looper = 0 ;
+return ;
 
 	for ( looper = callframe.head ; looper ; looper = looper->next ) {
 		LACCallFrame* calf = looper->element ;
@@ -395,7 +397,7 @@ readproc :
 						}
 						
 						if ( SC_IG & compiler->parameter ) {
-							MOPOIGBFSRender ( (SCClGraph* ) iG ) ;
+							CORENRIGBFSRender ( (SCClGraph* ) iG ) ;
 						}
 
 						//	start register allocation based on interference-graph					

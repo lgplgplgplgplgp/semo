@@ -563,7 +563,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		int filen = 0 ;
 		//void* inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		void* inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
+		void* inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\win32\\Debug\\exp1.txt" , "rb" ) ;
 
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
 				
