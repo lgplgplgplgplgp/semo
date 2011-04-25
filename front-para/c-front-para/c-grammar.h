@@ -29,7 +29,7 @@
 //	notes : syntanx analyze,leixcal analyze,semantic analyze,code generator
 //	notes : operator,EXPR,data type,codes set
 //	since : 2008220
-//	(c)TOK
+//	(C)TOK
 
 # ifndef __C_GRAMMAR_
 # define __C_GRAMMAR_

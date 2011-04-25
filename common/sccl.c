@@ -291,7 +291,29 @@ char* sc_substr_with_pos ( char* A , char* B , int pos ) {
 
 }
 	
+char* sc_substr_with_atom ( char* A , char atom ) {
+
+	//	author : Jelo Wang
+	//	since : 20110406
+	//	(C)TOK
 	
+	int len = sc_strlen (A) ;
+	int walker = 0 ;
+	
+	char* B = (char* ) SCMalloc ( len ) ; 
+
+	if ( !B ) return 0 ;
+
+	for ( walker = 0  ; '\0' != A [ walker ] && atom != A [ walker ] ; walker ++ ) {
+		B [ walker ] = A [ walker ]  ;
+	}
+
+	B [ walker ] =  '\0' ;
+
+	return B ;
+
+}
+
 char* sc_substr ( char* A , int start , int end ) {
 
 	//	author : Jelo Wang

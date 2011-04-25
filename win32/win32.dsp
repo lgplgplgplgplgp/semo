@@ -190,6 +190,14 @@ SOURCE="..\mid-para\elf-gen.h"
 # End Source File
 # Begin Source File
 
+SOURCE="..\mid-para\java-gentor.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\mid-para\java-gentor.h"
+# End Source File
+# Begin Source File
+
 SOURCE="..\mid-para\lac-gentor.c"
 # End Source File
 # Begin Source File

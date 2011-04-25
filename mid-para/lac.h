@@ -1,7 +1,7 @@
 
 /*
 
-+	LGNOSIA Code , part of SC mid-para
++	LAC (LGNOSIA Code) Manager , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -78,17 +78,6 @@ typedef enum {
 	
 } LAC_ATOM ;
 
-typedef enum {
-
-	//	author : Jelo Wang
-	//	since : 20100107
-	//	(C)TOK
-
-	LAC_REG_CFRAME ,
-	LAC_STK_CFRAME ,
-
-} ;
-
 typedef struct {
 
 	//	author : Jelo Wang
@@ -100,8 +89,10 @@ typedef struct {
 
 	//	type of frame , value bettwen LAC_REG_CFRAME , LAC_STK_CFRAME
 	int type ;
+
+	//	a pointer to an azonal name
+	void* handle ;
 	
-	char* variable ;
 	char* frame ;
 
 	struct {
@@ -110,7 +101,7 @@ typedef struct {
 
 	} stack ;
 	
-} LACCallFrame ;
+} LACMemoryFrame ;
 
 typedef struct {
 
@@ -237,7 +228,7 @@ extern void LACLabelMoiSetContext ( int monitor ) ;
 extern void LACLabelMoiAdd ( int lac ) ;
 extern void LACLabelMoiSetLabel ( char* label ) ;
 extern void LACLabelMoiClear () ;
-extern void LACCallFrameInit ( int stack_append ) ;
-extern void LACCallFrameAdd ( int type , char* var , char* frame ) ;
-extern char* LACCallFrameGet ( char* var ) ;
+extern void LACMemoryFrameInit ( int totall ) ;
+extern void LACMemoryFrameAdd ( void* var , char* frame ) ;
+extern char* LACMemoryFrameGet ( char* var ) ;
  

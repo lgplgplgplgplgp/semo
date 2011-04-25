@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC (Lgnosia Code) Form Generator , part of SC mid-para
++	JAVA Code Generator based on LGNOSIA , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -25,9 +25,9 @@
 
 */ 
 
-# ifndef __LAC_GENTOR
-# define __LAC_GENTOR
-	
+# ifndef __JAVA_GENTOR
+# define __JAVA_GENTOR
+ 
 # include "symbole.h"
 # include "lgnosia.h"
 # include "sccl.h"
@@ -48,32 +48,12 @@ typedef struct {
 	SCClList* tree ;
 
 	SCClStack identor ;
-	SCClStack deltstack ;
 	SCClStack scopestack ;
 	SCClStack lgastack ;	
 	
-} LAC_GENTOR ;
+} JAVA_GENTOR ;
 
 # endif
 
-extern void LACIdentorPush () ;
-extern void LACIdentorPop () ;
-extern char* gentorlac_get_identor () ;
-extern void gentorlac_ready () ;
-extern void gentorlac_next () ;
-extern void gentorlac_genv () ;
-extern void genterlac_gen_funcdef () ;
-extern void gentorlac_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
-extern void lacgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
-extern void lacgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
-extern void gentorlac_switcher ( LGNOSIA* lgnosia ) ;
-extern void gentorlac_gen_variable ( AZONAL* azonal ) ;
-extern int gentorlac_gen_expr ( EXPR* expression , int drop ) ;
-extern void gentorlac_disp_expr (  EXPR* expression ) ;
-extern char* gentor_lac_run ( char* lacfile ) ;
-extern void lacgentor_switcher ( LGNOSIA* lgnosia ) ;
-extern void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) ; 
-extern void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
-extern void lacgentor_gen_pochain ( LGNOSIA* po_chain ) ;
-extern void lacgentor_gen_nechain ( LGNOSIA* ne_chain ) ;
+char* gentor_java_run ( char* file ) ;
 

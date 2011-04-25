@@ -68,7 +68,7 @@ typedef struct {
 	//	author : Jelo Wang
 	//	notes : key words of c language
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 
 	char* name ;
 	int   type ;
@@ -81,7 +81,7 @@ typedef struct {
 	//	author : Jelo Wang
 	//	notes : CODE
 	//	since : 20090811
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	(1) : lexical value 
 	//	(2) : previous lexical value

@@ -53,7 +53,7 @@ typedef struct {
 	//	author : Jelo Wang
 	//	notes : SCClString
 	//	since : 20090816
-	//	(c)TOK
+	//	(C)TOK
 
 	char* data ;
 	//	length of data
@@ -70,7 +70,7 @@ typedef struct ILN {
 	//	author : Jelo Wang
 	//	notes : SLIST
 	//	since : 20091123
-	//	(c)TOK
+	//	(C)TOK
 
 	//	data type of element
 	int eltype ;
@@ -88,7 +88,7 @@ typedef struct ISTK {
 
 	//	author : Jelo Wang
 	//	since : 20090819
-	//	(c)TOK
+	//	(C)TOK
 	
 	void* element ;
 
@@ -171,6 +171,7 @@ extern char* sc_strnew ( char* S ) ;
 extern char* sc_strcat ( char* A , char* B ) ; 
 extern void sc_strcat_ex ( char* A , char* B , char* C ) ;
 extern char* sc_substr_with_pos ( char* A , char* B , int pos ) ;
+extern char* sc_substr_with_atom ( char* A , char atom ) ;
 extern char* sc_substr ( char* A , int start , int end ) ;
 extern void sc_strtrim ( char* S ) ;
 extern int sc_memset ( void* , int , int ) ;

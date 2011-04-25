@@ -257,7 +257,7 @@ typedef struct {
 	
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 
 	char* name ;
 	int	type ;
@@ -280,7 +280,7 @@ typedef enum {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK	
+	//	(C)TOK	
 
 	//	notes : thumb16 set opcodes
 
@@ -321,7 +321,7 @@ typedef enum {
 	
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK	
+	//	(C)TOK	
 
 	//	notes : arm32 set opcodes
 	
@@ -347,7 +347,7 @@ typedef struct {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK	
+	//	(C)TOK	
 
 	int set ;
 

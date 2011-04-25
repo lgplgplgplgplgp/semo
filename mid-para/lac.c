@@ -1,7 +1,7 @@
 
 /*
 
-+	LGNOSIA Code , part of SC mid-para
++	LAC (LGNOSIA Code) Manager , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -35,64 +35,34 @@
 static LAC* lac = 0 ;
 static LAC* lacswaper = 0 ;
 static LABELMOI* labelmoi = 0 ;
-//	LAC-CALL-FRAME
-static SCClList callframe = {0} ;
-//	STACK of CALL-FRAME
-static int STACK = 0 ;
 
-void LACCallFrameInit ( int stack_append ) {
+void LACMemoryFrameInit ( int totall ) {
 
 	//	author : Jelo Wang
 	//	since : 20110224
 	//	(C)TOK
 
 	//	stack_append is the totall memory needs of parameters of a function
-		
-	STACK = STACK + stack_append ;
-return ;
-	
-	SCClListInit ( &callframe ) ;
+
+
 
 }
 
-void LACCallFrameAdd ( int type , char* var , char* frame ) {
+void LACMemoryFrameAdd ( void* handle , char* frame ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	LACCallFrame* callframe = (LACCallFrame* ) SCMalloc ( sizeof(LACCallFrame) ) ;
-return ;
-	ASSERT(callframe) ;
-
-	callframe->type = type ;
-	callframe->variable = sc_strnew ( var ) ;
-	callframe->frame = sc_strnew ( frame ) ;
-
-	if ( LAC_STK_CFRAME == type ) {
-		callframe->stack.top = STACK + 1 ;
-		STACK = STACK + 1 ; 
-	}
-	
-	SCClListInsert ( &callframe , callframe ) ;
 
 }
 
-char* LACCallFrameGet ( char* var ) {
+char* LACMemoryFrameGet ( char* var ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	SCClList* looper = 0 ;
-return ;
-
-	for ( looper = callframe.head ; looper ; looper = looper->next ) {
-		LACCallFrame* calf = looper->element ;
-		if ( !sc_strcmp ( calf->variable , var ) ) {
-			return calf->frame ;
-		}
-	}
 
 	return 0 ;
 

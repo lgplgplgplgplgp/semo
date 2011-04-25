@@ -63,7 +63,7 @@ static void macro_insert ( MACRO* macro ) {
 
 	//	author : Jelo Wang
 	//	since : 20090812
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	(1) param : MACRO pointer
 	//	(2) param : MACRO pointer
@@ -82,7 +82,7 @@ static void macro_destroy () {
 
 	//	author : Jelo Wang
 	//	since : 20100731
-	//	(c)TOK
+	//	(C)TOK
 
 
 # if 0
@@ -103,7 +103,7 @@ static SCClString* skip_smart_brackets_scope () {
 
 	//	author : Jelo Wang
 	//	since : 200908
-	//	(c)TOK
+	//	(C)TOK
 	
 	SCClString* s = (SCClString* ) SCMalloc ( sizeof(SCClString) ) ;
 
@@ -145,7 +145,7 @@ static char* get_macro_param ( unsigned char* data , int pos ) {
 	
 	//	author : Jelo Wang
 	//	since : 20090826
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	(1) param : return a param tokens including brackets
 
@@ -184,7 +184,7 @@ static MACRO* macro_find ( char* nname ) {
 
 	//	author : Jelo Wang
 	//	since : 20090814
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	(1) param : MACRO name 
 
@@ -205,7 +205,7 @@ static char* subparambody ( char* param_body , char* subedstr , int body_len , i
 
 	//	author : Jelo Wang
 	//	since : 20090830
-	//	(c)TOK
+	//	(C)TOK
 	
 	int counter = 0 ;
 	
@@ -243,7 +243,7 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 	//	author : Jelo Wang
 	//	notes : read_macro
 	//	since : 20090818	
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	#define A B E F
 	//	#define B bbbb F E
@@ -484,7 +484,7 @@ static void skip_macro  ()  {
 	//	author : Jelo Wang
 	//	notes : read_macro
 	//	since : 20090812	
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( C_DEFINE != lexc->v )
 		return ;
@@ -545,7 +545,7 @@ static int read_macro () {
 	//	author : Jelo Wang
 	//	notes : read_macro
 	//	since : 20090812
-	//	(c)TOK
+	//	(C)TOK
 	
 	int counter = 0 ;
 	int tempinteger = 0 ;
@@ -688,7 +688,7 @@ static void read_include () {
 	//	author : Jelo Wang
 	//	notes : read_include
 	//	since : 20090831
-	//	(c)TOK
+	//	(C)TOK
 	
 	void* file = 0 ;
 
@@ -791,7 +791,7 @@ static int read_ifdef () {
 	//	author : Jelo Wang
 	//	notes : read ifdef precompiling instructions
 	//	since : 200909022
-	//	(c)TOK
+	//	(C)TOK
 
 	int key_pos = 0 ;
 	int key_scope = 0 ;
@@ -882,7 +882,7 @@ static int read_ifndef () {
 	//	author : Jelo Wang
 	//	notes : read ifndef precompiling instructions
 	//	since : 200909026
-	//	(c)TOK
+	//	(C)TOK
 
 	int key_pos = 0 ;
 	int key_scope = 0 ;
@@ -975,7 +975,7 @@ static int read_if () {
 	//	author : Jelo Wang
 	//	notes : read if precompiling instruction
 	//	since : 200909026
-	//	(c)TOK
+	//	(C)TOK
 
 
 	int key_pos = 0 ;
@@ -1065,7 +1065,7 @@ static void precompiling () {
 	//	author : Jelo Wang
 	//	notes : read precompiling instructions
 	//	since : 20090817
-	//	(c)TOK
+	//	(C)TOK
 	
  	for ( lexerc_ready () , lexerc_genv () ; !lexc->stop ; lexerc_genv () ) {
 
@@ -1084,7 +1084,7 @@ int presor_c_run ( char* presor_file ) {
 
 	//	author : Jelo Wang
 	//	since : 20090809
-	//	(c)TOK
+	//	(C)TOK
 
 	//	notes : preprocessor of c language
 
