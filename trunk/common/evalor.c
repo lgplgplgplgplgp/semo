@@ -91,7 +91,7 @@ static int is_functer ( int functer ) {
 
 	//	author: Jelo Wang
 	//	since : 20091123
-	//	(c)TOK
+	//	(C)TOK
 
 
 	if ( C_JAA <= functer && functer <= C_SHRR ) 
@@ -104,7 +104,7 @@ static int functer_priority ( int functer , int scope ) {
 
 	//	author: Jelo Wang
 	//	since : 20081229
-	//	(c)TOK
+	//	(C)TOK
 
 	switch ( functer ) {
 
@@ -188,7 +188,7 @@ static void c_suffix_exp_build ( SCClStack* SCClStack , int value , int scope ) 
 
 	//	author : Jelo Wang
 	//	since : 20081229
-	//	(c)TOK
+	//	(C)TOK
 
 	switch( value ) {
 
@@ -267,7 +267,7 @@ static void c_gen_suffix_exp () {
 
 	//	author : Jelo Wang
 	//	since : 20091123
-	//	(c)TOK
+	//	(C)TOK
 
 	SCClStack* ieval = (SCClStack* ) SCMalloc ( sizeof(SCClStack) ) ;
 	
@@ -303,7 +303,7 @@ static long int c_suffix_exp_evalor () {
 
 	//	author : Jelo Wang
 	//	since : 20091123
-	//	(c)TOK
+	//	(C)TOK
 
 	int results = 0;
 	
@@ -332,7 +332,7 @@ long int c_evalor () {
 
 	//	author : Jelo Wang
 	//	since : 20091123
-	//	(c)TOK
+	//	(C)TOK
 
 	c_gen_suffix_exp () ;
 	
@@ -345,7 +345,7 @@ EVALOR* EvalorCreate () {
 	
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	EVALOR* evalor = (EVALOR* ) SCMalloc (sizeof(EVALOR)) ;
 
@@ -365,7 +365,7 @@ void EvalorSetCurrent ( EVALOR* eva ) {
 
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	SCClStackPush ( &evalor_stack , (void* ) evalor ) ;
 	evalor = eva ;
@@ -376,7 +376,7 @@ void EvalorUnsetCurrent () {
 
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	evalor = SCClStackPop ( &evalor_stack ) ;
 	
@@ -386,7 +386,7 @@ void EvalorOperandPush ( int operand ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 
 	EXPR* expression = (EXPR* ) SCMalloc ( sizeof(EXPR) ) ;
@@ -411,7 +411,7 @@ void EvalorOperatorPush ( int operator ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	EXPR* expression = (EXPR* ) SCMalloc ( sizeof(EXPR) ) ;
 	EXPR* stackexp = 0 ;
@@ -505,7 +505,7 @@ void EvalorFinish () {
 	
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	int pri = 0 ;
 	EXPR* tree = 0 ;
@@ -556,14 +556,14 @@ void EvalorFinish () {
 					SCLog ( "%s " , azonal->name ) ;
 				}
 				# endif
-
-				SCClStackPush ( &suffix_stack , (void* )tree );
+				
+ 				SCClStackPush ( &suffix_stack , (void* )tree );
 				
 		}
 	}
 
 	evalor->tree = (int) SCClStackPop ( &suffix_stack ) ;
-		
+
 	EvalorClear () ;
 
 	# ifdef __EVALOR_DEBUG
@@ -576,7 +576,7 @@ void EvalorClear () {
 	
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	SCClListDestroy ( &evalor->suffix ) ;
 	SCClStackDestroy ( &evalor->operator ) ;
@@ -588,9 +588,12 @@ int EvalorGetTree () {
 	
 	//	author : Jelo Wang
 	//	since : 20100427
-	//	(c)TOK
+	//	(C)TOK
 
 	int tree = evalor->tree ;
+
+	EXPR* t = tree ;
+	AZONAL* a = t->handle ;
 
 	EvalorUnsetCurrent () ;
 			

@@ -25,8 +25,8 @@
 
 */ 
 
-# ifndef __SMART_COMPILER
-# define __SMART_COMPILER
+# ifndef __SEMO
+# define __SEMO
 
 # define SEMO_DEBUG 
 
@@ -34,7 +34,7 @@ enum {
 
 	//	author : Jelo Wang
 	//	since : 20100817
-	//	(c)TOK
+	//	(C)TOK
 
 	//	notes : parameters of the framework
 
@@ -81,7 +81,9 @@ enum {
 	//	__fastcall , = 2^21
 	SC_C2 = 0x100000 ,
 	//	__armcall , = 2^22
-	SC_C3 = 0x200000	
+	SC_C3 = 0x200000 ,
+	//	convert C99 codes to JAVA codes , = 2^23
+	SC_C2J = 0x400000
 	
 } ;
 
@@ -89,7 +91,7 @@ enum {
 
 	//	author : Jelo Wang
 	//	since : 20091127
-	//	(c)TOK
+	//	(C)TOK
 
 	//	An binary IMAGE that can runing straightly
 	SC_DYNAMIC_RUNING ,
@@ -103,7 +105,7 @@ typedef struct COMPILER_NODE {
 	//	author : Jelo Wang
 	//	notes : initialize compiler parameters
 	//	since : 20090809
-	//	(c)TOK
+	//	(C)TOK
 
 	//	input files list , a handle to SCCllist*
 	void* il  ;
@@ -115,18 +117,28 @@ typedef struct COMPILER_NODE {
 	int regoccosts ;
 	//	lives spliting times
 	int lssplits ;	
+	
 	int lines ;
 	int codes ;
 
+	//	preprocessor of code streams
 	int (*PRESOR)( unsigned char* ) ;
+	//	syntax & semantic analyzer
 	int (*PARSER)( int* ) ;
+	//	IR generator
 	char* (*GENTOR)( char* ) ;
+	//	assembly codes generator
 	char* (*ASMOR)( char* , char* ) ;
+	//	assembler
 	void (*ASSEMER)( char* , char* , int* ) ;
+	//	object's linker
 	void (*LINKER ) ( void* ) ;
+	//	release the resources that occupied by semo
 	void (*RELEASE)() ;
 
+	//	the begining time of compling
 	long stime ; 
+	//	the ending time of compling
 	long etime ; 
 	
 } COMPILER ;

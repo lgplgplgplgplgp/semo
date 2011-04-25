@@ -66,7 +66,7 @@ typedef struct {
 	//	author : Jelo Wang
 	//	notes : CODE
 	//	since : 20090811
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	(1) : lexical value 
 	//	(2) : previous lexical value

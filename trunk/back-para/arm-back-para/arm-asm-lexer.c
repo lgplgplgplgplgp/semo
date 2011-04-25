@@ -80,7 +80,7 @@ static int lexerarm_find_set ( char* token ) {
 	//	author : Jelo Wang
 	//	since : 2008
 	//	updated : 20090816
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	notes : look over keywords table
 
@@ -117,7 +117,7 @@ int lexerarm_overflowed ()  {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( ( lexarm->code->get_walker >= lexarm->code->length ) ) {
 		lexarm->c = 0;
@@ -135,7 +135,7 @@ char lexerarm_get_atom ()  {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexerarm_overflowed () )
 		return 0;
@@ -151,7 +151,7 @@ int lexerarm_next ()  {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexerarm_overflowed () )
 		return 1 ;
@@ -169,7 +169,7 @@ void lexerarm_rollback ()  {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	lexarm->code->get_walker = SCClStackPop ( &lexarm->stack ) ; 
 
@@ -200,7 +200,7 @@ void lexerarm_skip_blank () {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	while ( sc_is_blank ( lexerarm_get_atom () ) ) {
 		
@@ -215,7 +215,7 @@ void lexerarm_skip_space () {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	while ( 0x20 == lexarm->code->data[ lexarm->code->get_walker ] || '\t' == lexarm->code->data[ lexarm->code->get_walker ] ) {
 	
@@ -230,7 +230,7 @@ void lexerarm_jump ( int step ) {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexarm->code->get_walker + step >= lexarm->code ->length )
 		return ;
@@ -246,7 +246,7 @@ int lexerarm_look ( int step )  {
 
 	//	author : Jelo Wang
 	//	since : 20100723
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexarm->code->get_walker + step >= lexarm->code->length )
 		return 0 ;
@@ -261,7 +261,7 @@ int lexerarm_is_var () {
 	//	author : Jelo Wang
 	//	rex model : $VAR => alpha(alpha | _)*
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	if( sc_is_alpha(lexarm->c)||'_' == lexarm->c|| sc_is_digit(lexarm->c) ) {
 		SCClStringAdd ( &ARMTOK , lexerarm_get_atom () ) ;
@@ -281,7 +281,7 @@ int lexerarm_is_num () {
 	//	author : Jelo Wang
 	//	rex model : $INTNUM
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	if( sc_is_digit(lexarm->c) ) {
 		SCClStringAdd ( &ARMTOK , lexerarm_get_atom () ) ;
@@ -302,7 +302,7 @@ int lexerarm_is_hex() {
 	//	author : Jelo Wang
 	//	rex model : $HEXNUM
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	if(AASMHEX(lexarm->c)) {
 		SCClStringAdd ( &ARMTOK , lexerarm_get_atom () ) ;

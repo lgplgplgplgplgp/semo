@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC Form Generator , part of SC mid-para
++	LAC (Lgnosia Code) Form Generator , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -36,9 +36,9 @@
 # include "lac.h"
 # include "corenr.h"
 
-SCClStack LabelStack = { 0 , 0 , 0 , 0 , 0 } ;
-SCClString* lacgentor_results = 0 ;
-LAC_GENTOR lacgentor = { -1 , 0 , 0 , 0 , 0 , 0 , 0 } ;
+static SCClStack LabelStack = { 0 , 0 , 0 , 0 , 0 } ;
+static SCClString* lacgentor_results = 0 ;
+static LAC_GENTOR lacgentor = { -1 , 0 , 0 , 0 , 0 , 0 , 0 } ;
 
 int corenr = 0 ;
 
@@ -183,7 +183,6 @@ char* lacgentor_head_label ( int label ) {
 	
 }
 
-
 static char* lacgentor_get_identor () {
 
 	//	author : Jelo Wang
@@ -286,8 +285,6 @@ void lacgentor_gen_funcdef () {
 		return ;
 	}
 
-	LACCallFrameInit ( 10 ) ;
-		
 	lgnosia = (LGNOSIA* ) lacgentor.lgnosia ;
 	azonal = (AZONAL* ) lgnosia->azonal ;
 
@@ -295,6 +292,7 @@ void lacgentor_gen_funcdef () {
 	LACAdd ( "(" , -1 , -1 ) ;
 
 	//	gen __armcall para	 pattern
+	//	根据__armcall 调用规范生成参数列表
 	if ( 0 < azonal->tack.totall ) {
 		
 		int counter = 0 ;
@@ -309,10 +307,10 @@ void lacgentor_gen_funcdef () {
 			anl = (AZONAL* ) listlooper->element ;
 
 			if ( counter < 4 ) {
-				LACCallFrameAdd ( LAC_REG_CFRAME , anl->name , vn[counter] ) ;
+				LACMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
 				LACAdd ( vn[counter] , LAC_L_DELT , -1 ) ;
 			} else {
-				LACCallFrameAdd ( LAC_STK_CFRAME , anl->name , vn[counter] ) ;
+				LACMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
 			}
 				
 		}
@@ -321,11 +319,20 @@ void lacgentor_gen_funcdef () {
 	
 	LACAdd ( ")\r\n" , LAC_CR , -1 ) ;
 	LACAdd ( "{\r\n" , LAC_CR , -1 ) ;
-
+	
 	PUSH_LACGENTOR_LGA(lgnosia) ;
 	SET_LACGENTOR_SCOPE(ISA_FUNCTION);
 	SET_LACGENTOR_DELT(0);
 	LACIdentorPush () ;
+	//	if this function has local variables
+	//	we initialize the MF here
+	if ( 0 < azonal->layer ) {
+		LACMemoryFrameInit ( azonal->layer ) ;
+		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
+		LACAdd ( "%$MEMORY." , -1 , -1 ) ;
+		LACAdd ( SCClItoa (azonal->layer) , -1 , -1 ) ;
+		LACAdd ("\r\n",LAC_CR,-1);
+	}
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
 		lacgentor_switcher ( (LGNOSIA*)listlooper->element ) ;		
 	}
@@ -922,22 +929,22 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 				expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
 				sc_strcpy ( expression->delt  , name ) ;
 				SCFree ( name ) ;
-			} else {
+			} else {		
 				expression->delt = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
 				sc_strcpy ( expression->delt  , azonal->name ) ;
 			}
-		
+
 			if ( ISA_INTEGER == azonal->azonaltype )
 				expression->delttype = EXP_DELT_ANLNUMERIC ;
 			else 
 				expression->delttype = EXP_DELT_ANLDATA ;
 
 		} else {
-			char* frame = LACCallFrameGet ( azonal->name ) ;
-			//	get LAC-CALL-FRAME
-			expression->delt = (char* ) SCMalloc ( sc_strlen (frame) + 1 ) ;
-			sc_strcpy ( expression->delt  , frame ) ;		
-			expression->delttype = EXP_DELT_ANLDATA ;			
+//			char* frame = LACMemoryFrameGet ( azonal->name ) ;
+//			//	get LAC-CALL-FRAME
+//			expression->delt = (char* ) SCMalloc ( sc_strlen (frame) + 1 ) ;
+//			sc_strcpy ( expression->delt  , frame ) ;		
+//			expression->delttype = EXP_DELT_ANLDATA ;			
 		}
 		
 		
@@ -1104,7 +1111,7 @@ char* gentor_lac_run ( char* lacfile ) {
 		CORENRDestroyPanel () ;
 		SCFree ( file ) ;
 	}
-	
+
 	if ( SC_LAC & compiler->parameter ) {
 		void* file = SCHalFileOpen ( lacfile , "wb+" ) ;
 		SCHalFileWrite ( file , lac , 1 , sc_strlen (lac) ) ;

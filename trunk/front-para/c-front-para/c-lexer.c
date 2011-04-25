@@ -116,7 +116,7 @@ LEXERC* lexerc_new ( unsigned char* data , int mmode ) {
 
 	//	author : Jelo Wang
 	//	since : 20090825
-	//	(c)TOK
+	//	(C)TOK
 
 	//	return a new lexer
 
@@ -149,7 +149,7 @@ void lexerc_set ( LEXERC* lexer ) {
 
 	//	author : Jelo Wang
 	//	since : 20090825
-	//	(c)TOK
+	//	(C)TOK
 
 	//	set a runtime lexer
 
@@ -161,7 +161,7 @@ void lexerc_clear_status () {
 
 	//	author : Jelo Wang
 	//	since : 20091127
-	//	(c)TOK
+	//	(C)TOK
 
 	//	set value
 
@@ -179,7 +179,7 @@ void lexerc_set_file ( char* name ) {
 
 	//	author : Jelo Wang
 	//	since : 20090921
-	//	(c)TOK
+	//	(C)TOK
 
 	//	set file name 
 
@@ -196,7 +196,7 @@ void lexerc_destroy () {
 
 	//	author : Jelo Wang
 	//	since : 20090828
-	//	(c)TOK
+	//	(C)TOK
 
 	//	notes : destroy the current lexer
 
@@ -224,7 +224,7 @@ LEXERC* lexerc_get () {
 
 	//	author : Jelo Wang
 	//	since : 20090901
-	//	(c)TOK
+	//	(C)TOK
 
 	return lexc ;
 
@@ -234,7 +234,7 @@ void lexerc_setmode ( int mmode ) {
 
 	//	author : Jelo Wang
 	//	since : 20100129
-	//	(c)TOK
+	//	(C)TOK
 
 	//	set lexer runing mode
 
@@ -248,7 +248,7 @@ void lexerc_ready ()  {
 	//	author : Jelo Wang
 	//	notes : code_set_iterator
 	//	since : 20090810
-	//	(c)TOK
+	//	(C)TOK
 
 	( (SCClString*) lexc->code) -> get_walker = 0 ;
 	( (SCClString*) lexc->code) -> last_walker = 0 ;
@@ -438,7 +438,7 @@ static int lexerc_find_key ( C_KEYWORDS key[] , char* token , int klen ) {
 	//	author : Jelo Wang
 	//	since : 2008
 	//	updated : 20090816
-	//	(c)TOK
+	//	(C)TOK
 	
 	//	notes : look over keywords table
 
@@ -480,7 +480,7 @@ int lexerc_overflowed ()  {
 	//	author : Jelo Wang
 	//	notes : code_overflowed
 	//	since : 20090810
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( ( lexc->code->get_walker >= lexc->code->length ) ) {
 		lexc->token = 0 ;
@@ -501,7 +501,7 @@ int lexerc_next ()  {
 	//	author : Jelo Wang
 	//	notes : code_next
 	//	since : 20090810
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexerc_overflowed () )
 		return 1;
@@ -519,7 +519,7 @@ unsigned char lexerc_get_atom ()  {
 	//	author : Jelo Wang
 	//	notes : code_get
 	//	since : 20090810
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexerc_overflowed () )
 		return 0;
@@ -537,7 +537,7 @@ void lexerc_put_atom ( unsigned char atom )  {
 	//	author : Jelo Wang
 	//	notes : code_get
 	//	since : 20090926
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexerc_overflowed () )
 		return ;
@@ -551,7 +551,7 @@ void lexerc_rollback ()  {
 	//	author : Jelo Wang
 	//	notes : code_setback_walker
 	//	since : 20090810
-	//	(c)TOK
+	//	(C)TOK
 
 	lexc->stop = SCClStackPop ( lexc->scstack ) ;
 	lexc->code->get_walker = SCClStackPop ( lexc->scstack ) ; 
@@ -588,7 +588,7 @@ void lexerc_skip_blank () {
 	//	author : Jelo Wang
 	//	notes : is_blank_token
 	//	since : 20090810
-	//	(c)TOK
+	//	(C)TOK
 	
 	while ( sc_is_blank ( lexc->code->data [ lexc->code->get_walker ] ) ) {
 		
@@ -608,7 +608,7 @@ void lexerc_skip_space () {
 	//	author : Jelo Wang
 	//	notes : lexerc_skip_space
 	//	since : 20090816
-	//	(c)TOK
+	//	(C)TOK
 	
 	while ( 0x20 == lexc->code->data[ lexc->code->get_walker ] || '\t' == lexc->code->data[ lexc->code->get_walker ] ) {
 	
@@ -624,7 +624,7 @@ void lexerc_jump ( int step ) {
 	//	author : Jelo Wang
 	//	notes : code_setback_walker
 	//	since : 20090813
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( lexc->code->get_walker + step >= lexc->code->length )
 		return ;
@@ -641,7 +641,7 @@ int lexerc_look ( int step )  {
 	//	author : Jelo Wang
 	//	notes : lexerc_look
 	//	since : 20090813
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( (lexc->code->get_walker + step) < 0 || (lexc->code->get_walker + step >= lexc->code->length) )
 		return 0 ;
@@ -656,7 +656,7 @@ int lexerc_is_suffix ( char suffix ) {
 	//	author : Jelo Wang
 	//	since : 20090829
 	//	since : suffix of constant number are 'u' 'l'
-	//	(c)TOK
+	//	(C)TOK
 	
 	if ( 'u' == suffix || 'U' == suffix || 'l' == suffix || 'L' == suffix || '.' == suffix ) {
 		return 1 ;
@@ -672,7 +672,7 @@ int lexerc_is_var () {
 	//	author : Jelo Wang
 	//	rex model : $VAR => alpha(alpha | _)*
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	if( sc_is_alpha(lexc->c)||'_' == lexc->c|| sc_is_digit(lexc->c)) {
 		SCClStringAdd ( &CTOK , lexerc_get_atom () ) ;
@@ -692,7 +692,7 @@ int lexerc_is_num () {
 	//	author : Jelo Wang
 	//	rex model : $INTNUM
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	if( sc_is_digit(lexc->c) ) {
 		SCClStringAdd ( &CTOK , lexerc_get_atom () ) ;
@@ -713,7 +713,7 @@ int lexerc_is_hex() {
 	//	author : Jelo Wang
 	//	rex model : $HEXNUM
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	if(LEXERC_HEX(lexc->c)) {
 		SCClStringAdd ( &CTOK , lexerc_get_atom () ) ;
@@ -735,7 +735,7 @@ int lexerc_cluster ( int el ) {
 	//identify the contents of character varible,char*gtkings="[[][[";
 	//dismatching bracket in quotation marks varible is not solecism
 	//since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	int state = 0 ;
 
@@ -857,7 +857,7 @@ int lexerc_drop_junk ( int el ) {
 	//	since : 2008
 	//	updated : 20090828
 	//	notes : lexerc_drop_junk streams like //.... /*...*/
-	//	(c)TOK
+	//	(C)TOK
 	
 	int get_walker = 0 ;
 	
@@ -1118,7 +1118,7 @@ int lexerc_matchop ( int el ) {
 	//	since : 2008
 	//	updated : 20090813
 	//	notes : identify operator
-	//	(c)TOK
+	//	(C)TOK
 	
 	int STATE=0;
 	int TYPE=0;
@@ -1621,7 +1621,7 @@ int lexerc_genv ()  {
 
 	//	author : Jelo Wang
 	//	since : 2008
-	//	(c)TOK
+	//	(C)TOK
 	
 	int state = 0;
 
@@ -2162,7 +2162,7 @@ void lexerc_clear_headbit () {
 
 	//	author : Jelo Wang
 	//	since : 20100508
-	//	(c)TOK
+	//	(C)TOK
 
 	if ( !lexc ) return ;
 

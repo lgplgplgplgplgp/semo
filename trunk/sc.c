@@ -32,6 +32,7 @@
 # include "arm-asmor.h"
 # include "arm-assemer.h"
 # include "lac-gentor.h"
+# include "java-gentor.h"
 # include "schal.h"
 # include "sccl.h"
 # include "sc.h"
@@ -42,7 +43,7 @@ static void help () {
 	
 	//	author : Jelo Wang
 	//	since : 20091125
-	//	(c)TOK	
+	//	(C)TOK	
  
 	SCLog ( 	"\
 \t - Semo C()mpiler 0.3.0 -\n\
@@ -66,6 +67,7 @@ Options :\n\
 \t -c1 \t\t using '__cdecl' for parameters transfer\n\
 \t -c2 \t\t using '__fastcall' for parameters transfer\n\
 \t -c3 \t\t using '__armcall' for parameters transfer as default\n\
+\t -c2j \t\t convert C99 codes to JAVA codes\n\
 \n\
 SET :\n\
 \t module : po pre-compiling\n\
@@ -98,9 +100,9 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 
 	//	author : Jelo Wang
 	//	since : 20091125
-	//	(c)TOK
+	//	(C)TOK
 
-	//	parsing the **argv with a C LEXER which is a lexical analyzer of c lanuage.
+	//	parsing the **argv with a C-LEXER which is a lexical analyzer of c lanuage.
 	
 	int walker = 0 ;
 	int state = 0 ;
@@ -402,7 +404,7 @@ COMPILER* SCCompilerCreate () {
 
 	//	author : WANG QUANWE
 	//	since : 20100430
-	//	(c)TOK	
+	//	(C)TOK	
 	
 	COMPILER* compiler = (COMPILER* ) SCMalloc ( sizeof(COMPILER) ) ;
 
@@ -448,7 +450,7 @@ static void SCCompilerDestroy () {
 
 	//	author : WANG QUANWE
 	//	since : 20091127
-	//	(c)TOK	
+	//	(C)TOK	
 
 	int walker = 0 ;
 	
@@ -471,7 +473,7 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 
 	//	author : Jelo Wang
 	//	since : 20090809
-	//	(c)TOK
+	//	(C)TOK
 	
 	int walker = 0 ;
 	int file_length = 0;   
@@ -510,8 +512,17 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 		//	ARMv6 assembler. 		
 		compiler->ASSEMER = (void* )assemer_arm_run ;
 	}
-	
-	compiler->GENTOR = (void* )gentor_lac_run ;
+
+	if ( SC_C2J & compiler->parameter ) {
+		//	preprocessor of c lanuage
+		compiler->PRESOR = (void* )presor_c_run ;
+		//	parser of c lanuage
+		compiler->PARSER = (void* )parser_c_run ;		
+		compiler->GENTOR = (void* )gentor_java_run ;
+	} else {
+		compiler->GENTOR = (void* )gentor_java_run ;	
+	}
+
 	compiler->RELEASE = (void* )SCCompilerDestroy ;
 	
 	return 1 ;
@@ -522,7 +533,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 	//	author : Jelo Wang
 	//	since : 20091127
-	//	(c)TOK
+	//	(C)TOK
 
 	//	lines parsed per ms. itsnt a accurate value.
 	float perline = 0 ;
@@ -545,6 +556,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	compiler->parameter |= SC_SASM ;	
 	compiler->parameter |= SC_CR ;							
 	compiler->parameter |= SC_IG ;	
+	compiler->parameter |= SC_C2J ;	
 						
 }
 
@@ -563,7 +575,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		int filen = 0 ;
 		//void* inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		void* inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\win32\\Debug\\exp1.txt" , "rb" ) ;
+		void* inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
 
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
 				
@@ -588,13 +600,19 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
  	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
-		
+
+		//	just convert C99 to JAVA
+		if ( SC_C2J & compiler->parameter ) {
+			compiler->GENTOR ( sc_strcat (file,".java") ) ;		
+			continue ;
+		}
+
 		lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
 		asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;
 		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
-		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
+ //		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
 
 		SCHalFileClose ( inputfile ) ;
 		SCFree ( buffer ) ;
@@ -626,9 +644,9 @@ int SCCompile ( int argc , char** argv , int type ) {
 	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
 	SCLog ("\n" ) ;
 
-	compiler->RELEASE () ;
+//	compiler->RELEASE () ;
 
 	return 0 ;
 	
-}
+ }
 

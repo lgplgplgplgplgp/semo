@@ -27,7 +27,7 @@
 
 //	author: Jelo Wang
 //	since : 20081109
-//	(c)TOK
+//	(C)TOK
 
 # ifndef __SYMBOLE
 # define __SYMBOLE
@@ -192,22 +192,16 @@ typedef struct ANODE {
 	int used ;
 	int line ;
 	int isparam ;			
-	int number ;			
+	int number ;		
+
+	// if azonaltype is ISA_ARRAY , layer = the totall '{' of array
+	// if azonaltype is ISA_FUNCTION , layer = the totall ANLDATA in scope
 	int layer ;			
+
 	int size ;
 	int scale ;
-
-//	struct {
-
-		//	tack , SC use tack to handling additional information about a ANL , like a function which parameters are handled here
-
-//		int totall ;
-		
-//		struct ANODE* head ;
-//		struct ANODE* next ;
-		
-//	} tack ;
-
+	
+	
 	//	tack , SC use tack to handling additional information about a ANL , like a function which parameters are handled here
 	SCClList tack ;
 
@@ -308,6 +302,7 @@ typedef struct STRU_SYM {
 } STRUCTS  ;
 */
 
+extern SYMBOLE* symbole ;
 
 # endif
 
@@ -349,4 +344,5 @@ extern ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) ;
 extern void SymboleDRCDropCFF ( AZONAL* azonal ) ;
 extern void SymboleDRCDropDRC ( AZONAL* azonal ) ;
 extern AZONAL* SymboleAndNumeric ( char* name , int type ) ;
+extern int SymboleAddFunctionLayer ( AZONAL* function ) ;
 

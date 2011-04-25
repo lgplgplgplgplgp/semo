@@ -27,7 +27,7 @@
 
 //	author: Jelo Wang
 //	since : 20081109
-//	(c)TOK
+//	(C)TOK
 
 # include "schal.h"
 # include "sccl.h"
@@ -161,6 +161,7 @@ AZONAL* SymboleAddVarAzonal (
 	int line ,
 	int belong ,
 	int lgabelong 
+	
 ) {
 
 	//	author : Jelo Wang
@@ -210,14 +211,15 @@ AZONAL* SymboleAddVarAzonal (
 
 	symbole->vartotall ++ ;
 	
-	if ( azonal->isparam ) 
-	{
-		AZONAL* belonganl = (AZONAL*) belong ;
-		if ( ISA_FUNCTION == belonganl->azonaltype ) {
-			SymboleAddFunctionParameter ( belonganl , azonal ) ;
+	if ( azonal->isparam ) {
+		if ( ISA_FUNCTION == ((AZONAL*)belong)->azonaltype ) {
+			SymboleAddFunctionParameter ( (AZONAL*)belong, azonal ) ;
 		}
 	}
 
+	if ( belong ) SymboleAddFunctionLayer ( (AZONAL*)belong ) ;
+	
+	
 	return azonal ;
 	
 }
@@ -458,6 +460,8 @@ void* SymboleGetFuncParameter ( void* azonal , char* name ) {
 
 	SCClList* tacklooper = 0 ;
 	AZONAL* anlnode = 0 ;
+	
+	if ( !azonal ) return 0 ;
 
 	for ( tacklooper = ((AZONAL*)azonal)->tack.head ; tacklooper ; tacklooper = tacklooper->next ) {
 		anlnode = (AZONAL* ) tacklooper->element ;
@@ -497,6 +501,21 @@ int SymboleAddFunctionParameter ( AZONAL* function , AZONAL* azonal ) {
 	ASSERT(symbole&&azonal&&function) ;
 
 	SCClListInsert ( &function->tack , azonal ) ;
+	
+	return 1 ;
+
+}
+
+int SymboleAddFunctionLayer ( AZONAL* function ) {
+
+	//	author : Jelo Wang	
+	//	input : AZONAL pointer
+	//	notes: add parameters of a function
+	//	(C)TOK
+	
+	ASSERT(symbole&&function) ;
+
+	function->layer ++ ;
 	
 	return 1 ;
 

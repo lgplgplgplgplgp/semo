@@ -979,6 +979,7 @@ re :
 	for ( lexerc_genv () ; !lexc->stop ; lexerc_genv () ) {
 				
 		if ( C_VARDEF == lexc->v ) {
+			parser_c_read_variable_def () ;
 		} else if ( C_ARRAYDEF == lexc->v ) {
 		} else if ( C_FUNCDEF == lexc->v ) {
 			parser_c_read_function () ;

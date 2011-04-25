@@ -1,7 +1,7 @@
 
 /*
 
-+	Grammar of LAC , SC mid-para
++	Grammar of LAC (Lgnosia Code) , SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -25,8 +25,8 @@
 
 */ 
 
-# ifndef __LAC_GRAMMAR_
-# define __LAC_GRAMMAR_
+# ifndef __LAC_GRAMMAR
+# define __LAC_GRAMMAR
 
 # define LAC_FEN					2    //;
 # define LAC_EQU					3    //=

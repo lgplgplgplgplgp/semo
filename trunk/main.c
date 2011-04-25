@@ -2,7 +2,7 @@
 # include "sc.h"
 
 int main ( int argc , char* argv [] ) {
-	
+
 	# ifdef SEMO_DEBUG
 	{
 
@@ -29,6 +29,7 @@ int main ( int argc , char* argv [] ) {
  		return 0 ;
 	}
 	# endif
+
 
  
 }   

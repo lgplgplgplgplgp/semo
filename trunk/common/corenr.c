@@ -341,7 +341,7 @@ void CORENRDrawGrid ( int red , int green , int blue ) {
 
 	//	author : Jelo Wang
 	//	since : 20100803
-	//	(c)TOK
+	//	(C)TOK
  
 	int yy = 0 ;
 	int xx = 0 ;
@@ -361,14 +361,14 @@ void CORENRDrawGrid ( int red , int green , int blue ) {
 
 }
 
-# define MopoBaiscFunction(x) \
+# define CorenrBaiscFunction(x) \
 	(( x >= 1.0 ) ? 0 : x)
 
 void CORENRStretch ( int cx , int cy , float radius , int dx , int dy ) {
 
 	//	author : Jelo Wang
 	//	since : 20090612
-	//	(c)TOK
+	//	(C)TOK
 
 	int x = 0 ;
 	int y = 0 ;
@@ -406,9 +406,9 @@ void CORENRStretch ( int cx , int cy , float radius , int dx , int dy ) {
 					r3 = 1-r2 ;
 
 					if(dx >= half_width )
-						xx = abs((int)(x-abs(dx-cx) * MopoBaiscFunction(r3))) ;
+						xx = abs((int)(x-abs(dx-cx) * CorenrBaiscFunction(r3))) ;
 					else
-						xx = abs((int)(x+abs(dx-cx) * MopoBaiscFunction(r3))) ;
+						xx = abs((int)(x+abs(dx-cx) * CorenrBaiscFunction(r3))) ;
 
 				} else xx = x;
 
@@ -421,9 +421,9 @@ void CORENRStretch ( int cx , int cy , float radius , int dx , int dy ) {
 					r3 = 1-r2 ;
 
 					if( dy >= half_height )
-						yy = abs ( (int)(y-abs(dy-cy) * MopoBaiscFunction(r3)) ) ;
+						yy = abs ( (int)(y-abs(dy-cy) * CorenrBaiscFunction(r3)) ) ;
 					else
-						yy = abs ( (int)(y+abs(dy-cy) * MopoBaiscFunction(r3)) ) ;
+						yy = abs ( (int)(y+abs(dy-cy) * CorenrBaiscFunction(r3)) ) ;
 
 				} else yy = y ;
 

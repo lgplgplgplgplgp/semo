@@ -100,12 +100,18 @@ void MemoryMonitorFree ( MEMORY_MONITOR* mem_monitor , int address ) {
 	
 	if ( !address ) return ;
 
-	for ( ;walker && walker->address != address ;pre = walker , walker=walker->next) ;
+	for ( ; walker ;pre = walker , walker=walker->next ) {
+		if ( walker->address == address ) {
+			if ( walker == mem_monitor->head ) {
+				mem_monitor->head = walker->next ;
+				break ;
+			}
+		}
+	}
 
 	if ( walker ) {
 		
 		pre->next = walker->next ; 		
-		if ( 0 == pre->next ) mem_monitor->next = pre ;
 		free ( walker ) ;
 		
 	}
@@ -219,7 +225,7 @@ int SCFree ( void* buffer ) {
 		MemoryMonitorFree ( &mem_monitor , (int)buffer ) ;
 	# endif
 
- 	FREE ( buffer ) ;
+ //	FREE ( buffer ) ;
 
 	return 1 ;
 
@@ -236,7 +242,7 @@ int SCFreeEx ( void** buffer ) {
 		MemoryMonitorFree ( &mem_monitor , (int)*buffer ) ;
 	# endif
 
- 	FREE ( *buffer ) ;
+ //	FREE ( *buffer ) ;
 
 	*buffer = 0 ;
 
