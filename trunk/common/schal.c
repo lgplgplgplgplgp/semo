@@ -61,11 +61,14 @@ void MemoryMonitorAdd ( MEMORY_MONITOR* mem_monitor , char* file , int line , in
 	//	since : 20100418
 	//	(C)TOK
 
+	unsigned int mask_tail = 0xabcd12ef ;
 	MEMORY_MONITOR* newmem = 0 ;
 	
 	if ( !mem_monitor ) return ;
 
 	newmem	= (MEMORY_MONITOR* ) malloc ( sizeof(MEMORY_MONITOR) ) ;
+
+	SCMemcpy ( (void*)((unsigned int)newmem+length) , &mask_tail , sizeof(unsigned int) ) ;
 
 	if ( file ) {
 		newmem->file = (char* ) malloc ( sc_strlen ( file ) + 1 ) ;
@@ -88,6 +91,32 @@ void MemoryMonitorAdd ( MEMORY_MONITOR* mem_monitor , char* file , int line , in
 
 }
 
+void MemoryMonitorCheckOverflow ( MEMORY_MONITOR* mem_monitor ) {
+
+	//	author : Jelo
+	//	since : 2011.4.10
+	//	(C)TOK
+	
+	//	notes : 识别溢出内存块
+
+	MEMORY_MONITOR* looper = 0 ;
+		
+	for ( looper = mem_monitor->head ; looper ; looper=looper->next ) 
+	{
+
+		unsigned int mask_tail = 0 ;
+
+		SCMemcpy ( &mask_tail , (void*)((unsigned int )looper->address+looper->length) , sizeof (unsigned int ) ) ;
+
+		if ( 0xabcd12ef != mask_tail )
+		{
+			SCLog ( "Fatal Error : Memory Overflowed in file : '%s' , line : '%d\n'" , looper->file , looper->line ) ;
+		}
+
+	}
+
+	
+}
 
 void MemoryMonitorFree ( MEMORY_MONITOR* mem_monitor , int address ) {
 	
@@ -161,14 +190,15 @@ void* SCNormalloc ( unsigned int length , char* file , int line ) {
 	//	since : 20090809
 	
 	void* buffer = 0 ;
-	
-	buffer = (void*) MALLOC ( length ) ;
+
+	# ifdef MEMORY_MONITOR_ENABLE	
+		buffer = (void*) MALLOC ( length + sizeof(unsigned int) ) ;
+		MemoryMonitorAdd ( &mem_monitor , file , line , length , (int)buffer ) ;
+	# else
+		buffer = (void*) MALLOC ( length ) ;
+	# endif
 
 	if ( buffer ) memset ( buffer , 0 , length ) ;
-
-	# ifdef MEMORY_MONITOR_ENABLE
-		MemoryMonitorAdd ( &mem_monitor , file , line , length , (int)buffer ) ;
-	# endif
 	
 	return buffer ;
 
@@ -186,10 +216,11 @@ void* SCRealloc ( void* buffer , long int length ) {
 		MemoryMonitorFree ( &mem_monitor , "SCRealloc" , -1 , length , (int)buffer ) ;
 	# endif
 
-	address = realloc ( buffer , length ) ;
-
 	# ifdef MEMORY_MONITOR_ENABLE
+		address = realloc ( buffer , length+sizeof(unsigned int) ) ;
 		MemoryMonitorAdd ( &mem_monitor , "SCRealloc" , -1 , length , (int)address ) ;
+	# else
+		address = realloc ( buffer , length ) ;
 	# endif
 	
  	return address ;
@@ -222,6 +253,7 @@ int SCFree ( void* buffer ) {
 	//	since : 20090809
 
 	# ifdef MEMORY_MONITOR_ENABLE
+		MemoryMonitorCheckOverflow ( &mem_monitor ) ;
 		MemoryMonitorFree ( &mem_monitor , (int)buffer ) ;
 	# endif
 
@@ -239,6 +271,7 @@ int SCFreeEx ( void** buffer ) {
 	//	since : 20090809
 
 	# ifdef MEMORY_MONITOR_ENABLE
+		MemoryMonitorCheckOverflow ( &mem_monitor ) ;
 		MemoryMonitorFree ( &mem_monitor , (int)*buffer ) ;
 	# endif
 

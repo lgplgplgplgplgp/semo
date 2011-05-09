@@ -32,7 +32,7 @@
 
 # define SEEK_HEAD SEEK_SET
 
-//# define MEMORY_MONITOR_ENABLE
+# define MEMORY_MONITOR_ENABLE
 
 extern void* SCNormalloc ( unsigned int length , char* , int ) ;
 
