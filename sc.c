@@ -109,7 +109,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 	int results = 0 ;
 
 	SCClString str = {0} ;
-	
+
 	for ( walker = 0 ; walker < argc-1 ; walker ++ ) {
 		
 		SCClStringAddStr ( &str , argv[walker + 1] ) ;
@@ -123,7 +123,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 	lexerc_set ( lexerc_new ( str.data , LEXERC_DEFAULT_MODE ) ) ; 
 
 	SCClStringReset ( &str ) ;
-
+	
 	while ( !lexc->stop ) {
 
 		lexerc_genv () ;
@@ -461,6 +461,11 @@ static void SCCompilerDestroy () {
 	if ( compiler->il ) 
 		SCFree ( compiler->il ) ;
 
+	SCClListDestroy ( compiler->ol ) ;
+	
+	if ( compiler->ol ) 
+		SCFree ( compiler->ol ) ;
+
 	SCFreeEx ( &compiler ) ;
 
 	# ifdef MEMORY_MONITOR_ENABLE
@@ -541,7 +546,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	LEXERC* lexer = 0 ;
 	//	initialize compling parameters:language of front-para,machine of back-para ect.
  	SCCompilerReady ( argc , argv ) ;
-
+	
 	if ( !compiler ) return -1 ;
 	
 	compiler->stime = clock () ;
@@ -556,7 +561,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	compiler->parameter |= SC_SASM ;	
 	compiler->parameter |= SC_CR ;							
 	compiler->parameter |= SC_IG ;	
-	compiler->parameter |= SC_C2J ;	
+//	compiler->parameter |= SC_C2J ;	
 						
 }
 
@@ -575,7 +580,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		int filen = 0 ;
 		//void* inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
-		void* inputfile = SCHalFileOpen ( "G:\\workspace\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
+		void* inputfile = SCHalFileOpen ( "F:\\TOK\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
 
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
 				
@@ -598,25 +603,29 @@ int SCCompile ( int argc , char** argv , int type ) {
 			lexerc_set ( lexerc_new ( buffer , LEXERC_DEFAULT_MODE ) ) ; 		
 		}
 
-		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
- 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
+		//	Preprcessor of the front-para
+		//if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
+		//	Parser of the front-para
+ 	 	//if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 
 		//	just convert C99 to JAVA
-		if ( SC_C2J & compiler->parameter ) {
-			compiler->GENTOR ( sc_strcat (file,".java") ) ;		
-			continue ;
-		}
+		//if ( SC_C2J & compiler->parameter ) {
+		//	compiler->GENTOR ( sc_strcat (file,".java") ) ;		
+		//	continue ;
+		//}
 
-		lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
-		asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
+		//	Lgnosia Codes Generator
+		//lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
+		//	Assembly Codes Generator
+		//asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;
 		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
  //		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
 
+		lexerc_destroy () ;
 		SCHalFileClose ( inputfile ) ;
 		SCFree ( buffer ) ;
-		SCFree ( file ) ;
 		
 	}
 
@@ -644,7 +653,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
 	SCLog ("\n" ) ;
 
-//	compiler->RELEASE () ;
+	compiler->RELEASE () ;
 
 	return 0 ;
 	

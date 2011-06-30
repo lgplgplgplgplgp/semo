@@ -60,6 +60,7 @@ extern void* SCRealloc ( void* buffer , long int length ) ;
 extern void* SCRemalloc ( void* buffer , long int bufferlen , long int length )  ;
 extern int SCFree ( void* buffer ) ;
 extern int SCFreeEx ( void** buffer ) ;
+extern void SCHalMemoryOverflowed () ;
 extern int SCHalMemoryLeaked () ;
 extern void* SCHalFileOpen ( char* path , char* flag ) ;
 extern int SCHalFileSeek( void* file , int offset , int direct ) ;

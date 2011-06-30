@@ -35,7 +35,7 @@
 
 # ifdef MEMORY_MONITOR_ENABLE
 MEMORY_MONITOR mem_monitor = { 0 , 0 , 0 , 0 , 0 , 0 } ;
-int MemoryMonitorInit ( MEMORY_MONITOR* mem_monitor ) {
+int MMTInit ( MEMORY_MONITOR* mem_monitor ) {
 
 	//	author : Jelo Wang
 	//	since : 20100418
@@ -55,7 +55,7 @@ int MemoryMonitorInit ( MEMORY_MONITOR* mem_monitor ) {
 }
 
 
-void MemoryMonitorAdd ( MEMORY_MONITOR* mem_monitor , char* file , int line , int length , int address ) {
+void MMTAdd ( MEMORY_MONITOR* mem_monitor , char* file , int line , int length , int address ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100418
@@ -68,7 +68,7 @@ void MemoryMonitorAdd ( MEMORY_MONITOR* mem_monitor , char* file , int line , in
 
 	newmem	= (MEMORY_MONITOR* ) malloc ( sizeof(MEMORY_MONITOR) ) ;
 
-	SCMemcpy ( (void*)((unsigned int)newmem+length) , &mask_tail , sizeof(unsigned int) ) ;
+	SCMemcpy ( (void*)((unsigned int)address+length) , &mask_tail , sizeof(unsigned int) ) ;
 
 	if ( file ) {
 		newmem->file = (char* ) malloc ( sc_strlen ( file ) + 1 ) ;
@@ -91,7 +91,7 @@ void MemoryMonitorAdd ( MEMORY_MONITOR* mem_monitor , char* file , int line , in
 
 }
 
-void MemoryMonitorCheckOverflow ( MEMORY_MONITOR* mem_monitor ) {
+void MMTCheckOverflow ( MEMORY_MONITOR* mem_monitor ) {
 
 	//	author : Jelo
 	//	since : 2011.4.10
@@ -118,7 +118,7 @@ void MemoryMonitorCheckOverflow ( MEMORY_MONITOR* mem_monitor ) {
 	
 }
 
-void MemoryMonitorFree ( MEMORY_MONITOR* mem_monitor , int address ) {
+void MMTFree ( MEMORY_MONITOR* mem_monitor , int address ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100418
@@ -129,26 +129,26 @@ void MemoryMonitorFree ( MEMORY_MONITOR* mem_monitor , int address ) {
 	
 	if ( !address ) return ;
 
-	for ( ; walker ;pre = walker , walker=walker->next ) {
+	for ( ; walker ;pre = walker , walker = walker->next ) {
 		if ( walker->address == address ) {
 			if ( walker == mem_monitor->head ) {
 				mem_monitor->head = walker->next ;
-				break ;
 			}
+			break ;
 		}
 	}
 
 	if ( walker ) {
 		
 		pre->next = walker->next ; 		
-		free ( walker ) ;
+		FREE ( walker ) ;
 		
 	}
 	
 }
 
 
-void MemoryMonitorDestroy ( MEMORY_MONITOR* mem_monitor ) {
+void MMTDestroy ( MEMORY_MONITOR* mem_monitor ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100418
@@ -160,8 +160,8 @@ void MemoryMonitorDestroy ( MEMORY_MONITOR* mem_monitor ) {
 
 	for ( walker = mem_monitor->head ; walker ; ) {
 		mem_monitor->next = walker->next ;
-		if ( walker->file ) free ( walker->file ) ;
-		free ( walker ) ;
+		if ( walker->file ) FREE ( walker->file ) ;
+		FREE ( walker ) ;
 		walker = mem_monitor->next ;
 	}
 	
@@ -191,9 +191,10 @@ void* SCNormalloc ( unsigned int length , char* file , int line ) {
 	
 	void* buffer = 0 ;
 
-	# ifdef MEMORY_MONITOR_ENABLE	
+	# ifdef MEMORY_MONITOR_ENABLE
 		buffer = (void*) MALLOC ( length + sizeof(unsigned int) ) ;
-		MemoryMonitorAdd ( &mem_monitor , file , line , length , (int)buffer ) ;
+		MMTAdd ( &mem_monitor , file , line , length , (int)buffer ) ;
+		SCHalMemoryOverflowed () ;
 	# else
 		buffer = (void*) MALLOC ( length ) ;
 	# endif
@@ -213,12 +214,10 @@ void* SCRealloc ( void* buffer , long int length ) {
 	void* address = 0 ;
 	
 	# ifdef MEMORY_MONITOR_ENABLE
-		MemoryMonitorFree ( &mem_monitor , "SCRealloc" , -1 , length , (int)buffer ) ;
-	# endif
-
-	# ifdef MEMORY_MONITOR_ENABLE
+		MMTFree ( &mem_monitor , (int)buffer ) ;
 		address = realloc ( buffer , length+sizeof(unsigned int) ) ;
-		MemoryMonitorAdd ( &mem_monitor , "SCRealloc" , -1 , length , (int)address ) ;
+		MMTAdd ( &mem_monitor , "SCRealloc" , -1 , length , (int)address ) ;
+		SCHalMemoryOverflowed () ;
 	# else
 		address = realloc ( buffer , length ) ;
 	# endif
@@ -235,11 +234,20 @@ void* SCRemalloc ( void* buffer , long int bufferlen , long int length ) {
 	//	notes : SCRemalloc
 	//	since : 20090831
 	
-	unsigned char* memory = (unsigned char* ) MALLOC ( length  ) ;
+	unsigned char* memory = 0 ;
+
+	# ifdef MEMORY_MONITOR_ENABLE
+		MMTFree ( &mem_monitor ,(int)buffer ) ;
+		memory = (unsigned char* ) MALLOC ( length + sizeof(unsigned int) ) ; 
+		MMTAdd ( &mem_monitor , "SCRemalloc" , -1 , length , (int)memory ) ;
+		SCHalMemoryOverflowed () ;
+	# else
+		memory = (unsigned char* ) MALLOC ( length ) ; 
+	# endif
 
 	if ( memory ) memcpy ( memory , buffer , bufferlen ) ;
 	
-	SCFree ( buffer ) ;
+	FREE ( buffer ) ;
 
 	return memory ;
 
@@ -253,11 +261,11 @@ int SCFree ( void* buffer ) {
 	//	since : 20090809
 
 	# ifdef MEMORY_MONITOR_ENABLE
-		MemoryMonitorCheckOverflow ( &mem_monitor ) ;
-		MemoryMonitorFree ( &mem_monitor , (int)buffer ) ;
+		MMTCheckOverflow ( &mem_monitor ) ;
+		MMTFree ( &mem_monitor , (int)buffer ) ;
 	# endif
 
- //	FREE ( buffer ) ;
+	FREE ( buffer ) ;
 
 	return 1 ;
 
@@ -271,15 +279,28 @@ int SCFreeEx ( void** buffer ) {
 	//	since : 20090809
 
 	# ifdef MEMORY_MONITOR_ENABLE
-		MemoryMonitorCheckOverflow ( &mem_monitor ) ;
-		MemoryMonitorFree ( &mem_monitor , (int)*buffer ) ;
+		MMTCheckOverflow ( &mem_monitor ) ;
+		MMTFree ( &mem_monitor , (int)*buffer ) ;
 	# endif
 
- //	FREE ( *buffer ) ;
+ 	FREE ( *buffer ) ;
 
 	*buffer = 0 ;
 
 	return 1 ;
+
+}
+
+void SCHalMemoryOverflowed ()
+{
+
+	//	author : Jelo Wang
+	//	since : 2011630
+	//	(C)TOK
+
+	# ifdef MEMORY_MONITOR_ENABLE
+		MMTCheckOverflow ( &mem_monitor ) ;
+	# endif
 
 }
 
@@ -310,7 +331,7 @@ int SCHalMemoryLeaked () {
 			
 		}
 
-		MemoryMonitorDestroy ( &mem_monitor ) ;
+		MMTDestroy ( &mem_monitor ) ;
 
 	//	SCLog ("%1.3f kb memory is leaked.\n",(float)(totall/1024)) ;
 		SCLog ( "Memory leaked : %d times\n" , leakedtimes ) ;

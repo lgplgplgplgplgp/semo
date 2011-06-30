@@ -617,6 +617,8 @@ SCClString* SCClStringCreate ( char* el , int len ) {
 		return 0 ;
  
 	string->data = (char* ) SCMalloc ( len + 1 ) ; 
+	//	length of the data buffer
+	string->length = len + 1 ;
 
 	if ( !string->data )
 		return 0 ;
@@ -627,10 +629,11 @@ SCClString* SCClStringCreate ( char* el , int len ) {
 			
 	}
 	
-	string->add_walker = len ;
+	string->data [ walker ] = '0' ;
+	//	just for ('\0' == string->add_walker-1)
+	string->add_walker = len + 1 ;
 	string->get_walker = 0 ;
 	string->last_walker = 0 ;
-	string->length = len ;
 
 	return string ;
 
@@ -650,7 +653,7 @@ void SCClStringInit ( SCClString* string ) {
 	string->last_walker = 0 ;
 	
 	string->data = (char* ) SCMalloc ( SCClSLEN + 1 ) ; 
-	string->length = SCClSLEN ;
+	string->length = SCClSLEN + 1 ;
 
 }
 
@@ -666,7 +669,7 @@ void SCClStringInitEx ( SCClString* string , int len ) {
 	string->add_walker = 0 ;
 	string->get_walker = 0 ;
 	string->last_walker = 0 ;
-	string->length = len ;
+	string->length = len + 1 ;
 
 }
 
@@ -675,7 +678,7 @@ void SCClStringReset ( SCClString* string ) {
 	//	author : Jelo Wang
 	//	since : 20091128
 	//	(C)TOK
-
+	
 	string->add_walker = 0 ;
 	string->get_walker = 0 ;
 	string->last_walker = 0 ;
@@ -687,19 +690,18 @@ void SCClStringAdd ( SCClString* string , char el ) {
 	//	author : Jelo Wang
 	//	since : 20090816
 	//	(C)TOK
-
+	
 	if ( 0 < string->add_walker && '\0' == string->data [string->add_walker-1] ) {
 		
 		string->add_walker = string->add_walker - 1 ;
-		string->length = string->length - 1 ;
 
 	} 
 
-	if ( string->add_walker >= string->length ) {
+	if ( string->add_walker + sizeof(char) >= string->length ) {
 
-		string->length ++ ;
-		
-		string->data = (char* ) SCRealloc ( string->data , string->length + 1 ) ;
+		string->data = (char* ) SCRemalloc ( string->data , string->length , string->length + sizeof(char) + 1 ) ;
+		//string->data = (char* ) SCRealloc ( string->data , string->length + sizeof(char) + 1 ) ;
+		string->length = string->length + sizeof(char) + 1 ;		
 
 	}
 
@@ -725,26 +727,24 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 	if ( 0 == string->length && ellen ) {
 
 		string->data = (char* ) SCMalloc ( ellen + 1 ) ;
-		string->length = ellen ;
-		string->add_walker = string->length ;
+		string->length = ellen + 1 ;
+		string->add_walker = ellen ;
 		sc_strcpy ( string->data , el ) ;
 
 		return 1 ;
 
 	} 
 
-	//	if added and already ends with '\0'
-	if ( 0 < string->add_walker && '\0' == string->data [string->add_walker-1] ) {
-		
+	if ( 0 < string->add_walker && '\0' == string->data [string->add_walker-1] )
+	{
 		string->add_walker = string->add_walker - 1 ;
-		string->length = string->length - 1 ;
+	}
 
-	} 
-	
-	if ( string->add_walker >= string->length ) {
+	if ( string->add_walker + ellen >= string->length ) {
 
-		string->data = (char* ) SCRealloc ( string->data , string->length + ellen ) ;
-		string->length += ellen ;
+		string->data = (char* ) SCRemalloc ( string->data , string->length , string->length + ellen + 1 ) ;
+		//string->data = (char* ) SCRealloc ( string->data , string->add_walker + ellen + 1 ) ;
+		string->length += ellen + 1 ;
 
 	}
 
@@ -754,7 +754,7 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 		string->add_walker ++ ;
 
 	}
-	
+
 	return 1 ;
 
 }
@@ -775,13 +775,13 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 	if ( 0 < A->add_walker && '\0' == A->data [A->add_walker-1] ) {
 			
 		A->add_walker = A->add_walker - 1 ;
-		A->length = A->length - 1 ;
 	
 	}
 
-	if ( (len_s + A->add_walker + 1) >= A->length ) {
-		
-		A->data = (char* ) SCRealloc ( A->data , A->length + len_s + 1 ) ;
+	if ( (len_s + A->add_walker) >= A->length ) {
+
+		A->data = (char* ) SCRemalloc ( A->data , A->length , A->length + len_s + 1 ) ;
+		//A->data = (char* ) SCRealloc ( A->data , A->length + len_s + 1 ) ;
 
 		A->length = A->length + len_s + 1 ;
 		
@@ -846,15 +846,17 @@ void SCClStringRepStr ( SCClString* A , char* S , int start , int len_d ) {
 
 	int len_s = sc_strlen ( S ) ;
 
-	if ( len_s > A->length ) {
+	if ( len_s >= A->length ) {
 		
 		A->length = A->length + (len_s - len_d) ;
-		A->data = SCRealloc ( A->data , A->length ) ;
+		A->data = (char* ) SCRemalloc ( A->data , A->length , A->length + 1 ) ; 
+		//A->data = SCRealloc ( A->data , A->length + 1 ) ;
 		
 	} else if ( len_s > len_d ) {
 
 		A->length = A->length + len_s - len_d ;
-		A->data = SCRealloc ( A->data , A->length + 1 ) ;		
+		A->data = (char* ) SCRemalloc ( A->data , A->length , A->length + 1 ) ; 		
+//		A->data = SCRealloc ( A->data , A->length + 1 ) ;		
 
 	}
 
@@ -953,7 +955,7 @@ void SCClStringDestroy ( SCClString* string ) {
 	
 }
 
-void SCClStringDestroyKernal ( SCClString* string ) {
+void SCClStringDestroyKernel ( SCClString* string ) {
 
 	//	author : Jelo Wang
 	//	since : 20090816
