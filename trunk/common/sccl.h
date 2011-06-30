@@ -194,7 +194,7 @@ extern void SCClStringInsert ( SCClString* A , char* S , int start ) ;
 extern void SCClStringInsertAtom ( SCClString* A , char atom , int start , int end ) ;
 extern char* SCClStringGetStr ( SCClString* string ) ;
 extern void SCClStringDestroy ( SCClString* string ) ;
-extern void SCClStringDestroyKernal ( SCClString* string ) ;
+extern void SCClStringDestroyKernel ( SCClString* string ) ;
 
 //	SCClList
 extern void SCClListInit ( SCClList* list ) ;
