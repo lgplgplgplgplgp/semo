@@ -34,7 +34,7 @@
 
 //	the default length of SCCString
 //	create a SCCString with SCClSLEN could accelerate it compare with realloc
-# define SCClSLEN 512
+# define SCClSLEN 1024
 
 typedef enum {
 
@@ -191,10 +191,10 @@ extern void SCClStringReset ( SCClString* string ) ;
 extern void SCClStringAdd ( SCClString* string , char el ) ;
 extern int SCClStringAddStr ( SCClString* string , char* el ) ;
 extern void SCClStringInsert ( SCClString* A , char* S , int start ) ;
-extern void SCClStringInsertAtom ( SCClString* A , char atom , int start , int end ) ;
-extern char* SCClStringGetStr ( SCClString* string ) ;
+extern void SCClStringReplaceAtom ( SCClString* A , char atom , int start , int end ) ;
 extern void SCClStringDestroy ( SCClString* string ) ;
-extern void SCClStringDestroyKernel ( SCClString* string ) ;
+extern void SCClStringDestroyEx ( SCClString* string ) ;
+extern void SCClStringDestroyEx ( SCClString* string ) ;
 
 //	SCClList
 extern void SCClListInit ( SCClList* list ) ;

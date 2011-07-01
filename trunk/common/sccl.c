@@ -454,7 +454,11 @@ int sc_substrcmp ( char* A , char* B , int start ) {
 
 	if ( counter < length_of_B )
 		return 1 ;
+	
+	if ( counter >= length_of_B )
+		return 0 ;
 
+# if 0
 	if ( walker < lenth_of_A ) {
 		if ( sc_is_alpha(A [ walker ]) )
 			return 1 ;
@@ -466,6 +470,7 @@ int sc_substrcmp ( char* A , char* B , int start ) {
 			return 1 ;
 
 	}
+# endif
 
 	return 0;
 
@@ -623,15 +628,8 @@ SCClString* SCClStringCreate ( char* el , int len ) {
 	if ( !string->data )
 		return 0 ;
 
-	for ( walker = 0 ; walker < len ; walker ++ ) {
-
-		string->data [ walker ] = el [ walker ] ;
-			
-	}
-	
-	string->data [ walker ] = '0' ;
-	//	just for ('\0' == string->add_walker-1)
-	string->add_walker = len + 1 ;
+	sc_strcpy ( string->data , el ) ;	
+	string->add_walker = len ;
 	string->get_walker = 0 ;
 	string->last_walker = 0 ;
 
@@ -690,7 +688,8 @@ void SCClStringAdd ( SCClString* string , char el ) {
 	//	author : Jelo Wang
 	//	since : 20090816
 	//	(C)TOK
-	
+
+	//	SCClStringAdd would add a '\0' at the end of SCClString
 	if ( 0 < string->add_walker && '\0' == string->data [string->add_walker-1] ) {
 		
 		string->add_walker = string->add_walker - 1 ;
@@ -720,11 +719,14 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 	int ellen = 0 ;
 	
 	if ( !el ) return 0 ;
-
-	ellen = sc_strlen (el) ;
+	
+	if ( '\0' == el[0] ) 
+		ellen = 1 ;
+	else
+		ellen = sc_strlen (el) ;
 
 	//	the first time of adding
-	if ( 0 == string->length && ellen ) {
+	if ( 0 == string->add_walker && ellen ) {
 
 		string->data = (char* ) SCMalloc ( ellen + 1 ) ;
 		string->length = ellen + 1 ;
@@ -735,11 +737,12 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 
 	} 
 
+	//	SCClStringAdd would add a '\0' at the end of SCClString
 	if ( 0 < string->add_walker && '\0' == string->data [string->add_walker-1] )
 	{
 		string->add_walker = string->add_walker - 1 ;
 	}
-
+	
 	if ( string->add_walker + ellen >= string->length ) {
 
 		string->data = (char* ) SCRemalloc ( string->data , string->length , string->length + ellen + 1 ) ;
@@ -772,17 +775,16 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 
 	int len_s = sc_strlen (S) ;	
 
-	if ( 0 < A->add_walker && '\0' == A->data [A->add_walker-1] ) {
-			
+	//	SCClStringAdd would add a '\0' at the end of SCClString
+	while ( 0 < A->add_walker && '\0' == A->data [A->add_walker-1] || 
+		'\0' == A->data [A->add_walker] ) {
 		A->add_walker = A->add_walker - 1 ;
-	
 	}
 
 	if ( (len_s + A->add_walker) >= A->length ) {
 
 		A->data = (char* ) SCRemalloc ( A->data , A->length , A->length + len_s + 1 ) ;
 		//A->data = (char* ) SCRealloc ( A->data , A->length + len_s + 1 ) ;
-
 		A->length = A->length + len_s + 1 ;
 		
 	}
@@ -794,16 +796,17 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 		A->data [ move_step + walker ] = A->data [ walker ] ;
 	}
 
+	A->add_walker = A->add_walker + move_step + 1 ;
+
 	for ( counter = start ; counter < start + len_s ; counter ++ ) {
 		A->data [ counter ] = S [ counter - start ] ;
-		A->add_walker ++ ;
 	}
-
+	
 	A->data [ A->add_walker ] = '\0' ;
 
 }
 
-void SCClStringInsertAtom ( SCClString* A , char atom , int start , int end ) {
+void SCClStringReplaceAtom ( SCClString* A , char atom , int start , int end ) {
 
 	//	author : Jelo Wang
 	//	since : 20090921
@@ -816,20 +819,9 @@ void SCClStringInsertAtom ( SCClString* A , char atom , int start , int end ) {
 		A->data [ counter ] = atom ;
 	}
 
-
-}
-
-char* SCClStringGetStr ( SCClString* string ) {
-
-	//	author : Jelo Wang
-	//	since : 20090816
-	//	(C)TOK
-
-	return string->data ;
-
 }
 	
-void SCClStringRepStr ( SCClString* A , char* S , int start , int len_d ) {
+void SCClStringRepStr ( SCClString* A , char* S , int start , int len_b) {
 
 	//	author : Jelo Wang
 	//	since : 20090816
@@ -846,65 +838,59 @@ void SCClStringRepStr ( SCClString* A , char* S , int start , int len_d ) {
 
 	int len_s = sc_strlen ( S ) ;
 
-	if ( len_s >= A->length ) {
+	if ( (A->length + (len_s - len_b)) >= A->length ) {
 		
-		A->length = A->length + (len_s - len_d) ;
+		A->length = A->length + (len_s - len_b) + 1 ;
 		A->data = (char* ) SCRemalloc ( A->data , A->length , A->length + 1 ) ; 
 		//A->data = SCRealloc ( A->data , A->length + 1 ) ;
 		
-	} else if ( len_s > len_d ) {
-
-		A->length = A->length + len_s - len_d ;
-		A->data = (char* ) SCRemalloc ( A->data , A->length , A->length + 1 ) ; 		
-//		A->data = SCRealloc ( A->data , A->length + 1 ) ;		
-
 	}
 
-	if ( len_s == len_d ) {
-	//	len_s == len_d
+	if ( len_s == len_b ) {
+	//	len_s == len_b
 	//	step = 1 , border = A -> length (no need to move anything)
 		move_step = 0 ;
 		move_border = A->length ;
-	} else if ( len_s > len_d ) {
 
-	//	len_s > len_d
-	//	step = len_s - len_d , border = start + len_d
-		move_step = len_s - len_d ;
-		move_border = start + len_d ;	
+		for ( counter = start ; counter < start + len_s ; counter ++ ) {
+			A->data [ counter ] = S [ counter - start ] ;
+		}
+	
+	} else if ( len_s > len_b ) {
+
+	//	len_s > len_b
+	//	step = len_s - len_b , border = start + len_b
+		move_step = len_s - len_b ;
+		move_border = start + len_b ;	
 		
-		//	the last length of data = A->length-(len_s - len_d)-1
-		for ( walker = A->length - (len_s - len_d)-1 ; walker >= move_border ; walker -- ) {
+		//	the last length of data = A->length-(len_s - len_b)-1
+		for ( walker = A->length - (len_s - len_b)-1 ; walker >= move_border ; walker -- ) {
 			A->data [ move_step + walker ] = A->data [ walker ] ;
 		}
-	
-		A->add_walker = A->add_walker + move_step ;
 
-		A->data [ A->add_walker ] = '\0' ;	
-		
-	} else if ( len_d > len_s ) {
-	//	len_d > len_s
-	//	step = 1 , border = start + len_d	
-		move_step = 0 ;
-		move_border = start + len_d ;	
-	}
-	
-	if ( len_s == len_d ) {
 		for ( counter = start ; counter < start + len_s ; counter ++ ) {
 			A->data [ counter ] = S [ counter - start ] ;
 		}
-	} else if ( len_s > len_d ) {
+
+		A->add_walker = A->length - 1 ;
+		A->data [ A->add_walker ] = '\0' ;
+			
+	} else if ( len_b > len_s ) {
+	//	len_b > len_s
+	//	step = 1 , border = start + len_b	
+		move_step = 0 ;
+		move_border = start + len_b ;	
+
 		for ( counter = start ; counter < start + len_s ; counter ++ ) {
 			A->data [ counter ] = S [ counter - start ] ;
 		}	
-	} else if ( len_d > len_s ) {
-		for ( counter = start ; counter < start + len_d ; counter ++ ) {
-			if ( counter < start + len_s )
-				A->data [ counter ] = S [ counter - start ] ;
-			else
-				A->data [ counter ] = 0x20 ;
-		}	
-	}
 
+		for ( ; counter < start + len_b ; counter ++ ) {
+			A->data [ counter ] = 0x20 ;
+		}	
+
+	} 
+	
 }
 
 void SCClStringRepStrMulti ( SCClString* A , char* B , char* C ) {
@@ -923,7 +909,7 @@ void SCClStringRepStrMulti ( SCClString* A , char* B , char* C ) {
 	int walker = 0 ;
 	int counter = 0 ;
 
-	int len_d = sc_strlen(B) ;
+	int len_b = sc_strlen(B) ;
 
 	if ( !B || !C ) return ;
 
@@ -931,7 +917,7 @@ void SCClStringRepStrMulti ( SCClString* A , char* B , char* C ) {
 		
 		if ( !sc_substrcmp ( A->data , B , walker ) ) {
 
-			SCClStringRepStr ( A , C , walker , len_d ) ;
+			SCClStringRepStr ( A , C , walker , len_b ) ;
 
 		}
 
@@ -955,16 +941,18 @@ void SCClStringDestroy ( SCClString* string ) {
 	
 }
 
-void SCClStringDestroyKernel ( SCClString* string ) {
+void SCClStringDestroyEx ( SCClString* string ) {
 
 	//	author : Jelo Wang
-	//	since : 20090816
+	//	since : 20110701
 	//	(C)TOK
 
 	if ( !string ) return ;
 	
-  	if ( string->data ) SCFree ( string->data ) ;
+  	if ( string->data ) 
+		SCFree ( string->data ) ;
 
+	memset ( string , 0 , sizeof(SCClString) ) ;
 	
 }
 
@@ -1795,4 +1783,84 @@ void SCClGraphDestroy ( SCClGraph* graph ) {
 	SCClListDestroy ( &graph->nl ) ;
 	
 }
+
+# ifdef SC_SCCL_TEST
+
+void SCClStringTest ()
+{
+
+	//	author : Jelo Wang
+	//	since : 20110701
+	//	(C)TOK	
+	
+	//	²âÊÔSCClString ½Ó¿Ú
+
+	SCClString S = {0} ;
+
+	SCClStringAddStr ( &S , "GTKINGS" ) ;
+	SCClStringAdd ( &S , '\0' ) ;
+	SCClStringAddStr ( &S , "TOK" ) ;
+	SCClStringAdd ( &S , '\0' ) ;
+	SCLog ( "%s\n" , S.data ) ;
+	SCClStringDestroyEx ( &S ) ;
+
+	SCClStringAddStr ( &S , "GTKINGS" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringAddStr ( &S , "TOK" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCLog ( "%s\n" , S.data ) ;
+	SCClStringDestroyEx ( &S ) ;
+
+	SCClStringAddStr ( &S , "GTKINGS" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringAddStr ( &S , "TOK" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCLog ( "%s\n" , S.data ) ;
+	SCClStringDestroyEx ( &S ) ;
+	
+	SCClStringAddStr ( &S , "GTKINGS" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringAddStr ( &S , "TOK" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringRepStrMulti ( &S , "SEMO" , "semo" ) ;
+	SCLog ( "%s\n" , S.data ) ;
+	SCClStringDestroyEx ( &S ) ;
+
+	SCClStringAddStr ( &S , "GTKINGS" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringAddStr ( &S , "TOK" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringRepStrMulti ( &S , "SEMO" , "s" ) ;
+	SCLog ( "%s\n" , S.data ) ;
+	SCClStringDestroyEx ( &S ) ;
+
+	SCClStringAddStr ( &S , "GTKINGS" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringAddStr ( &S , "TOK" ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringInsert ( &S , "SEMO" , 7 ) ;
+	SCClStringAddStr ( &S , "\0" ) ;
+	SCClStringRepStrMulti ( &S , "SEMO" , "Semo C()mpiler" ) ;
+	SCLog ( "%s\n" , S.data ) ;
+	SCClStringDestroyEx ( &S ) ;	
+
+	
+}
+
+# endif
 

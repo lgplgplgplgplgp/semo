@@ -1386,7 +1386,7 @@ int lexerac_matchop ( int el ) {
 								SCClStringAdd ( &Lsn , '\0' ) ;
 
 								lexac->lsn = SCClAtoi ( Lsn.data ) ;								
-								SCClStringDestroyKernel ( &Lsn ) ;
+								SCClStringDestroyEx ( &Lsn ) ;
 	
 							}
 */
@@ -1421,7 +1421,7 @@ int lexerac_matchop ( int el ) {
 							SCClStringAdd ( &Lsn , '\0' ) ;
 
 							lexac->lsn = SCClAtoi ( Lsn.data ) ;								
-							SCClStringDestroyKernel ( &Lsn ) ;
+							SCClStringDestroyEx ( &Lsn ) ;
 
 							SCClStringAdd ( &LACTOK , '.' ) ;										
 							SCClStringAddStr ( &LACTOK , SCClItoa (lexac->lsn)) ;		
@@ -1771,7 +1771,7 @@ int lexerac_genv ()  {
 								SCClStringAdd ( &Lsn , '\0' ) ;
 
 								lexac->lsn = SCClAtoi ( Lsn.data ) ;
- 								SCClStringDestroyKernel ( &Lsn ) ;
+ 								SCClStringDestroyEx ( &Lsn ) ;
 
 								SCClStringAdd ( &LACTOK , '.' ) ;
 								SCClStringAddStr ( &LACTOK , SCClItoa (lexac->lsn)) ;

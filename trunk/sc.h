@@ -94,9 +94,9 @@ enum {
 	//	(C)TOK
 
 	//	An binary IMAGE that can runing straightly
-	SC_DYNAMIC_RUNING ,
+	SC_DYNAMIC_COMPILING ,
 	//	An object file or something like that fashion
-	SC_EXECUTABLE_UNIT ,
+	SC_STATIC_COMPILING ,
 		
 } ;
 
