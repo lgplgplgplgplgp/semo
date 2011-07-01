@@ -17,19 +17,18 @@ int main ( int argc , char* argv [] ) {
 
 		} ;
    
-   		SCCompile ( count , value , SC_EXECUTABLE_UNIT ) ;
+   		SCCompile ( count , value , SC_STATIC_COMPILING ) ;
 
 		return 0 ;
 	}
 	# else 	
 	{
 		
-	   	SCCompile ( argc , argv , SC_EXECUTABLE_UNIT ) ;
+	   	SCCompile ( argc , argv , SC_STATIC_COMPILING ) ;
 	  
  		return 0 ;
 	}
 	# endif
-
 
  
 }   

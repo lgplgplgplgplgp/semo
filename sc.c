@@ -364,6 +364,8 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 		
 	}
 
+	SCClStringDestroyEx ( &str ) ;
+	
 	//	check language
 	results = ( SC_CPP & compiler->parameter ) || ( SC_JAVA & compiler->parameter ) ;
 	//	if SC_CPP,SC_JAVA is not setting , set SC_C99 as default
@@ -402,7 +404,7 @@ ErrorRelease :
 
 COMPILER* SCCompilerCreate () {
 
-	//	author : WANG QUANWE
+	//	author : Jelo Wang
 	//	since : 20100430
 	//	(C)TOK	
 	
@@ -448,7 +450,7 @@ COMPILER* SCCompilerCreate () {
 
 static void SCCompilerDestroy () {
 
-	//	author : WANG QUANWE
+	//	author : Jelo Wang
 	//	since : 20091127
 	//	(C)TOK	
 
@@ -604,7 +606,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		}
 
 		//	Preprcessor of the front-para
-		//if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
+		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
 		//	Parser of the front-para
  	 	//if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 

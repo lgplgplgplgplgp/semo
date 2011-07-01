@@ -811,7 +811,7 @@ static int read_ifdef () {
 	
 	if ( macro_find ( lexc->token ) ) {
 
-		SCClStringInsertAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
+		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
 		lexc -> stack ++ ;
 
 redo :
@@ -822,7 +822,7 @@ redo :
 
 		if ( C_ENDIF == lexc->v ) {
 
-			SCClStringInsertAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
+			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc -> stack -- ;
 			
 			//	clear lexc->v
@@ -869,7 +869,7 @@ redo :
 		}
 		
 		lexc->v = 0 ;
-		SCClStringInsertAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	}
 
@@ -902,7 +902,7 @@ static int read_ifndef () {
 	
 	if ( !macro_find ( lexc->token ) ) {
 
-		SCClStringInsertAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
+		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
 		lexc -> stack ++ ;
 
 redo :
@@ -913,7 +913,7 @@ redo :
 
 		if ( C_ENDIF == lexc->v ) {
 
-			SCClStringInsertAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
+			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc -> stack -- ;
 			
 			//	clear lexc->v
@@ -961,7 +961,7 @@ redo :
 		}
 		
 		lexc->v = 0 ;
-		SCClStringInsertAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	}
 
@@ -994,7 +994,7 @@ static int read_if () {
 
 	if ( 0 != c_evalor () ) {
 
-		SCClStringInsertAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 redo :
 		
@@ -1004,7 +1004,7 @@ redo :
 
 		if ( C_ENDIF == lexc->v ) {
 
-			SCClStringInsertAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
+			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc -> stack -- ;
 			
 			//	clear lexc->v
@@ -1052,7 +1052,7 @@ redo :
 		}
 		
 		lexc->v = 0 ;
-		SCClStringInsertAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	}
 	
