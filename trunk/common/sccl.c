@@ -726,7 +726,7 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 		ellen = sc_strlen (el) ;
 
 	//	the first time of adding
-	if ( 0 == string->add_walker && ellen ) {
+	if ( 0 == string->length && ellen ) {
 
 		string->data = (char* ) SCMalloc ( ellen + 1 ) ;
 		string->length = ellen + 1 ;
@@ -746,7 +746,7 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 	if ( string->add_walker + ellen >= string->length ) {
 
 		string->data = (char* ) SCRemalloc ( string->data , string->length , string->length + ellen + 1 ) ;
-		//string->data = (char* ) SCRealloc ( string->data , string->add_walker + ellen + 1 ) ;
+		//string->data = (char* ) SCRealloc ( string->data , string->length + ellen + 1 ) ;
 		string->length += ellen + 1 ;
 
 	}
@@ -1230,7 +1230,6 @@ void SCClListDestroy ( SCClList* list ) {
 
 	while ( walker ) {
 		list->next = walker->next ;
-		if ( walker->element ) SCFree ( walker->element ) ;
 		SCFree ( walker ) ;
 		walker = list->next ;
 	}
@@ -1859,7 +1858,17 @@ void SCClStringTest ()
 	SCLog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;	
 
-	
+	SCClStringAddStr ( &S , "sc" ) ;
+	SCClStringAdd ( &S , 0x20 ) ;
+	SCClStringAddStr ( &S , "ca.txt" ) ;
+	SCClStringAdd ( &S , 0x20 ) ;
+	SCClStringAddStr ( &S , "-cr" ) ;
+	SCClStringAdd ( &S , 0x20 ) ;
+	SCClStringAddStr ( &S , "-lac" ) ;
+	SCClStringAdd ( &S , 0x20 ) ;	
+	SCClStringAdd ( &S , '\0' ) ;
+	SCLog ( "%s\n" , S.data ) ;
+
 }
 
 # endif

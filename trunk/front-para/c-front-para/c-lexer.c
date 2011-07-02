@@ -136,9 +136,8 @@ LEXERC* lexerc_new ( unsigned char* data , int mmode ) {
 	lexer->headbit = 0 ;
 
 	lexer->code = SCClStringCreate ( data , sc_strlen ( data ) ) ;
-
 	lexer->scstack = (SCClStack* ) SCMalloc ( sizeof ( SCClStack ) ) ;
-	
+
 	SCClStringInitEx ( &CTOK , 256 ) ;
 
 	return lexer ;
@@ -213,9 +212,7 @@ void lexerc_destroy () {
 
 	SCFreeEx (& lexc ) ;
 
-	if ( CTOK.data ) {
-		SCFreeEx ( &CTOK.data ) ;
-	}
+	SCClStringDestroyEx ( &CTOK ) ;
 
 }
 
