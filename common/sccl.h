@@ -30,6 +30,8 @@
 
 # include <assert.h>
 
+# define SC_SCCL_TEST
+
 # define ASSERT assert
 
 //	the default length of SCCString

@@ -388,7 +388,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 		if ( !(SC_EXP & compiler->parameter ) && !(SC_LGA & compiler->parameter )  )
 			compiler->parameter |= SC_IG ;
 	}
-	
+
 	lexerc_destroy () ;
 
 	return 1 ;
@@ -458,19 +458,24 @@ static void SCCompilerDestroy () {
 	
 	if ( !compiler ) return ;
 
+	SCClListSetIterator ( compiler->il , SCCLLISTSEEK_HEAD ) ;
+	for ( ; SCClListIteratorPermit ( compiler->il ) ; SCClListListIteratorNext ( compiler->il ) )
+		SCFree ( SCClListIteratorGetElement ( compiler->il ) ) ;
+
 	SCClListDestroy ( compiler->il ) ;
-	
-	if ( compiler->il ) 
-		SCFree ( compiler->il ) ;
+	SCFree ( compiler->il ) ;
+
+	SCClListSetIterator ( compiler->ol , SCCLLISTSEEK_HEAD ) ;
+	for ( ; SCClListIteratorPermit ( compiler->ol ) ; SCClListListIteratorNext ( compiler->ol ) )
+		SCFree ( SCClListIteratorGetElement ( compiler->ol ) ) ;
 
 	SCClListDestroy ( compiler->ol ) ;
-	
-	if ( compiler->ol ) 
-		SCFree ( compiler->ol ) ;
+	SCFree ( compiler->ol ) ;
 
 	SCFreeEx ( &compiler ) ;
 
 	# ifdef MEMORY_MONITOR_ENABLE
+		SCHalMemoryOverflowed () ;
 		SCHalMemoryLeaked() ;
 	# endif
 		  
@@ -547,14 +552,11 @@ int SCCompile ( int argc , char** argv , int type ) {
 	//	lexical analyzer of c language.
 	LEXERC* lexer = 0 ;
 	//	initialize compling parameters:language of front-para,machine of back-para ect.
- 	SCCompilerReady ( argc , argv ) ;
-	
-	if ( !compiler ) return -1 ;
+	if ( !SCCompilerReady ( argc , argv ) )
+		return 0 ;
 	
 	compiler->stime = clock () ;
 	
-	SCClListSetIterator ( compiler->il , SCCLLISTSEEK_HEAD ) ;
-
 {
 
 	//	just for debug bellow
@@ -583,9 +585,8 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//void* inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
 		void* inputfile = SCHalFileOpen ( "F:\\TOK\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
-
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
-				
+		
 		if ( !inputfile ) {
 			SCLog ("Can not open the file '%s'\n" , file ) ;
 			continue ;
@@ -621,8 +622,8 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//	Assembly Codes Generator
 		//asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
-		o = sc_strcat (file,".elf") ;
-		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
+//		o = sc_strcat (file,".elf") ;
+//		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
  //		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
 
 		lexerc_destroy () ;
@@ -657,7 +658,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 	compiler->RELEASE () ;
 
-	return 0 ;
+	return 1 ;
 	
  }
 

@@ -1089,7 +1089,7 @@ int presor_c_run ( char* presor_file ) {
 	//	notes : preprocessor of c language
 
 	MACRO* macro_finder = 0 ;
-	SCClString* presor_results = (SCClString* ) SCMalloc ( sizeof(SCClString) ) ;
+	SCClString* presor_results = SCClStringNew () ;
 
 	char* subed = 0 ;
 	int line = 0 ;
@@ -1141,9 +1141,8 @@ int presor_c_run ( char* presor_file ) {
 	 
 	line = lexc->line ;
 
- 	lexerc_destroy () ;
-
 	//	when precompling process is done gen a new lexer here for the back-para parser
+ 	lexerc_destroy () ;
 	lexerc_set ( lexerc_new ( presor_results->data , LEXERC_DEFAULT_MODE ) ) ;
 
 	lexc->line = line ;

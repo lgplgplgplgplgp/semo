@@ -48,8 +48,8 @@ typedef struct MMN {
 	int line ;
 	int length ;
 	int address ;
-	
-	struct MMN* head ;
+
+	struct MMN* head ;	
 	struct MMN* next ;
 	
 } MEMORY_MONITOR ;
