@@ -1800,14 +1800,14 @@ void SCClStringTest ()
 	SCClStringAdd ( &S , '\0' ) ;
 	SCClStringAddStr ( &S , "TOK" ) ;
 	SCClStringAdd ( &S , '\0' ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;
 
 	SCClStringAddStr ( &S , "GTKINGS" ) ;
 	SCClStringAddStr ( &S , "\0" ) ;
 	SCClStringAddStr ( &S , "TOK" ) ;
 	SCClStringAddStr ( &S , "\0" ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;
 
 	SCClStringAddStr ( &S , "GTKINGS" ) ;
@@ -1816,7 +1816,7 @@ void SCClStringTest ()
 	SCClStringAddStr ( &S , "\0" ) ;
 	SCClStringInsert ( &S , "SEMO" , 7 ) ;
 	SCClStringAddStr ( &S , "\0" ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;
 	
 	SCClStringAddStr ( &S , "GTKINGS" ) ;
@@ -1829,7 +1829,7 @@ void SCClStringTest ()
 	SCClStringInsert ( &S , "SEMO" , 7 ) ;
 	SCClStringAddStr ( &S , "\0" ) ;
 	SCClStringRepStrMulti ( &S , "SEMO" , "semo" ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;
 
 	SCClStringAddStr ( &S , "GTKINGS" ) ;
@@ -1842,7 +1842,7 @@ void SCClStringTest ()
 	SCClStringInsert ( &S , "SEMO" , 7 ) ;
 	SCClStringAddStr ( &S , "\0" ) ;
 	SCClStringRepStrMulti ( &S , "SEMO" , "s" ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;
 
 	SCClStringAddStr ( &S , "GTKINGS" ) ;
@@ -1855,7 +1855,7 @@ void SCClStringTest ()
 	SCClStringInsert ( &S , "SEMO" , 7 ) ;
 	SCClStringAddStr ( &S , "\0" ) ;
 	SCClStringRepStrMulti ( &S , "SEMO" , "Semo C()mpiler" ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 	SCClStringDestroyEx ( &S ) ;	
 
 	SCClStringAddStr ( &S , "sc" ) ;
@@ -1867,7 +1867,7 @@ void SCClStringTest ()
 	SCClStringAddStr ( &S , "-lac" ) ;
 	SCClStringAdd ( &S , 0x20 ) ;	
 	SCClStringAdd ( &S , '\0' ) ;
-	SCLog ( "%s\n" , S.data ) ;
+	SClog ( "%s\n" , S.data ) ;
 
 }
 

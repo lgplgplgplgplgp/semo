@@ -40,12 +40,12 @@ typedef struct errorc {
 	//	author : Jelo Wang
 	//	since : 20090813
 
-	//	(1) : SCLog 
-	//	(2) : type of SCLog , error or warning
+	//	(1) : SClog 
+	//	(2) : type of SClog , error or warning
 	//	(3) : line
 	//	(4) : mode from , persor , lexer or parser
 
-	char* SCLog ;
+	char* SClog ;
 	char* file ;
 
 	int type ;
@@ -60,6 +60,6 @@ typedef struct errorc {
 
 extern char ERR_C_FRONT[120][120] ;
 
-int cerror ( int module , int type , const   char* SCLog , ... ) ;
+int cerror ( int module , int type , const   char* SClog , ... ) ;
 
 # endif

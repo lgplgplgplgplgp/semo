@@ -1880,7 +1880,7 @@ REDO :
 						lexc->pv = lexc->v ;				
 						lexc->v = 0 ;	
 
-						SCLog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexc->c , lexc -> line ) ;
+						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexc->c , lexc -> line ) ;
 
 						lexerc_next () ;
 						

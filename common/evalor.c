@@ -516,7 +516,7 @@ void EvalorFinish () {
 	# ifdef __EVALOR_DEBUG
 	{
 		static int times = 1 ;
-		SCLog ( "Exp (%d) : " , times ) ;
+		SClog ( "Exp (%d) : " , times ) ;
 		times ++ ;
 	}
 	# endif
@@ -537,7 +537,7 @@ void EvalorFinish () {
 			case EXP_OPERATOR :
 				
 				# ifdef __EVALOR_DEBUG
-					SCLog ( "%s " , evalor_disp_operator (tree->handle) ) ;
+					SClog ( "%s " , evalor_disp_operator (tree->handle) ) ;
 				# endif
 
 				tree->right = SCClStackPop ( &suffix_stack );
@@ -553,7 +553,7 @@ void EvalorFinish () {
 				# ifdef __EVALOR_DEBUG
 				{
 					AZONAL* azonal = tree->handle ;
-					SCLog ( "%s " , azonal->name ) ;
+					SClog ( "%s " , azonal->name ) ;
 				}
 				# endif
 				
@@ -567,7 +567,7 @@ void EvalorFinish () {
 	EvalorClear () ;
 
 	# ifdef __EVALOR_DEBUG
-		SCLog ( "\n" ) ;
+		SClog ( "\n" ) ;
 	# endif
 	
 }

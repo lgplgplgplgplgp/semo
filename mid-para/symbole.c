@@ -39,7 +39,7 @@
 //since : 20090321
 //notes : for struct head trail chain debug
 #define _LOOP_PRINT_STRUCT_HEAD_NAME(symbole) \
-		while (symbole -> struct_head . next) { SCLog ("struct head : %s , chain : %d\n",symbole -> struct_head . next -> name,symbole -> struct_head . next -> number) ; \
+		while (symbole -> struct_head . next) { SClog ("struct head : %s , chain : %d\n",symbole -> struct_head . next -> name,symbole -> struct_head . next -> number) ; \
 		symbole -> struct_head . next = symbole -> struct_head . next  ->  next ; }
 
 
@@ -48,41 +48,41 @@
 #define _LOOP_WALK_STRUCT_HEAD_TRAIL(shead) int count = 0 ;\
 			for( ;shead ;shead = shead  ->  next,count++) {\
 				if (shead  ->  trail . next) {\
-					SCLog ("father struct head : %s , on layer : %d\n",shead -> name,shead  ->  on_layer) ;\
+					SClog ("father struct head : %s , on layer : %d\n",shead -> name,shead  ->  on_layer) ;\
 					for( ;shead  ->  trail . next ;shead  ->  trail . next  = shead  ->  trail . next  ->  trail . next,count++) {\
 						if (shead  ->  trail . next  ->  trail . snode) {\
-							SCLog ("struct head : %s , on layer : %d\n",shead  ->  trail . next  ->  trail . snode  ->  name,shead  ->  trail . next  ->  trail . snode  ->  on_layer) ;\
+							SClog ("struct head : %s , on layer : %d\n",shead  ->  trail . next  ->  trail . snode  ->  name,shead  ->  trail . next  ->  trail . snode  ->  on_layer) ;\
 							_PRINT_S("\n") ;\
 						} else if (shead  ->  trail . next  ->  trail . anode) {\
-							SCLog ("struct context : %s \n",shead  ->  trail . next  ->  trail . anode  ->  name) ;\
+							SClog ("struct context : %s \n",shead  ->  trail . next  ->  trail . anode  ->  name) ;\
 							_PRINT_S("\n") ;\
 						}\
 					}\
-				} else SCLog ("struct head : %s , on layer : %d\n\n",shead -> name,shead  ->  on_layer) ;\
+				} else SClog ("struct head : %s , on layer : %d\n\n",shead -> name,shead  ->  on_layer) ;\
 			}\
-			SCLog ("struct head totall %d\n",count) ;
+			SClog ("struct head totall %d\n",count) ;
 
 //since : 20090321
 //notes : for struct head trail chain debug
 #define _LOOP_WALK_STRUCT_HEAD_AZONAL_TRAIL(shead) int count = 0 ;\
 			for( ;shead ;shead = shead  ->  next,count++) {\
 				if (shead  ->  trail . next) {\
-					SCLog ("father struct head : %s , on layer : %d\n",shead -> name,shead  ->  on_layer) ;\
+					SClog ("father struct head : %s , on layer : %d\n",shead -> name,shead  ->  on_layer) ;\
 					for( ;shead  ->  trail . next ;shead  ->  trail . next  = shead  ->  trail . next  ->  trail . next,count++) {\
 						if (shead  ->  trail . next&&shead  ->  trail . next  ->  trail . anode) {\
-							SCLog ("azonal head : %s\n",shead  ->  trail . next  ->  trail . anode  ->  name) ;\
+							SClog ("azonal head : %s\n",shead  ->  trail . next  ->  trail . anode  ->  name) ;\
 						} else if (shead  ->  trail . next&&shead  ->  trail . next  ->  trail . snode) {\
-							SCLog ("struct head : %s\n",shead  ->  trail . next  ->  trail . snode  ->  name) ;\
+							SClog ("struct head : %s\n",shead  ->  trail . next  ->  trail . snode  ->  name) ;\
 						}\
 					}\
-				} else SCLog ("struct head : %s , on layer : %d\n\n",shead -> name,shead  ->  on_layer) ;}\
-				SCLog ("struct head totall %d\n",count) ;
+				} else SClog ("struct head : %s , on layer : %d\n\n",shead -> name,shead  ->  on_layer) ;}\
+				SClog ("struct head totall %d\n",count) ;
 
 
 //since : 20090321
 //notes : for struct head trail chain debug
 #define _LOOP_PRINT_STRUCT_TRAIL(symbole) \
-		while (symbole -> struct_head . next  ->  trail .  next) { SCLog ("trial node : %s\n",symbole -> struct_head . next  ->  trail .  next  ->  trail .  node  -> name) ; \
+		while (symbole -> struct_head . next  ->  trail .  next) { SClog ("trial node : %s\n",symbole -> struct_head . next  ->  trail .  next  ->  trail .  node  -> name) ; \
 		symbole -> struct_head . next  ->  trail .  next = symbole -> struct_head . next  ->  trail .  next  ->  trail . next ; }
 
 
@@ -90,7 +90,7 @@
 //notes : for struct symbols debug
 #define _LOOP_PRINT_STRUCT_SYMBOL(symbol) \
 		for( ;symbol ;symbol = symbol -> next) {\
-			SCLog ("struct symbol : %s\n",symbol  ->  azonal  ->  name) ; \
+			SClog ("struct symbol : %s\n",symbol  ->  azonal  ->  name) ; \
 			_LOOP_WALK_STRUCT_HEAD_AZONAL_TRAIL(symbol -> head) ;\
 		}\
 }

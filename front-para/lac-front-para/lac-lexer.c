@@ -1694,7 +1694,7 @@ int lexerac_genv ()  {
 						lexac->pv = lexac->v ;				
 						lexac->v = 0 ;	
 
-						SCLog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexac->c , lexac->line ) ;
+						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexac->c , lexac->line ) ;
 
 						lexerac_next () ;
 						

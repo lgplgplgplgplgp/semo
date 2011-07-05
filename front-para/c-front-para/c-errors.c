@@ -48,15 +48,15 @@ unsigned short C_LEXER_WARNING_ENABLE = 1 ;
 unsigned short C_PARSER_WARNING_ENABLE = 1 ;
 unsigned short C_SEMAN_WARNING_ENABLE = 1 ;
 
-int cerror ( int module , int type , const   char* SCLog , ... ) {
+int cerror ( int module , int type , const   char* SClog , ... ) {
 
 	//	author : Jelo Wang
 	//	notes : printer
 	//	since : 20091124
 	
 	va_list ap ;   
-	va_start ( ap , SCLog ) ;   
-	vprintf ( SCLog , ap ) ;
+	va_start ( ap , SClog ) ;   
+	vprintf ( SClog , ap ) ;
 	va_end ( ap ) ;
 	
 	return 1 ;
