@@ -32,8 +32,6 @@
 
 # define SEEK_HEAD SEEK_SET
 
-# define MEMORY_MONITOR_ENABLE
-
 extern void* SCNormalloc ( unsigned int length , char* , int ) ;
 
 # define SCMalloc(length) SCNormalloc(length,__FILE__,__LINE__)
@@ -48,7 +46,7 @@ typedef struct MMN {
 	int line ;
 	int length ;
 	int address ;
-
+	
 	struct MMN* head ;	
 	struct MMN* next ;
 	
@@ -72,6 +70,6 @@ extern int SCHalFileLength( void* file ) ;
 extern int SCHalFileClose ( void* file ) ;
 extern char* SCHalGetFilePath ( char* name ) ;
 extern void SCMemcpy ( void* target_memory , void* source_memory , int length ) ;
-extern void SCLog ( const	 char* SCLog , ... ) ;
+extern void SClog ( const	 char* SClog , ... ) ;
 extern void SCTerminate () ;
 

@@ -80,7 +80,7 @@ static void parserc_ready () {
 
 	if ( !parserc ) {
 
-		SCLog ("[sc][c-front-para][parserc] initialization has failed\n") ;
+		SClog ("[sc][c-front-para][parserc] initialization has failed\n") ;
 		SCTerminate () ;
 		return ;
 		

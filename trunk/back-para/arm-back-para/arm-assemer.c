@@ -455,7 +455,7 @@ static int assemer_thumb16_str () {
 		
 		if ( 31 >= immed ) THUMB16_STR_RdRnImmed_5 ( AssemerArm.Rd , AssemerArm.Rn , immed ) ;
 		else if ( 255 >= immed ) THUMB16_STR_RdRnImmed_8 ( AssemerArm.Rd , AssemerArm.Rn , immed ) ;
-		else SCLog ( "ARM-ASSEMER : immed scale is overflowed\n") ;
+		else SClog ( "ARM-ASSEMER : immed scale is overflowed\n") ;
 		
 	} else if ( assemer_is_reg (lexarm->v) ) {
 
@@ -512,7 +512,7 @@ static int assemer_thumb16_add () {
 			
 			if ( 255 >= immed ) THUMB16_ADD_RdImmed_8 ( AssemerArm.Rd , immed ) ;
 			else if ( 127 >= immed ) THUMB16_ADD_SPImmed_7 ( immed ) ;
-			else SCLog ( "ARM-ASSEMER : immed scale is overflowed\n") ;
+			else SClog ( "ARM-ASSEMER : immed scale is overflowed\n") ;
 			
 		} else if ( assemer_is_reg (lexarm->v) ) {
 			THUMB16_ADD_RdRm ( AssemerArm.Rd , AssemerArm.Rn ) ;

@@ -573,13 +573,13 @@ static int read_macro () {
 	lexerc_genv () ;
 	
 	if ( macro_find ( lexc->token ) )
-		SCLog ( "[sc][c-presor][read_macro] macro %s has already defined in file %s at line : %d\n" , lexc->token , lexc->file , lexc->line );
+		SClog ( "[sc][c-presor][read_macro] macro %s has already defined in file %s at line : %d\n" , lexc->token , lexc->file , lexc->line );
 	
 	nmc->name = (char* ) SCMalloc ( sc_strlen(lexc->token) ) ;
 
 	if ( !nmc->name ) {
 
-		SCLog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
+		SClog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
 		return 0 ;
 
 	}
@@ -669,7 +669,7 @@ static int read_macro () {
 
 		if ( !nmc->file ) {
 
-			SCLog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
+			SClog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
 			return 0 ;
 
 		}
@@ -731,7 +731,7 @@ static void read_include () {
 		buffer = (char* ) SCMalloc ( fillen ) ;
 
 		if ( !buffer ) {
-			SCLog ( "[sc][c-presor][read_include] not enough memory %s,%d\n",__FILE__,__LINE__);
+			SClog ( "[sc][c-presor][read_include] not enough memory %s,%d\n",__FILE__,__LINE__);
 			return ;
 		}
 

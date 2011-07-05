@@ -45,7 +45,7 @@ static void help () {
 	//	since : 20091125
 	//	(C)TOK	
  
-	SCLog ( 	"\
+	SClog ( 	"\
 \t - Semo C()mpiler 0.3.0 -\n\
 \t - Í»¿Ç¿ªÔ´ Techniques of Knowledge -\n\n\
 Format : \n\
@@ -164,27 +164,27 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					compiler->parameter |= SC_C99 ;
 
 					if ( compiler->parameter & SC_CPP ) {
-						SCLog ( "Language '-cpp' has already specified\n" ) ;
+						SClog ( "Language '-cpp' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}	
 
 					if ( compiler->parameter & SC_JAVA ) {
-						SCLog ( "Language '-java' has already specified\n" ) ;
+						SClog ( "Language '-java' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
 
 				} else if ( !sc_strcmp ( lexc->token , "cpp" ) ) {
 
 					compiler->parameter |= SC_CPP ;				
-					SCLog ( "The compiler is not supports CPP yet \n" ) ;						
+					SClog ( "The compiler is not supports CPP yet \n" ) ;						
 
 					if ( compiler->parameter & SC_C99 ) {
-						SCLog ( "Language '-c' has already specified\n" ) ;
+						SClog ( "Language '-c' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}	
 					
 					if ( compiler->parameter & SC_JAVA ) {
-						SCLog ( "Language '-java' has already specified\n" ) ;
+						SClog ( "Language '-java' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
 
@@ -193,15 +193,15 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 				} else if ( !sc_strcmp ( lexc->token , "java" ) ) {
 
 					compiler->parameter |= SC_JAVA ;			
-					SCLog ( "The compiler is not supports JAVA yet \n" ) ;
+					SClog ( "The compiler is not supports JAVA yet \n" ) ;
 
 					if ( compiler->parameter & SC_C99 ) {
-						SCLog ( "Language '-c' has already specified\n" ) ;
+						SClog ( "Language '-c' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}	
 
 					if ( compiler->parameter & SC_CPP ) {
-						SCLog ( "Language '-cpp' has already specified\n" ) ;
+						SClog ( "Language '-cpp' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}						
 
@@ -252,7 +252,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					compiler->parameter |= SC_LINK ;			
 
 					if ( compiler->parameter & SC_NLINK ) {
-						SCLog ( "Linker is multi-defined with '-nlink'\n" ) ;
+						SClog ( "Linker is multi-defined with '-nlink'\n" ) ;
 						goto ErrorRelease ;						
 					}	
 
@@ -261,7 +261,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					compiler->parameter |= SC_NLINK ;	
 
 					if ( compiler->parameter & SC_LINK ) {
-						SCLog ( "Linker is multi-defined with '-link'\n" ) ;
+						SClog ( "Linker is multi-defined with '-link'\n" ) ;
 						goto ErrorRelease ;						
 					}						
 
@@ -270,7 +270,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					compiler->parameter |= SC_ARM ;		
 
 					if ( compiler->parameter & SC_X86 ) {
-						SCLog ( "Architecture '-X86' has already specified\n" ) ;
+						SClog ( "Architecture '-X86' has already specified\n" ) ;
 						goto ErrorRelease ;						
 					}							
 
@@ -279,14 +279,14 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					compiler->parameter |= SC_X86 ;		
 
 					if ( compiler->parameter & SC_ARM ) {
-						SCLog ( "Architecture '-arm' has already specified\n" ) ;
-						SCLog ( "The compiler is not supports X86 yet\n" ) ;
+						SClog ( "Architecture '-arm' has already specified\n" ) ;
+						SClog ( "The compiler is not supports X86 yet\n" ) ;
 						goto ErrorRelease ;						
 					}
 					
 				}  else {
 
-					SCLog ( "Undefined parameter\n" ) ;
+					SClog ( "Undefined parameter\n" ) ;
 					goto ErrorRelease ;				
 					
 				}
@@ -318,7 +318,7 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					lexerc_skip_blank () ;
 					lexerc_genv () ;
 					if ( sc_strcmp ( lexc->token , "=" ) ) {
-						SCLog ( "Incorrect 'SET' form\n" ) ;
+						SClog ( "Incorrect 'SET' form\n" ) ;
 						goto ErrorRelease ;						
 					}
 					lexerc_skip_blank () ;
@@ -330,14 +330,14 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					} else if ( !sc_strcmp ( lexc->token , "dm" ) ) {
 						compiler->parameter |= SC_DM ;		
 					}  else {
-						SCLog ( "Incorrect 'SET' form\n" ) ;
+						SClog ( "Incorrect 'SET' form\n" ) ;
 						goto ErrorRelease ;						
 					}
 				} else if ( !sc_strcmp ( lexc->token , "cr" ) ) {
 					lexerc_skip_blank () ;
  					lexerc_genv () ;
 					if ( sc_strcmp ( lexc->token , "=" ) ) {
-						SCLog ( "Incorrect 'SET' form\n" ) ;
+						SClog ( "Incorrect 'SET' form\n" ) ;
 						goto ErrorRelease ;						
 					}
 					lexerc_skip_blank () ;
@@ -349,11 +349,11 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 					} else if ( !sc_strcmp ( lexc->token , "ig" ) ) {
 						compiler->parameter |= SC_IG ;		
 					} else {
-						SCLog ( "Incorrect 'SET' form\n" ) ;
+						SClog ( "Incorrect 'SET' form\n" ) ;
 						goto ErrorRelease ;						
 					}				
 				} else {
-					SCLog ( "Incorrect 'SET' form\n" ) ;
+					SClog ( "Incorrect 'SET' form\n" ) ;
 					goto ErrorRelease ;						
 				}
 
@@ -474,10 +474,8 @@ static void SCCompilerDestroy () {
 
 	SCFreeEx ( &compiler ) ;
 
-	# ifdef MEMORY_MONITOR_ENABLE
-		SCHalMemoryOverflowed () ;
-		SCHalMemoryLeaked() ;
-	# endif
+	SCHalMemoryOverflowed () ;
+	SCHalMemoryLeaked () ;
 		  
 }
 
@@ -497,7 +495,7 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 	if ( !argc || argc < 2 ) {
 
 		help () ;
- 		SCTerminate ( 1 ) ;
+ 		SCTerminate ( 1 ) ;  
 		return 0 ;
 		
 	}
@@ -532,7 +530,7 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 		compiler->PARSER = (void* )parser_c_run ;		
 		compiler->GENTOR = (void* )gentor_java_run ;
 	} else {
-		compiler->GENTOR = (void* )gentor_java_run ;	
+		compiler->GENTOR = (void* )gentor_lac_run ;	
 	}
 
 	compiler->RELEASE = (void* )SCCompilerDestroy ;
@@ -565,7 +563,6 @@ int SCCompile ( int argc , char** argv , int type ) {
 	compiler->parameter |= SC_SASM ;	
 	compiler->parameter |= SC_CR ;							
 	compiler->parameter |= SC_IG ;	
-//	compiler->parameter |= SC_C2J ;	
 						
 }
 
@@ -588,7 +585,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
 		
 		if ( !inputfile ) {
-			SCLog ("Can not open the file '%s'\n" , file ) ;
+			SClog ("Can not open the file '%s'\n" , file ) ;
 			continue ;
 		}
 		
@@ -609,16 +606,10 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//	Preprcessor of the front-para
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
 		//	Parser of the front-para
- 	 	//if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
-
-		//	just convert C99 to JAVA
-		//if ( SC_C2J & compiler->parameter ) {
-		//	compiler->GENTOR ( sc_strcat (file,".java") ) ;		
-		//	continue ;
-		//}
+ 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 
 		//	Lgnosia Codes Generator
-		//lac = compiler->GENTOR ( sc_strcat (file,".lac") ) ;		
+		lac = compiler->GENTOR ( sc_strcat (file,".ir") ) ;		
 		//	Assembly Codes Generator
 		//asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
@@ -645,16 +636,16 @@ int SCCompile ( int argc , char** argv , int type ) {
 		perline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
 
 	//	print compiling logs
-	SCLog ("\n") ;
-	SCLog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
-	SCLog ("Orignal Lines : %d \n" , compiler->lines ) ;
-	SCLog ("Compiling Speed : %1.3f\n" , perline ) ;
-	SCLog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
+	SClog ("\n") ;
+	SClog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
+	SClog ("Orignal Lines : %d \n" , compiler->lines ) ;
+	SClog ("Compiling Speed : %1.3f\n" , perline ) ;
+	SClog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
 	//	live-scopes spliting times of York-Town allocator
-	SCLog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
+	SClog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
 	//	register allocation times
-	SCLog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
-	SCLog ("\n" ) ;
+	SClog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
+	SClog ("\n" ) ;
 
 	compiler->RELEASE () ;
 

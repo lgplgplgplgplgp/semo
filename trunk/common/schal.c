@@ -31,8 +31,9 @@
 # include "schal.h"
 
 # define MALLOC malloc
-# define FREE free
+# define FREE //free
 
+# define MEMORY_MONITOR_ENABLE
 # ifdef MEMORY_MONITOR_ENABLE
 MEMORY_MONITOR mem_monitor = { 0 , 0 , 0 , 0 , 0 , 0 } ;
 int MMTInit () {
@@ -87,6 +88,7 @@ void MMTAdd ( char* file , int line , int length , int address ) {
 
 }
 
+static int overtimes = 0 ;
 void MMTCheckOverflow () {
 
 	//	author : Jelo
@@ -95,7 +97,6 @@ void MMTCheckOverflow () {
 	
 	//	notes : 识别溢出内存块
 
-	int totall = 0 ;
 	MEMORY_MONITOR* looper = 0 ;
 		
 	for ( looper = mem_monitor.head ; looper ; looper=looper->next ) 
@@ -107,8 +108,8 @@ void MMTCheckOverflow () {
 
 		if ( 0xabcd12ef != mask_tail )
 		{
-			totall ++ ;
-			SCLog ( "!!!!! M : %x , In : '%s' , At line : '%d' - overflowed\n" , looper->address , looper->file , looper->line ) ;
+			overtimes ++ ;
+			SClog ( "!!!!! M : %x , In : '%s' , At line : '%d' - overflowed\n" , looper->address , looper->file , looper->line ) ;
 		}
 
 	}
@@ -202,15 +203,15 @@ void MMTTest ()
 
 # endif
 
-void SCLog ( const   char* SCLog , ... ) {
+void SClog ( const   char* SClog , ... ) {
 
 	//	author : Jelo Wang
 	//	notes : printer
 	//	since : 20090809
 	
 	va_list ap ;   
-	va_start ( ap , SCLog ) ;   
-	vprintf ( SCLog , ap ) ;
+	va_start ( ap , SClog ) ;   
+	vprintf ( SClog , ap ) ;
 	va_end ( ap ) ;
 
 } 
@@ -326,6 +327,16 @@ int SCFreeEx ( void** buffer ) {
 
 }
 
+void SCHaMOFTimes () {
+
+	//	author : Jelo Wang
+	//	since : 20110702
+	//	(C)TOK
+	
+	SClog ("%d\n" , overtimes ) ;
+
+}
+
 void SCHalMemoryOverflowed ()
 {
 
@@ -353,7 +364,7 @@ int SCHalMemoryLeaked () {
 	
 		for ( ;walker;walker=walker->next) {
 
-			SCLog ("!!! M : %x , S : %d , In '%s' , At line : '%d' - leaked\n",
+			SClog ("!!! M : %x , S : %d , In '%s' , At line : '%d' - leaked\n",
 				walker->address,\
 				walker->length,\
 				walker->file,\
@@ -368,8 +379,8 @@ int SCHalMemoryLeaked () {
 
 		MMTDestroy ( &mem_monitor ) ;
 
-		SCLog ( "Leaked Totall : %d Bytes\n" , totall ) ;
-		SCLog ( "Leaked Times : %d\n" , leakedtimes ) ;
+		SClog ( "Leaked Totall : %d Bytes\n" , totall ) ;
+		SClog ( "Leaked Times : %d\n" , leakedtimes ) ;
 
 	# endif
 
