@@ -212,6 +212,7 @@ extern int SCClListListIteratorNext ( void* lt ) ;
 extern void* SCClListSearchBigestElement ( void* lt ) ;
 extern void SCClListDeleteBetweenTwo ( void* N1 , void* N3 ) ;
 extern void SCClListDestroy ( SCClList* list ) ;
+extern void SCClListDestroyEx ( SCClList* list ) ;
 extern int SCClAtoi ( char* number ) ;
 extern char* SCClItoa ( int number ) ;
 

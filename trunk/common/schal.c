@@ -35,6 +35,8 @@
 
 # define MEMORY_MONITOR_ENABLE
 # ifdef MEMORY_MONITOR_ENABLE
+# define MMT_MASK_LENGTH 4
+unsigned char* mmt_mask = 0 ;
 MEMORY_MONITOR mem_monitor = { 0 , 0 , 0 , 0 , 0 , 0 } ;
 int MMTInit () {
 
@@ -53,6 +55,23 @@ int MMTInit () {
 		
 }
 
+void MMTCreateMask ()
+{
+
+	//	author : Jelo Wang
+	//	since : 20110705
+	//	(C)TOK
+
+	int looper = 0 ;
+	
+	mmt_mask = (unsigned char* ) malloc ( MMT_MASK_LENGTH ) ;
+
+	for ( looper = 0 ; looper < MMT_MASK_LENGTH ; looper ++ )
+	{
+		mmt_mask [ looper ] = looper ;
+	}
+
+}
 
 void MMTAdd ( char* file , int line , int length , int address ) {
 	
@@ -60,12 +79,13 @@ void MMTAdd ( char* file , int line , int length , int address ) {
 	//	since : 20100418
 	//	(C)TOK
 
-	unsigned int mask_tail = 0xabcd12ef ;
 	MEMORY_MONITOR* newmem = 0 ;
 		
 	newmem	= (MEMORY_MONITOR* ) malloc ( sizeof(MEMORY_MONITOR) ) ;
 
-	SCMemcpy ( (void*)((unsigned int)address+length) , &mask_tail , sizeof(unsigned int) ) ;
+	if ( 0 == mmt_mask ) MMTCreateMask () ;
+	
+	memcpy ( (void*)((unsigned int)address+length) , mmt_mask , MMT_MASK_LENGTH ) ;
 
 	if ( file ) {
 		newmem->file = (char* ) malloc ( sc_strlen ( file ) + 1 ) ;
@@ -98,19 +118,28 @@ void MMTCheckOverflow () {
 	//	notes : 识别溢出内存块
 
 	MEMORY_MONITOR* looper = 0 ;
-		
+	unsigned char* mask = 0 ;
+
+	mask = (unsigned char* ) malloc ( MMT_MASK_LENGTH ) ;
+
 	for ( looper = mem_monitor.head ; looper ; looper=looper->next ) 
 	{
 
-		unsigned int mask_tail = 0 ;
+		int counter = 0 ;
+		
+		memcpy ( mask , (void*)((unsigned int )looper->address+looper->length) , MMT_MASK_LENGTH ) ;
 
-		SCMemcpy ( &mask_tail , (void*)((unsigned int )looper->address+looper->length) , sizeof (unsigned int ) ) ;
-
-		if ( 0xabcd12ef != mask_tail )
+		for ( counter = 0 ; counter < MMT_MASK_LENGTH ; counter ++ )
 		{
-			overtimes ++ ;
-			SClog ( "!!!!! M : %x , In : '%s' , At line : '%d' - overflowed\n" , looper->address , looper->file , looper->line ) ;
-		}
+
+			if ( mask [ counter ] != mmt_mask [ counter ] )
+			{
+				overtimes ++ ;
+				SClog ( "!!!!! M : %x , In : '%s' , At line : '%d' - overflowed\n" , looper->address , looper->file , looper->line ) ;	
+				free ( mask ) ;
+				return ;
+			}
+		}		
 
 	}
 	
@@ -226,8 +255,8 @@ void* SCNormalloc ( unsigned int length , char* file , int line ) {
 	void* buffer = 0 ;
 
 	# ifdef MEMORY_MONITOR_ENABLE
-		buffer = (void*) MALLOC ( length + sizeof(unsigned int) ) ;
-		memset ( buffer , 0 , length + sizeof(unsigned int) ) ;
+		buffer = (void*) MALLOC ( length + MMT_MASK_LENGTH ) ;
+		memset ( buffer , 0 , length + MMT_MASK_LENGTH ) ;
 		MMTAdd ( file , line , length , (int)buffer ) ;
 		SCHalMemoryOverflowed () ;
 	# else
@@ -249,8 +278,8 @@ void* SCRealloc ( void* buffer , long int length ) {
 	
 	# ifdef MEMORY_MONITOR_ENABLE
 		MMTFree ( (int)buffer ) ;
-		address = realloc ( buffer , length+sizeof(unsigned int) ) ;
-		memset ( address , 0 , length+sizeof(unsigned int) ) ;
+		address = realloc ( buffer , length+MMT_MASK_LENGTH ) ;
+		memset ( address , 0 , length+MMT_MASK_LENGTH ) ;
 		MMTAdd ( "SCRealloc" , -1 , length , (int)address ) ;
 		SCHalMemoryOverflowed () ;
 	# else
@@ -273,8 +302,8 @@ void* SCRemalloc ( void* buffer , long int bufferlen , long int length ) {
 
 	# ifdef MEMORY_MONITOR_ENABLE
 		MMTFree ( (int)buffer ) ;
-		memory = (unsigned char* ) MALLOC ( length + sizeof(unsigned int) ) ; 
-		memset ( memory , 0 , length + sizeof(unsigned int) ) ;
+		memory = (unsigned char* ) MALLOC ( length + MMT_MASK_LENGTH ) ; 
+		memset ( memory , 0 , length + MMT_MASK_LENGTH ) ;
 		MMTAdd ( "SCRemalloc" , -1 , length , (int)memory ) ;
 		SCHalMemoryOverflowed () ;
 	# else
@@ -377,7 +406,7 @@ int SCHalMemoryLeaked () {
 			
 		}
 
-		MMTDestroy ( &mem_monitor ) ;
+		MMTDestroy () ;
 
 		SClog ( "Leaked Totall : %d Bytes\n" , totall ) ;
 		SClog ( "Leaked Times : %d\n" , leakedtimes ) ;
@@ -532,5 +561,6 @@ char* SCHalGetFilePath ( char* name ) {
 	return path ;
 
 }
+
 # endif
 

@@ -48,17 +48,15 @@
 # define TOK_DEFAULT_LENGTH 256
 # define C_LANGUGE_KEYWORDS_TOTALL 32
 
-extern char ERR_C_FRONT[120][120] ;
-SCClString CTOK = { 0 , 0 , 0 , 0 , 0 } ;
+# define DefineHeadBitmapClear() lexc->headbit = 0 ;
+# define DefineHeadBitmapSet( bit ,op) lexc->headbit op= bit ;
+# define is_define_head_flow(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
+
+static SCClString CTOK = { 0 , 0 , 0 , 0 , 0 } ;
 
 LEXERC* lexc = 0 ;
 
-# define DefineHeadBitmapClear() lexc->headbit = 0 ;
-# define DefineHeadBitmapSet( bit ,op) lexc->headbit op= bit ;
-
-# define is_define_head_flow(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
-
-C_KEYWORDS c_key[ C_LANGUGE_KEYWORDS_TOTALL ] = {
+static C_KEYWORDS c_key[ C_LANGUGE_KEYWORDS_TOTALL ] = {
 
 	{ "auto" , C_AUTO } ,
 	{ "break" , C_BREAK } ,
@@ -96,7 +94,7 @@ C_KEYWORDS c_key[ C_LANGUGE_KEYWORDS_TOTALL ] = {
 };
 
 
-C_KEYWORDS c_presorinstruc [9] = {
+static C_KEYWORDS c_presorinstruc [9] = {
 
 	{ "define" , C_DEFINE } ,
 	{ "ifdef" , C_IFDEF } ,
@@ -110,7 +108,6 @@ C_KEYWORDS c_presorinstruc [9] = {
 
 
 } ;
-
 
 LEXERC* lexerc_new ( unsigned char* data , int mmode ) {
 
@@ -235,8 +232,7 @@ void lexerc_setmode ( int mmode ) {
 
 	//	set lexer runing mode
 
-	if ( lexc )
-		lexc -> mode = mmode ;
+	if ( lexc ) lexc -> mode = mmode ;
 
 }
 
@@ -247,8 +243,8 @@ void lexerc_ready ()  {
 	//	since : 20090810
 	//	(C)TOK
 
-	( (SCClString*) lexc->code) -> get_walker = 0 ;
-	( (SCClString*) lexc->code) -> last_walker = 0 ;
+	( (SCClString*) lexc->code)->get_walker = 0 ;
+	( (SCClString*) lexc->code)->last_walker = 0 ;
 
 	lexc->v = 0 ;
 	lexc->pv = 0 ;

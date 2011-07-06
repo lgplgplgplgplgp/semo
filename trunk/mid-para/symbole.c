@@ -101,7 +101,7 @@
 
 SYMBOLE* symbole = 0 ;
 
-int SymboleNew () {
+int SymboleCreate () {
 
 	//	author : Jelo Wang
 	//	input : symbol table installation
@@ -605,8 +605,8 @@ void SymboleUninstall () {
 		symbole->variable.next = azonal->next ;
 		if ( azonal->name ) SCFree ( azonal->name ) ;
 
-		if ( azonal->DRC.chain ) SCClListDestroy ( azonal->DRC.chain ) ;
-
+		if ( azonal->DRC.chain ) SCClListDestroyEx ( azonal->DRC.chain ) ;		
+		
 		SymboleDRCDropDRC ( azonal ) ;
 		
 		SCFree ( azonal ) ;
@@ -1550,7 +1550,7 @@ ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) {
 	cff = (ANLDRC* ) SCMalloc ( sizeof(ANLDRC) ) ;	
 	
 	if ( !cff ) {
-		SCClListDestroy ( cffset ) ;
+		SCClListDestroyEx ( cffset ) ;
 		SCFree ( cffset ) ;
 		return 0 ;
 	};
@@ -1591,7 +1591,7 @@ void SymboleDRCDropCFF ( AZONAL* azonal ) {
 	if ( drc && drc->cffref_t >= 2 ) {
 
 		if ( 1 == drc->cffset.type ) {
-			SCClListDestroy ( (SCClList* ) drc->cffset.handle ) ;
+			SCClListDestroyEx ( (SCClList* ) drc->cffset.handle ) ;
 			SCFreeEx ( &drc->cffset.handle ) ;
 		} else if ( 2 == drc->cffset.type ) {
 			SCClStringDestroy ( (SCClString* ) drc->cffset.handle ) ;	
@@ -1633,7 +1633,7 @@ return ;
 		if ( drc && AZONAL_DRC_CFF == drc->cf ) {
 	
 			if ( 1 == drc->cffset.type ) {
-				SCClListDestroy ( (SCClList* ) drc->cffset.handle ) ;
+				SCClListDestroyEx ( (SCClList* ) drc->cffset.handle ) ;
 				SCFreeEx ( &drc->cffset.handle ) ;
 			} else if ( 2 == drc->cffset.type ) {
 				SCClStringDestroy ( (SCClString* ) drc->cffset.handle ) ;	
