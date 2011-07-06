@@ -720,10 +720,8 @@ int SCClStringAddStr ( SCClString* string , char* el ) {
 	
 	if ( !el ) return 0 ;
 	
-	if ( '\0' == el[0] ) 
-		ellen = 1 ;
-	else
-		ellen = sc_strlen (el) ;
+	if ( '\0' == el[0] ) ellen = 1 ;
+	else ellen = sc_strlen (el) ;
 
 	//	the first time of adding
 	if ( 0 == string->length && ellen ) {
@@ -1235,6 +1233,25 @@ void SCClListDestroy ( SCClList* list ) {
 	}
 	
 }
+
+void SCClListDestroyEx ( SCClList* list ) {
+
+	//	author : Jelo Wang
+	//	since : 20110705
+	//	(C)TOK
+
+	SCClList* walker = list->head ;
+
+	while ( walker ) {
+		list->next = walker->next ;
+		SCFree ( walker ) ;
+		walker = list->next ;
+	}
+
+	SCFree ( list ) ;
+	
+}
+
 
 char* SCClItoa ( int number ) {
 

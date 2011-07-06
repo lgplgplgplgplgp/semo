@@ -230,7 +230,7 @@ typedef struct SNODE {
 	AZONAL function ;
 	AZONAL funccal ;
 	AZONAL controlflow ;
-		
+	
 	int vartotall ;
 	int arrtotall ;
 	int functotall ;
@@ -307,7 +307,7 @@ extern SYMBOLE* symbole ;
 # endif
 
 
-extern int SymboleNew () ;
+extern int SymboleCreate () ;
 extern void SymboleSetCurrent ( int ) ;
 extern AZONAL* SymboleAddVarAzonal ( 
 
