@@ -142,6 +142,8 @@ void MMTCheckOverflow () {
 		}		
 
 	}
+
+	free ( mask ) ;
 	
 }
 
