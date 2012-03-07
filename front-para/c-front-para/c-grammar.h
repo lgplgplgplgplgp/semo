@@ -126,46 +126,48 @@
 # define C_TYPEDEF     		1031	//	'typedef'
 # define C_UNION      		 	1032	//	'union'
 
-# define C_VAR         			2034 	//	general variables name
-# define C_ARRAY      		 	2035
-# define C_VARDEF         		2036 	//	general variables name
-# define C_ARRAYDEF      		2037
-# define C_FUNCDEC			2038	//	Funciton Decelaration
-# define C_FUNCCAL     		2039 	//	function call
-# define C_INCLUDE	 		2040
-# define C_DEFINE			2041
-# define C_IFDEF				2042
-# define C_IFNDEF			2043
-# define C_ENDIF				2044
-# define C_ELIF				2045
-# define C_INTNUM      		2100 	//integer
-# define C_FLTNUM      		2101 	//float
-# define C_HEXNUM      		2102 	//hex
-# define C_FLTENUM     		2103 	//float e
-# define C_INTENUM     		2104 	//int e
-# define C_MUS_INTNUM      	2105 	//integer
-# define C_MUS_FLTNUM      	2106 	//float
-# define C_MUS_HEXNUM      	2107 	//hex
-# define C_MUS_FLTENUM     	2108 	//float e
-# define C_MUS_INTENUM     	2109 	//int e
-# define C_PAGRAMA			2110
-# define C_DEFINED	 		2111 
-			 	
-# define C_PVAR        			2501 	//*var
-# define C_PPVAR      		 	2502 	//**var
-# define C_PARRAY			2503 	//*a[];
-# define C_PPARRAY	 		2504 	//**a[];
-# define C_PFUNCDEF    		2505 	//int *function(){}
-# define C_PPFUNCDEF   		2506 	//int **function(){}
-# define C_PFUNCDEC    		2507 	//int *functi();
-# define C_PPFUNCDEC   		2508 	//int **functi();
-# define C_PFUNCCAL    		2509 	//*func() error
-# define C_PPFUNCCAL   		2510 	//**func() error 
+//	Reference
+# define C_VAR_REF         		2034 	//	general variables references
+# define C_ARRAY_REF      		2035	//	array references
+# define C_FUNC_REF     		2039 	//	function references
 
-# define C_SELF				2511 	//self type
-# define C_SELFPT			2512 	//self type pointer
-# define C_STRUCT_CAL		2513 	//struct varible calling some flow like struct.name;
-# define C_EOS         			'\0' 		//ending of string
+//	Precessor Keyworlds
+# define C_INCLUDE	 		2040	//	#inlcude
+# define C_DEFINE			2041	//	#define
+# define C_IFDEF				2042	//	#ifdef
+# define C_IFNDEF			2043	//	#ifndef
+# define C_ENDIF				2044	//	#endif
+# define C_ELIF				2045	//	#elif
+# define C_PAGRAMA			2046	//	#pagrama
+# define C_DEFINED	 		2047	//	#defined
+
+//	Digital numbers
+# define C_INTNUM      		2100 	//	integer
+# define C_FLTNUM      		2101 	//	float
+# define C_HEXNUM      		2102 	//	hex
+# define C_FLTENUM     		2103 	//	float e
+# define C_INTENUM     		2104 	//	int e
+# define C_MUS_INTNUM      	2105 	//	integer
+# define C_MUS_FLTNUM      	2106 	//	float
+# define C_MUS_HEXNUM      	2107 	//	hex
+# define C_MUS_FLTENUM     	2108 	//	float e
+# define C_MUS_INTENUM     	2109 	//	int e
+			 	
+//# define C_PVAR        			2501 	//	*var
+//# define C_PPVAR      		 	2502 	//	**var
+//# define C_PARRAY			2503 	//	*a[];
+//# define C_PPARRAY	 		2504 	//	**a[];
+//# define C_PFUNCDEF    		2505 	//	int *function(){}
+//# define C_PPFUNCDEF   		2506 	//	int **function(){}
+//# define C_PFUNCDEC    		2507 	//	int *functi();
+//# define C_PPFUNCDEC   		2508 	//	int **functi();
+//# define C_PFUNCCAL    		2509 	//	*func() error
+//# define C_PPFUNCCAL   		2510 	//	**func() error 
+
+//# define C_SELF				2511 	//	self type
+//# define C_SELFPT			2512 	//	self type pointer
+# define C_OBJECT_CAL		2513 	//	struct varible calling some flow like struct.name;
+# define C_EOS         			'\0' 		//	ending of string
 
 # define C_ENTER				2515	//	'\n'
 # define C_ESCAPE			2516	//	''
@@ -174,9 +176,12 @@
 # define C_TABLEK			2518	//	'\t'
 
 //	Decelaration Symbols
-# define C_FUNCDEF     		3000	//	function delcar
+# define C_FUNCDEC			3000	//	Funciton Decelaration
 
-
+//	Defination of Symbols
+# define C_VARDEF         		3500 	//	variables def
+# define C_ARRAYDEF      		3501	//	array def
+# define C_FUNCDEF     		3502	//	function def
 
 //	arithmetic EXPR
 //	aexp	=>	digit op digit
@@ -217,7 +222,7 @@
 # define C_EXTERN_BIT		0x2000
 
 # define C_OPRAND(x)
-//	(C_FUNCCAL == x ||C_VAR == x || C_ARRAY == x || C_STRUCT == x )
+//	(C_FUNC_REF == x ||C_VAR_REF == x || C_ARRAY_REF == x || C_STRUCT == x )
 
 # endif
 
