@@ -179,12 +179,12 @@ void lexerc_set_file ( char* name ) {
 
 	//	set file name 
 
-	if ( lexc -> file ) {
-		SCFree ( lexc -> file ) ;
+	if ( lexc->file ) {
+		SCFree ( lexc->file ) ;
 	}
 
-	lexc -> file = (char* ) SCMalloc ( sc_strlen ( name ) + 1 ) ;
-	sc_strcpy ( lexc -> file , name ) ;
+	lexc->file = (char* ) SCMalloc ( sc_strlen ( name ) + 1 ) ;
+	sc_strcpy ( lexc->file , name ) ;
 
 }
 
@@ -232,7 +232,7 @@ void lexerc_setmode ( int mmode ) {
 
 	//	set lexer runing mode
 
-	if ( lexc ) lexc -> mode = mmode ;
+	if ( lexc ) lexc->mode = mmode ;
 
 }
 
@@ -249,7 +249,9 @@ void lexerc_ready ()  {
 	lexc->v = 0 ;
 	lexc->pv = 0 ;
 	lexc->ppv = 0;
-
+	lexc->c = 0 ;
+	lexc->token = 0 ;
+	
 	lexc->line = 1 ;
 	lexc->stop = 0 ;
 
@@ -266,7 +268,7 @@ static void lexerc_gen_headbit () {
 	//	since : 20091124
 	//	(C)TOK
 	
-//	for ( ; !lexc -> stop && (is_define_head_flow ( lexc->v )) ; lexerc_genv () ) {
+//	for ( ; !lexc->stop && (is_define_head_flow ( lexc->v )) ; lexerc_genv () ) {
 			
 		switch ( lexc->v ) {
 			case C_CHAR :
@@ -585,7 +587,7 @@ void lexerc_skip_blank () {
 	
 	while ( sc_is_blank ( lexc->code->data [ lexc->code->get_walker ] ) ) {
 		
-		if ( '\n' == lexc->c ) lexc -> line ++ ;
+		if ( '\n' == lexc->c ) lexc->line ++ ;
 		
 		lexc->c = lexc->code->data [ lexc->code->get_walker + 1 ] ;
 		lexc->code->last_walker = lexc->code->get_walker ;
@@ -1363,15 +1365,13 @@ int lexerc_matchop ( int el ) {
 					
 					int lexv = 0 ; 
 					lexerc_jump ( 1 ) ;
-					lexv = lexerc_head_genv (1) ;
 
-					if ( lexerc_digit_lex (lexv) ) {
-						
-						lexerc_genv () ;
-
-						return 1 ;
-
-					} else {
+					//	Jelo Commited 20120307 , Because the '+' of 'x/(x1+x3)' would be missed for c_evalor
+					//	lexv = lexerc_head_genv (1) ;			
+					//	if ( lexerc_digit_lex (lexv) ) {						
+					//	lexerc_genv () ;
+					//	return 1 ;
+					//	} else {
 
 						sc_strcpy ( buffer , "+" ) ;
 						
@@ -1380,7 +1380,8 @@ int lexerc_matchop ( int el ) {
 						lexc->pv = lexc->v ;					 
 						lexc->v = C_ADD ;
 					
-					}
+					//}
+					//	Jelo Commiting Finished
 					
 				}
 				
@@ -1408,7 +1409,7 @@ int lexerc_matchop ( int el ) {
 					lexc->pv = lexc->v ;					 
 					lexc->v = C_PNT ;					 
 					 
-				} else {
+				} else if ( lexc->pv ) {
 
 					int lexv = 0 ; 
 					lexerc_jump ( 1 ) ;
@@ -1622,9 +1623,9 @@ int lexerc_genv ()  {
 	
 	SCClStringReset ( &CTOK ) ;
 
-REDO :		
+REDO :
 	
-	while ( !lexc -> stop ) {
+	while ( !lexc->stop ) {
 		
 		lexerc_get_atom () ;
 
@@ -1663,7 +1664,7 @@ REDO :
 
 				} else if ( '\n' == lexc->c  ) {
 
-					lexc -> line ++;
+					lexc->line ++;
 					lexerc_next () ;
 
 					lexc->token = 0 ;
@@ -1681,7 +1682,7 @@ REDO :
 				else if ( 13 == lexc->c ) {
 					
 					//	dont return a changing row token to above modules
-					//	lexc -> line ++;
+					//	lexc->line ++;
 					//	lexerc_next () ;
 					//	lexc->ppv = lexc->pv ;
 					//	lexc->pv = lexc->v ;				
@@ -1870,13 +1871,13 @@ REDO :
 
 				} else {
 					
-					if ( 0 == lexc -> ios ) {
+					if ( 0 == lexc->ios ) {
 						
 						lexc->token = 0 ;
 						lexc->pv = lexc->v ;				
 						lexc->v = 0 ;	
 
-						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexc->c , lexc -> line ) ;
+						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexc->c , lexc->line ) ;
 
 						lexerc_next () ;
 						
@@ -1895,7 +1896,7 @@ REDO :
 
 				while( lexerc_is_var () ) ;
 
-				lexc->token = CTOK . data ;					
+				lexc->token = CTOK.data ;					
 				
 				lexc->pv = lexc->v;
 
@@ -1952,7 +1953,7 @@ REDO :
 				} else {
 		
 					//	read type defination flow
-					if (  (lexc -> mode & LEXERC_HEADBIT_MODE) && (is_define_head_flow (lexc->v)) && 0 == lexc->deep ) {
+					if (  (lexc->mode & LEXERC_HEADBIT_MODE) && (is_define_head_flow (lexc->v)) && 0 == lexc->deep ) {
 						
 						int head_lex = 0 ;
 
@@ -1997,7 +1998,7 @@ REDO :
 
 			case 2:
 
-				lexc -> pc = lexc->c ;
+				lexc->pc = lexc->c ;
 				
 				//	skip these junk streams that we donnt needed
 				lexerc_skip_space () ;
