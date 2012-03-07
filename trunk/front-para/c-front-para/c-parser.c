@@ -38,7 +38,7 @@
 PARSERC* parserc = 0 ;
 SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 
-# define NUMERIC_FLOW(x) ((x==C_INTNUM) ||(x==C_FLTNUM) ||(x==C_HEXNUM)||(x==C_INTENUM)||(x==C_FLTENUM))
+# define NUMERIC_FLOW(x) ((x==C_INT_NUM) ||(x==C_FLT_NUM) ||(x==C_HEX_NUM)||(x==C_INT_ENUM)||(x==C_FLT_ENUM))
 # define OPERAND_FLOW(x) (NUMERIC_FLOW(x)||(x==C_VAR_REF)||(x==C_ARRAY_REF)||(x==C_FUNC_REF))
 # define DHEAD_FLOW(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
 
@@ -116,7 +116,7 @@ static int parserc_genv () {
 				} else if ( C_VAR_REF == lexc->v ) {
 					parserc->form = lexc->v ;
 					return 1 ;
-				} else if ( C_FUNCDEF == lexc -> v ) {
+				} else if ( C_FUNC_DEF == lexc -> v ) {
 					parserc->form = lexc->v ;
 					return 1 ;
 				}
@@ -154,7 +154,7 @@ static int parser_c_read_function () {
 	AZONAL* azonal = 0 ;
 	int lgnosia = 0 ;
 
-	if ( C_FUNCDEF != lexc->v )
+	if ( C_FUNC_DEF != lexc->v )
 		return 0 ;
 
 	azonal = SymboleFindFunction ( lexc->token ) ;
@@ -652,7 +652,7 @@ static int parser_c_read_symbol_inf () {
 		case C_VAR_REF :
 			return parser_c_read_variable_inf () ;
 		break ;
-		case C_INTNUM :
+		case C_INT_NUM :
 			return parser_c_read_intnum_inf () ;
 		break ;
 		case C_FUNC_REF :
@@ -673,7 +673,7 @@ static int parser_c_read_symbol_def () {
 
 
 	switch ( lexc->v ) {
-		case C_VARDEF :
+		case C_VAR_DEF :
 			parser_c_read_variable_def () ;
 		break ;
 		default : return 0 ;
@@ -696,7 +696,7 @@ static int parser_c_read_variable_def () {
 	int lgnosia = 0 ;
 	EVALOR* evalor = 0 ;
 
-	if ( C_VARDEF != lexc->v )
+	if ( C_VAR_DEF != lexc->v )
 		return 0 ;
 
 	//	gen scope value
@@ -763,7 +763,7 @@ static int parser_c_read_intnum_inf () {
 	//	since : 20110125
 	//	(C)TOK
 
-	if ( C_INTNUM != lexc->v )
+	if ( C_INT_NUM != lexc->v )
 		return 0 ;
 
 	return (int)SymboleAndNumeric ( lexc->token , ISA_INTEGER ) ;
@@ -946,10 +946,10 @@ int parser_c_run ( int* lines ) {
 	
 	for ( lexerc_genv () ; !lexc->stop ; lexerc_genv () ) {
 				
-		if ( C_VARDEF == lexc->v ) {
+		if ( C_VAR_DEF == lexc->v ) {
 			parser_c_read_variable_def () ;
-		} else if ( C_ARRAYDEF == lexc->v ) {
-		} else if ( C_FUNCDEF == lexc->v ) {
+		} else if ( C_ARRAY_DEF == lexc->v ) {
+		} else if ( C_FUNC_DEF == lexc->v ) {
 			parser_c_read_function () ;
 		} else {
 			cerror ( C_PARSER_MOD , IS_C_ERROR , "undefined grammar : %x , line : %d\n" , lexc->v , lexc->line ) ;

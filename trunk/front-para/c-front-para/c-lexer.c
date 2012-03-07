@@ -415,11 +415,11 @@ static int lexerc_digit_lex ( int v ) {
 	//	(C)TOK
 
 	switch ( v ) {
-		case C_INTNUM : 
-		case C_FLTNUM :   
-		case C_HEXNUM :   
-		case C_FLTENUM :  
-		case C_INTENUM : 
+		case C_INT_NUM : 
+		case C_FLT_NUM :   
+		case C_HEX_NUM :   
+		case C_FLT_ENUM :  
+		case C_INT_ENUM : 
 			return 1 ; 
 		break ;
 	}
@@ -1421,25 +1421,25 @@ int lexerc_matchop ( int el ) {
 						SCClStringInsert ( &CTOK , "-" , 0 ) ;
 						
 						switch ( lexc->v ) {
-							case C_INTNUM : 
+							case C_INT_NUM : 
 								lexc->pv = lexc->v ;
-								lexc->v = C_MUS_INTNUM ;
+								lexc->v = C_NEG_INTNUM ;
 							break ;
-							case C_FLTNUM :   
+							case C_FLT_NUM :   
 								lexc->pv = lexc->v ;
-								lexc->v = C_MUS_FLTNUM ;
+								lexc->v = C_NEG_FLTNUM ;
 							break ;
-							case C_HEXNUM :   
+							case C_HEX_NUM :   
 								lexc->pv = lexc->v ;
-								lexc->v = C_MUS_HEXNUM ;
+								lexc->v = C_NEG_HEXNUM ;
 							break ;
-							case C_FLTENUM :  
+							case C_FLT_ENUM :  
 								lexc->pv = lexc->v ;
-								lexc->v = C_MUS_FLTENUM ;
+								lexc->v = C_NEG_FLTENUM ;
 							break ;
-							case C_INTENUM : 
+							case C_INT_ENUM : 
 								lexc->pv = lexc->v ;
-								lexc->v = C_MUS_INTENUM ;
+								lexc->v = C_NEG_INTENUM ;
 							break ;
 						}
 
@@ -1915,7 +1915,7 @@ REDO :
 					
 						if ( '{' == lexerc_look ( 0 ) ) {
 
-							lexc->v = C_FUNCDEF ;	
+							lexc->v = C_FUNC_DEF ;	
 							lexc->c = 0 ;
 						
 						} else {
@@ -1931,7 +1931,7 @@ REDO :
 							lexc->v = C_ARRAY_REF ;	
 							lexc->c = 0 ;		
 						} else {
-							lexc->v = C_ARRAYDEF ;	
+							lexc->v = C_ARRAY_DEF ;	
 							lexc->c = 0 ;								
 						}
 						
@@ -1941,7 +1941,7 @@ REDO :
 							lexc->v = C_VAR_REF ;	
 							lexc->c = 0 ;		
 						} else {
-							lexc->v = C_VARDEF ;	
+							lexc->v = C_VAR_DEF ;	
 							lexc->c = 0 ;								
 						}						
 						
@@ -1977,8 +1977,8 @@ REDO :
 						lexerc_genv() ;
 						lexc->deep -- ;
 
-						if ( C_VAR_REF == lexc->v || C_ARRAY_REF == lexc->v || C_FUNCDEF == lexc->v ||
-							C_VARDEF == lexc->v || C_ARRAYDEF == lexc->v ) {
+						if ( C_VAR_REF == lexc->v || C_ARRAY_REF == lexc->v || C_FUNC_DEF == lexc->v ||
+							C_VAR_DEF == lexc->v || C_ARRAY_DEF == lexc->v ) {
 							state = 1 ;
 						} else {
 							lexc->headbit = 0 ;
@@ -2047,7 +2047,7 @@ REDO :
 
 					lexc->token = CTOK.data ;
 					lexc->pv = lexc->v ;
-					lexc->v = C_INTENUM ;
+					lexc->v = C_INT_ENUM ;
 
 					return 1 ;
 
@@ -2064,7 +2064,7 @@ REDO :
 
 					lexc->token = CTOK.data ;
 					lexc->pv = lexc->v ;
-					lexc->v = C_INTNUM ;
+					lexc->v = C_INT_NUM ;
 
 					return 1 ;	
 					
@@ -2092,7 +2092,7 @@ REDO :
 
 					lexc->token = CTOK.data ;
 					lexc->pv = lexc->v ;
-					lexc->v = C_FLTENUM ;
+					lexc->v = C_FLT_ENUM ;
 
 					return 1 ;
 
@@ -2111,7 +2111,7 @@ REDO :
 						lexc->token = CTOK.data ;
 							
 						lexc->pv = lexc->v ;
-						lexc->v = C_FLTNUM ;
+						lexc->v = C_FLT_NUM ;
 						
 						return 1 ;
 
