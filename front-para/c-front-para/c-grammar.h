@@ -31,6 +31,10 @@
 //	since : 2008220
 //	(C)TOK
 
+//	Lexical Def
+//	ALPHA = ((a|b|c|...z)|(A|B|C|...Z))
+//	DIG = (0|1|2|3|4|5|6|7|8|9)
+
 # ifndef __C_GRAMMAR_
 # define __C_GRAMMAR_
 
@@ -93,43 +97,48 @@
 # define C_ASC 				55   //	ASCII
 
 //	Keyworlds of C langauge
-# define C_BREAK       			1001	//	'break'
-# define C_CASE        			1002	//	'case'
-# define C_FOR         			1003	//	'for'
-# define C_CONTINUE    		1004	//	'continue'
-# define C_GOTO        			1005	//	'goto'
-# define C_DEFAULT     		1006	//	'default'
-# define C_DO          			1007	//	'do'
-# define C_WHILE      		 	1008	//	'while'
-# define C_ELSE        			1009	//	'else'
-# define C_SWITCH      		1010	//	'switch'
-# define C_IF          			1011	//	'if'
-# define C_AUTO        			1012	//	'auto'
-# define C_CHAR        			1013	//	'char'
-# define C_CONST       			1014	//	'const'
-# define C_EXTERN      		1015	//	'extern'
-# define C_INT         			1016	//	'int'
-# define C_LONG        			1017	//	'long'
-# define C_REGISTER    		1018	//	'register'
-# define C_RETURN      		1019	//	'return'
-# define C_SHORT       			1020	//	'short'
-# define C_SIGNED      		1021	//	'sigend'
-# define C_STATIC      			1022	//	'static'
-# define C_UNSIGNED    		1023	//	'unsigned'
-# define C_VOID        			1024	//	'void'
-# define C_VOLATILE    		1025	//	'volatile'
-# define C_FLOAT     			2026 	//	'float'
-# define C_DOUBLE      		1027	//	'double'
-# define C_SIZEOF      			1028	//	'sizeof'
-# define C_STRUCT      		1029	//	'struct'
-# define C_ENUM        			1030	//	'enum'
-# define C_TYPEDEF     		1031	//	'typedef'
-# define C_UNION      		 	1032	//	'union'
+# define C_BREAK       			100		//	'break'
+# define C_CASE        			101		//	'case'
+# define C_FOR         			102		//	'for'
+# define C_CONTINUE    		103		//	'continue'
+# define C_GOTO        			104		//	'goto'
+# define C_DEFAULT     		105		//	'default'
+# define C_DO          			106		//	'do'
+# define C_WHILE      		 	107		//	'while'
+# define C_ELSE        			108		//	'else'
+# define C_SWITCH      		109		//	'switch'
+# define C_IF          			110		//	'if'
+# define C_AUTO        			111		//	'auto'
+# define C_CHAR        			112		//	'char'
+# define C_CONST       			113		//	'const'
+# define C_EXTERN      		114		//	'extern'
+# define C_INT         			115		//	'int'
+# define C_LONG        			116		//	'long'
+# define C_REGISTER    		117		//	'register'
+# define C_RETURN      		118		//	'return'
+# define C_SHORT       			119		//	'short'
+# define C_SIGNED      		120		//	'sigend'
+# define C_STATIC      			121		//	'static'
+# define C_UNSIGNED    		122		//	'unsigned'
+# define C_VOID        			123		//	'void'
+# define C_VOLATILE    		124		//	'volatile'
+# define C_FLOAT     			125 		//	'float'
+# define C_DOUBLE      		126		//	'double'
+# define C_SIZEOF      			127		//	'sizeof'
+# define C_STRUCT      		128		//	'struct'
+# define C_ENUM        			129		//	'enum'
+# define C_TYPEDEF     		130		//	'typedef'
+# define C_UNION      		 	131		//	'union'
 
 //	Reference
-# define C_VAR_REF         		2034 	//	general variables references
-# define C_ARRAY_REF      		2035	//	array references
-# define C_FUNC_REF     		2039 	//	function references
+# define C_VAR_REF         		500 		//	general variables references | Lexical Def : (ALPHA|_)*|(ALPHA|DIG|_)
+# define C_ARRAY_REF      		501		//	array references | Lexical Def : (ALPHA|_)*|(ALPHA|DIG|_)([DIG])
+# define C_FUNC_REF     		502	 	//	function references | Lexical Def : (ALPHA|_)*|((DIG))
+# define C_OBJ_REF			503	 	//	'struct.name' | Lexical Def : (ALPHA|_)*|((.(ALPHA|DIG|_)*)|(->(ALPHA|DIG|_)*)) 
+//	For Pointer Reference
+# define C_P_VAR_REF         	504 		//	references of variables pointer | Lexical Def : (*)*(ALPHA|_)*|(ALPHA|DIG|_)
+# define C_P_ARRAY_REF      	505		//	references of array pointer | Lexical Def : (*)*(ALPHA|_)*|(ALPHA|DIG|_)([DIG])
+# define C_P_FUNC_REF     	506	 	//	references of function pointer | Lexical Def : (*)*(ALPHA|_)*|((DIG))
 
 //	Precessor Keyworlds
 # define C_INCLUDE	 		2040	//	#inlcude
@@ -142,19 +151,19 @@
 # define C_DEFINED	 		2047	//	#defined
 
 //	Digital numbers
-# define C_INTNUM      		2100 	//	integer
-# define C_FLTNUM      		2101 	//	float
-# define C_HEXNUM      		2102 	//	hex
-# define C_FLTENUM     		2103 	//	float e
-# define C_INTENUM     		2104 	//	int e
-# define C_MUS_INTNUM      	2105 	//	integer
-# define C_MUS_FLTNUM      	2106 	//	float
-# define C_MUS_HEXNUM      	2107 	//	hex
-# define C_MUS_FLTENUM     	2108 	//	float e
-# define C_MUS_INTENUM     	2109 	//	int e
+# define C_INT_NUM      		2100 	//	integer
+# define C_FLT_NUM      		2101 	//	float
+# define C_HEX_NUM      		2102 	//	hex
+# define C_FLT_ENUM     		2103 	//	float e
+# define C_INT_ENUM     		2104 	//	int e
+# define C_NEG_INTNUM      	2105 	//	integer
+# define C_NEG_FLTNUM      	2106 	//	float
+# define C_NEG_HEXNUM      	2107 	//	hex
+# define C_NEG_FLTENUM     	2108 	//	float e
+# define C_NEG_INTENUM     	2109 	//	int e
 			 	
-//# define C_PVAR        			2501 	//	*var
-//# define C_PPVAR      		 	2502 	//	**var
+//# define C_PVAR        		2501 	//	*var
+//# define C_PPVAR      		2502 	//	**var
 //# define C_PARRAY			2503 	//	*a[];
 //# define C_PPARRAY	 		2504 	//	**a[];
 //# define C_PFUNCDEF    		2505 	//	int *function(){}
@@ -166,27 +175,22 @@
 
 //# define C_SELF				2511 	//	self type
 //# define C_SELFPT			2512 	//	self type pointer
-# define C_OBJECT_CAL		2513 	//	struct varible calling some flow like struct.name;
 # define C_EOS         			'\0' 		//	ending of string
 
 # define C_ENTER				2515	//	'\n'
-# define C_ESCAPE			2516	//	''
+# define C_ESCAPE			2516	//	'\'
 # define C_CHROW			2517	//	'\r'
 # define C_SPACE				2518	//	0x20
 # define C_TABLEK			2518	//	'\t'
 
 //	Decelaration Symbols
-# define C_FUNCDEC			3000	//	Funciton Decelaration
+# define C_FUNC_DEC			3000	//	Funciton Decelaration
 
 //	Defination of Symbols
-# define C_VARDEF         		3500 	//	variables def
-# define C_ARRAYDEF      		3501	//	array def
-# define C_FUNCDEF     		3502	//	function def
-
-//	arithmetic EXPR
-//	aexp	=>	digit op digit
-//	op		=>	+
-
+# define C_VAR_DEF         		3500 	//	variables def
+# define C_ARRAY_DEF      		3501	//	array def
+# define C_FUNC_DEF     		3502	//	function def
+# define C_OBJ_DEF     		3502	//	structs def
 
 //	bit map of define_head
 //	0000 0000 0000 0000 0000 0000 0000 0000
