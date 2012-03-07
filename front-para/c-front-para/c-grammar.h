@@ -217,7 +217,7 @@
 # define C_EXTERN_BIT		0x2000
 
 # define C_OPRAND(x)
-	(C_FUNCCAL == x ||C_VAR == x || C_ARRAY == x || C_STRUCT == x )
+//	(C_FUNCCAL == x ||C_VAR == x || C_ARRAY == x || C_STRUCT == x )
 
 # endif
 
