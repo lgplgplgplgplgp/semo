@@ -39,7 +39,7 @@ PARSERC* parserc = 0 ;
 SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 
 # define NUMERIC_FLOW(x) ((x==C_INTNUM) ||(x==C_FLTNUM) ||(x==C_HEXNUM)||(x==C_INTENUM)||(x==C_FLTENUM))
-# define OPERAND_FLOW(x) (NUMERIC_FLOW(x)||(x==C_VAR)||(x==C_ARRAY)||(x==C_FUNCCAL))
+# define OPERAND_FLOW(x) (NUMERIC_FLOW(x)||(x==C_VAR_REF)||(x==C_ARRAY_REF)||(x==C_FUNC_REF))
 # define DHEAD_FLOW(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
 
 # define DUA_OPERATOR(x) (C_SUB <= x && x <= C_HE)
@@ -113,7 +113,7 @@ static int parserc_genv () {
 				if ( DHEAD_FLOW ( lexc->v ) ) {
 					parserc->head = lexc->v ;
 					state = 0 ;
-				} else if ( C_VAR == lexc->v ) {
+				} else if ( C_VAR_REF == lexc->v ) {
 					parserc->form = lexc->v ;
 					return 1 ;
 				} else if ( C_FUNCDEF == lexc -> v ) {
@@ -239,7 +239,7 @@ static int parser_c_read_funccal () {
 	AZONAL* azonal = 0 ;
 	int lgnosia = 0 ;
 	
-	if ( C_FUNCCAL != lexc->v ) 
+	if ( C_FUNC_REF != lexc->v ) 
 		return 0 ;
 
 	azonal = SymboleFindFunction ( lexc->token ) ;
@@ -649,13 +649,13 @@ static int parser_c_read_symbol_inf () {
 
 
 	switch ( lexc->v ) {
-		case C_VAR :
+		case C_VAR_REF :
 			return parser_c_read_variable_inf () ;
 		break ;
 		case C_INTNUM :
 			return parser_c_read_intnum_inf () ;
 		break ;
-		case C_FUNCCAL :
+		case C_FUNC_REF :
 			parser_c_read_funccal () ;			
 		break ;		
 		default : return 0 ;
@@ -782,7 +782,7 @@ static int parser_c_read_variable_inf () {
 	EVALOR* evalor = 0 ;
 	int lgnosia = 0 ;
 	
-	if ( C_VAR != lexc->v )
+	if ( C_VAR_REF != lexc->v )
 		return 0 ;
 
 	//	gen scope value

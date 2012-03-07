@@ -1920,7 +1920,7 @@ REDO :
 						
 						} else {
 						
-							lexc->v = C_FUNCCAL ;	
+							lexc->v = C_FUNC_REF ;	
 							lexc->c = 0 ;
 							
 						}
@@ -1928,7 +1928,7 @@ REDO :
 					} else if ( '[' == lexc->c ) {
 
 						if ( 0 == lexc->headbit ) {
-							lexc->v = C_ARRAY ;	
+							lexc->v = C_ARRAY_REF ;	
 							lexc->c = 0 ;		
 						} else {
 							lexc->v = C_ARRAYDEF ;	
@@ -1938,7 +1938,7 @@ REDO :
 					} else {	
 
 						if ( 0 == lexc->headbit ) {
-							lexc->v = C_VAR ;	
+							lexc->v = C_VAR_REF ;	
 							lexc->c = 0 ;		
 						} else {
 							lexc->v = C_VARDEF ;	
@@ -1977,7 +1977,7 @@ REDO :
 						lexerc_genv() ;
 						lexc->deep -- ;
 
-						if ( C_VAR == lexc->v || C_ARRAY == lexc->v || C_FUNCDEF == lexc->v ||
+						if ( C_VAR_REF == lexc->v || C_ARRAY_REF == lexc->v || C_FUNCDEF == lexc->v ||
 							C_VARDEF == lexc->v || C_ARRAYDEF == lexc->v ) {
 							state = 1 ;
 						} else {
@@ -2014,7 +2014,7 @@ REDO :
 
 				lexc->v = lexerc_find_key ( c_presorinstruc , lexc->token , 9  ) ;
 				
-				if ( !lexc->v ) lexc->v = C_VAR ;	
+				if ( !lexc->v ) lexc->v = C_VAR_REF ;	
 											
 				return 1 ;
 

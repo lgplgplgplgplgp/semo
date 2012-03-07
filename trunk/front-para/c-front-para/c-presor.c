@@ -382,8 +382,8 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 
 		switch ( lexc->v ) {
 			
-			case C_FUNCCAL :
-			case C_VAR :
+			case C_FUNC_REF :
+			case C_VAR_REF :
 
 				macro_finder = macro_find ( lexc->token ) ;
 
@@ -617,7 +617,7 @@ static int read_macro () {
 			if ( 0 == lexc -> stack )
 				break;
 
-			if ( C_VAR == lexc->v ) {
+			if ( C_VAR_REF == lexc->v ) {
 
 				SCClStringAddStr ( &(nmc->param.token) , lexc->token ) ;
 				SCClStringAddStr ( &(nmc->param.token) , " ") ;
@@ -1111,7 +1111,7 @@ int presor_c_run ( char* presor_file ) {
 		
 		skip_macro () ;
 
-		if ( C_VAR == lexc->v || C_FUNCCAL == lexc->v ) {
+		if ( C_VAR_REF == lexc->v || C_FUNC_REF == lexc->v ) {
 			
 			macro_finder = macro_find ( lexc->token ) ;
 			
