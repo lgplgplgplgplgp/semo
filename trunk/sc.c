@@ -590,6 +590,11 @@ int SCCompile ( int argc , char** argv , int type ) {
 		}
 		
 		filen = SCHalFileLength ( inputfile ) ;
+		if ( 0 == filen ) {
+			SClog ( "File '%s' is empty\n" , file  ) ;
+			SCHalFileClose ( inputfile ) ;
+			continue ;
+		}
 		buffer = (char* ) SCMalloc ( filen ) ;
 
 		ASSERT (buffer) ;
