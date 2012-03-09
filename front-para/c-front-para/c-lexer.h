@@ -45,7 +45,6 @@ enum {
 	//	define-head bitmap generation process
 	LEXERC_HEADBIT_MODE = 0x4
  	
-	
 
 } LEXERC_MODE ;
 
@@ -97,12 +96,16 @@ typedef struct {
 	int line ;
 	int stop ;
 	int mode ;
-	int deep ;	// if recursive occured , deep + 1
+	// if recursive occured , deep + 1
+	int deep ;	
 	int headbit ;
 	
 	//	ignore odd symbols
 	int ios ;
 	int stack ; 
+
+	//	as for a C_P_VAR_REF , sacle = *****... totall of '*'
+	int scale ;
 	
 	SCClStack* scstack ;
 	SCClString* code ;
@@ -138,3 +141,4 @@ extern LEXERC* lexerc_get () ;
 extern void lexerc_clear_headbit () ;
 extern int lexerc_head_genv ( int border ) ;
 extern int lexerc_expect ( int atom ) ;
+
