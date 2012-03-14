@@ -704,23 +704,24 @@ static void read_include () {
 	lexerc_skip_space () ;
 	lexerc_genv () ;
 	
-	if ( lexc->token && '<' != lexc->token [0] ) {
-		
-		int walker = 0 ;
-		
-		for ( ; walker < sc_strlen(lexc->token) ; walker ++ ) {
-			if ( '"' == lexc->token [ walker + 1 ] )
-				lexc->token [ walker + 1 ] = 0 ;
-			lexc->token [ walker ] = lexc->token [ walker + 1 ] ;
-		}
-		
+	if ( C_STR == lexc->v ) {
+
+//	Jelo Edited 20120313
+//		int walker = 0 ;		
+//		for ( ; walker < sc_strlen(lexc->token) ; walker ++ ) {
+//			if ( '"' == lexc->token [ walker + 1 ] )
+//				lexc->token [ walker + 1 ] = 0 ;
+//			lexc->token [ walker ] = lexc->token [ walker + 1 ] ;
+//		}
+//	Jelo Finished
+
 		sc_strcpy ( abpath , SCHalGetFilePath(lexc->token) ) ;
 
 		file = SCHalFileOpen ( abpath , "rb" ) ;
 			
 		if ( !file ) {
 			
-			cerror ( C_PRESOR_MOD , IS_C_ERROR , "can not find the file '%s' , line : %d\n" , lexc->token , lexc->line ) ;
+			cerror ( C_PRESOR_MOD , IS_C_ERROR , "Can not find the file '%s' , line : %d\n" , lexc->token , lexc->line ) ;
 			
 			goto end ;
 			
@@ -731,18 +732,19 @@ static void read_include () {
 		buffer = (char* ) SCMalloc ( fillen ) ;
 
 		if ( !buffer ) {
-			SClog ( "[sc][c-presor][read_include] not enough memory %s,%d\n",__FILE__,__LINE__);
+			SClog ( "Not enough memory %s , %d\n",__FILE__,__LINE__);
+			SCHalFileClose ( file ) ;
 			return ;
 		}
 
 		for ( walker = lexc->code->get_walker ; walker >= 0 && '#' != lexc->code->data [walker] ; walker -- ) {
 			lexc->code->data [walker] = 0x20 ;
-			lexc->code -> length -- ;
+			lexc->code->length -- ;
 		}
 
 		if ( walker >= 0 && lexc->code->data && '#' == lexc->code->data [walker] ) lexc->code->data [walker] = 0x20 ;
 	
-	//	sc_memset ( buffer , 0 , fillen ) ;
+		memset ( buffer , 0 , fillen ) ;
 		SCHalFileSeek ( file , 0 , SEEK_HEAD ) ;		
 		SCHalFileRead ( file , buffer , 1 , fillen ) ;
 
@@ -753,9 +755,7 @@ static void read_include () {
 		SCHalFileClose ( file ) ;
 
 		SCFree ( buffer ) ;
-		
-	//	while ( !SCHalFileEnd (file) ) SCClStringAdd ( lexc->code , SCHalFileGetc(file) ) ;
-	
+			
 			
 	} else if ( '<' == lexc->token [0] ) {
 		
@@ -1074,7 +1074,6 @@ static void precompiling () {
 		read_ifdef () ;
 		read_ifndef () ;
 		read_if () ;
-		
 
 	}
 
