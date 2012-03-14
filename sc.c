@@ -554,17 +554,19 @@ int SCCompile ( int argc , char** argv , int type ) {
 		return 0 ;
 	
 	compiler->stime = clock () ;
-	
-{
 
-	//	just for debug bellow
-	compiler->parameter |= SC_PO ;	
-	compiler->parameter |= SC_LAC ;
-	compiler->parameter |= SC_SASM ;	
-	compiler->parameter |= SC_CR ;							
-	compiler->parameter |= SC_IG ;	
+	#ifdef SEMO_DEBUG
+	{
+
+		//	just for debug bellow
+		compiler->parameter |= SC_PO ;	
+		compiler->parameter |= SC_LAC ;
+		compiler->parameter |= SC_SASM ;	
+		compiler->parameter |= SC_CR ;							
+		compiler->parameter |= SC_IG ;	
 						
-}
+	}
+	#endif
 
 	for ( ; SCClListIteratorPermit ( compiler->il ) ; SCClListListIteratorNext ( compiler->il ) ) {
 
@@ -579,7 +581,6 @@ int SCCompile ( int argc , char** argv , int type ) {
 		char* o = 0 ;
 
 		int filen = 0 ;
-		//void* inputfile = SCHalFileOpen ( "C:\\Projects\\sc\\Debug\\ssa1.txt" , "rb" ) ;
 		
 		void* inputfile = SCHalFileOpen ( "F:\\TOK\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
@@ -611,10 +612,10 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//	Preprcessor of the front-para
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
 		//	Parser of the front-para
- 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
+// 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 
 		//	Lgnosia Codes Generator
-		lac = compiler->GENTOR ( sc_strcat (file,".ir") ) ;		
+//		lac = compiler->GENTOR ( sc_strcat (file,".ir") ) ;		
 		//	Assembly Codes Generator
 		//asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		

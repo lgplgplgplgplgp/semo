@@ -611,7 +611,6 @@ void lexerc_skip_space () {
 
 	}
 
-
 }
 
 void lexerc_jump ( int step ) {
@@ -745,8 +744,13 @@ int lexerc_cluster ( int el ) {
 
 				case 0 :
 
-					if ( '"' == lexc->c ) { state = 1 ; SCClStringAdd ( &CTOK , lexc->c ) ; lexerc_next () ; }
-					else { lexerc_next () ; return 0 ; }
+					if ( '"' == lexc->c ) { 
+						state = 1 ; 
+						//	Jelo Edited 20120313 , No need " for C_STR
+						//	SCClStringAdd ( &CTOK , lexc->c ) ;
+						//	Jelo Finished
+						lexerc_next () ; 
+					} else { lexerc_next () ; return 0 ; }
 						
 				break ;
 
@@ -755,7 +759,10 @@ int lexerc_cluster ( int el ) {
 					if ( '\\' == lexc->c ) { state = 2 ; lexerc_next () ; }
 					else if ( '"' == lexc->c ) {
 
-						SCClStringAdd ( &CTOK , '"' ) ;
+						//	Jelo Edited 20120313
+						//	SCClStringAdd ( &CTOK , '"' ) ;
+						//	Jelo Finished
+						
 						SCClStringAdd ( &CTOK , C_EOS ) ;
 											
 						lexc->token = CTOK.data ;
