@@ -141,14 +141,16 @@
 # define C_P_FUNC_REF     	506	 	//	references of function pointer | Lexical Def : (*)*(ALPHA|_)*|((DIG))
 
 //	Precessor Keyworlds
-# define C_INCLUDE	 		2040	//	#inlcude
-# define C_DEFINE			2041	//	#define
-# define C_IFDEF				2042	//	#ifdef
-# define C_IFNDEF			2043	//	#ifndef
-# define C_ENDIF				2044	//	#endif
-# define C_ELIF				2045	//	#elif
-# define C_PAGRAMA			2046	//	#pagrama
-# define C_DEFINED	 		2047	//	#defined
+# define C_PI_INCLUDE	 		2040	//	#inlcude
+# define C_PI_DEFINE				2041	//	#define
+# define C_PI_IFDEF				2042	//	#ifdef
+# define C_PI_IFNDEF				2043	//	#ifndef
+# define C_PI_ENDIF				2044	//	#endif
+# define C_PI_IF					2045	//	#if
+# define C_PI_ELIF				2046	//	#elif
+# define C_PI_ELSE				2047	//	#else
+# define C_PI_PAGRAMA			2048	//	#pagrama
+# define C_PI_DEFINED	 		2049	//	#defined
 
 //	Digital numbers
 # define C_INT_NUM      		2100 	//	integer

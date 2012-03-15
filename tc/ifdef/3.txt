@@ -1,4 +1,4 @@
-ifdef gtkings
+#ifdef gtkings
 	123123123123123123
 	#ifdef gtkings
 		china

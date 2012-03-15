@@ -334,9 +334,11 @@ long int c_evalor () {
 	//	since : 20091123
 	//	(C)TOK
 
-	c_gen_suffix_exp () ;
+	//c_gen_suffix_exp () ;
 	
-	return c_suffix_exp_evalor () ;
+	//return c_suffix_exp_evalor () ;
+	lexerc_genv () ;
+	return 1 ;
 
 
 }

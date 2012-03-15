@@ -33,7 +33,7 @@
 # define MALLOC malloc
 # define FREE //free
 
-# define MEMORY_MONITOR_ENABLE
+//# define MEMORY_MONITOR_ENABLE
 # ifdef MEMORY_MONITOR_ENABLE
 # define MMT_MASK_LENGTH 4
 unsigned char* mmt_mask = 0 ;
@@ -364,7 +364,7 @@ void SCHaMOFTimes () {
 	//	since : 20110702
 	//	(C)TOK
 	
-	SClog ("%d\n" , overtimes ) ;
+//	SClog ("%d\n" , overtimes ) ;
 
 }
 
