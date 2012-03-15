@@ -612,16 +612,16 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//	Preprcessor of the front-para
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
 		//	Parser of the front-para
-// 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
+	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 
 		//	Lgnosia Codes Generator
-//		lac = compiler->GENTOR ( sc_strcat (file,".ir") ) ;		
+		lac = compiler->GENTOR ( sc_strcat (file,".ir") ) ;		
 		//	Assembly Codes Generator
 		//asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
 		
-//		o = sc_strcat (file,".elf") ;
-//		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
- //		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
+		o = sc_strcat (file,".elf") ;
+		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
+		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
 
 		lexerc_destroy () ;
 		SCHalFileClose ( inputfile ) ;

@@ -1098,8 +1098,10 @@ char* gentor_lac_run ( char* lacfile ) {
 	}
 
 	//	generate live-scope and start register allocation
-	//if ( SC_ARM & compiler->parameter ) 
-	//	LACLiveScopeGenerate ( 8 ) ;
+	if ( SC_ARM & compiler->parameter ) {
+		//	there are only 8 gernel registers for programer from ARM
+		LACLiveScopeGenerate ( 8 ) ;
+	}
 	
 	//	Get Lac Codes
 	lac = LACGetContent () ;

@@ -125,6 +125,7 @@ extern int lexerc_overflowed () ;
 extern int lexerc_next () ;
 extern unsigned char lexerc_get_atom () ;
 extern void lexerc_put_atom ( unsigned char atom ) ; 
+extern void lexerc_backup () ;
 extern void lexerc_rollback () ;
 extern void lexerc_setback ( int step ) ;
 extern void lexerc_skip_blank () ;

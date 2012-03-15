@@ -59,6 +59,8 @@ SCClStack stack ;
 		macro . next = 0 ; \
 		walker = &macro ; \
 
+static void precompiling () ;
+
 static void macro_insert ( MACRO* macro ) {
 
 	//	author : Jelo Wang
@@ -340,13 +342,13 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 				//	xxx xxx xxx xx , the gaps between param's name is a blank ( + 1 for the blank )
 				//	if presor macthed a param A then the next param in the stream = sc_strlen(A) + 1 
 
-				param_subedstr = sc_substr_with_pos ( macro -> param . token . data , param_subedstr, psub_next ) ;
+				param_subedstr = sc_substr_with_pos ( macro->param.token.data , param_subedstr, psub_next ) ;
 				psub_next += sc_strlen ( param_subedstr ) + 1 ; 
 
 				if ( subedstr && param_subedstr ) {
 
-					SCClStringRepStrMulti ( &macrobody , param_subedstr , subedstr ) ;
- 
+					SCClStringRepStrMultiEx ( &macrobody , param_subedstr , subedstr , '#' ) ;
+				 
 					counter ++ ;
 
 					SCFree ( subedstr ) ;
@@ -469,12 +471,12 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 	SCClStringAdd( &body_reasult , 0x20 ) ;
 	SCClStringAdd( &body_reasult , '\0' ) ;
 	
-//	lexerc_destroy () ;
+	lexerc_destroy () ;
 
 	lexerc_set ( (LEXERC*) SCClStackPop ( &stack ) ) ;
 	SCClStackPop ( &macro_stack ) ;
 
-	return body_reasult . data ;
+	return body_reasult.data ;
 
 }
 
@@ -486,7 +488,7 @@ static void skip_macro  ()  {
 	//	since : 20090812	
 	//	(C)TOK
 	
-	if ( C_DEFINE != lexc->v )
+	if ( C_PI_DEFINE != lexc->v )
 		return ;
 
 	//	skip these junk streams that we donnt needed
@@ -519,13 +521,9 @@ static void skip_macro  ()  {
 
 	}
 
-	lexerc_skip_blank () ;
+	lexerc_skip_space () ;
 	
 	for  ( ; !lexc->stop ; lexerc_genv () )  {
-
-
-		if ( lexc->v == C_ENTER  && lexc->ppv != C_ESCAPE )
-			break;
 
 		if ( (lexc->v == C_CHROW || lexc->v == C_ENTER ) && lexc->pv != C_ESCAPE )
 			break;
@@ -554,7 +552,7 @@ static int read_macro () {
 
 	MACRO* nmc = 0 ;
 
-	if ( C_DEFINE != lexc->v )
+	if ( C_PI_DEFINE != lexc->v )
 		return 0;
 
 	nmc = (MACRO* ) SCMalloc ( sizeof(MACRO) ) ; 
@@ -566,20 +564,19 @@ static int read_macro () {
 	nmc->param.totall = 0 ;
 	
 	SCClStringInit ( &(nmc->param.token) ) ;
-	
-	
+		
 	//	skip these junk streams that we donnt needed
 	lexerc_skip_space () ;
 	lexerc_genv () ;
 	
 	if ( macro_find ( lexc->token ) )
-		SClog ( "[sc][c-presor][read_macro] macro %s has already defined in file %s at line : %d\n" , lexc->token , lexc->file , lexc->line );
+		SClog ( "error ! macro '%s' has already defined in file %s at line : %d\n" , lexc->token , lexc->file , lexc->line );
 	
 	nmc->name = (char* ) SCMalloc ( sc_strlen(lexc->token) ) ;
 
 	if ( !nmc->name ) {
 
-		SClog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
+		SClog ( "error ! Not enough memory for macro name%s,%d\n",__FILE__,__LINE__);
 		return 0 ;
 
 	}
@@ -657,6 +654,8 @@ static int read_macro () {
 
 		
 		if( 0 != lexc->token ) SCClStringAddStr ( &(nmc->body) , lexc->token ) ;
+		//	for #define name(cont) Hello##cont##There
+		else if ( '#' == lexc->pc ) SCClStringAdd ( &(nmc->body) , lexc->pc ) ;
 		else if ( 0 != lexc->c ) SCClStringAdd ( &(nmc->body) , lexc->c ) ;
 
 
@@ -698,7 +697,7 @@ static void read_include () {
 	int walker = 0 ;
 	int fillen = 0 ;
 
-	if ( C_INCLUDE != lexc->v ) 
+	if ( C_PI_INCLUDE != lexc->v ) 
 		return ;
 
 	lexerc_skip_space () ;
@@ -739,7 +738,6 @@ static void read_include () {
 
 		for ( walker = lexc->code->get_walker ; walker >= 0 && '#' != lexc->code->data [walker] ; walker -- ) {
 			lexc->code->data [walker] = 0x20 ;
-			lexc->code->length -- ;
 		}
 
 		if ( walker >= 0 && lexc->code->data && '#' == lexc->code->data [walker] ) lexc->code->data [walker] = 0x20 ;
@@ -755,7 +753,10 @@ static void read_include () {
 		SCHalFileClose ( file ) ;
 
 		SCFree ( buffer ) ;
-			
+		
+		lexerc_backup () ;
+		precompiling () ;
+		lexerc_rollback () ;
 			
 	} else if ( '<' == lexc->token [0] ) {
 		
@@ -797,7 +798,7 @@ static int read_ifdef () {
 	int key_scope = 0 ;
 	int lexer_walker = 0;
 	
-	if ( C_IFDEF != lexc->v ) 
+	if ( C_PI_IFDEF != lexc->v ) 
 		return 0 ;
 
 	//	length of token "#ifdef" save it starting pos here
@@ -816,11 +817,16 @@ static int read_ifdef () {
 
 redo :
 		
-		while ( !lexc->stop && C_ENDIF != lexc->v && C_IFDEF != lexc->v && C_IFNDEF != lexc->v && C_IF != lexc->v ) {
+		while ( !lexc->stop && 
+			C_PI_ENDIF != lexc->v && 
+			C_PI_IFDEF != lexc->v && 
+			C_PI_IFNDEF != lexc->v && 
+			C_PI_IF != lexc->v && 
+			C_PI_DEFINE != lexc->v ) {
 			lexerc_genv () ;
 		}
 
-		if ( C_ENDIF == lexc->v ) {
+		if ( C_PI_ENDIF == lexc->v ) {
 
 			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc -> stack -- ;
@@ -829,26 +835,30 @@ redo :
 			//	this is a recursive function , when recursive is rollback we need a new value of lex
 			lexc->v = 0 ;
 
-		} else if ( C_IFDEF == lexc->v ) {
+		} else if ( C_PI_IFDEF == lexc->v ) {
 		
 			read_ifdef () ;
 
 			goto redo ;
 		
-		} else if ( C_IFNDEF == lexc->v ) {
+		} else if ( C_PI_IFNDEF == lexc->v ) {
 
 			
 			read_ifndef () ;
 
 			goto redo ;
 			
-		} else if ( C_IF == lexc->v ) {
-
+		} else if ( C_PI_IF == lexc->v ) {
 			
 			read_if () ;
 
 			goto redo ;
 			
+		} else if ( C_PI_DEFINE == lexc->v ) {
+
+			read_macro () ;
+
+			goto redo ;
 		}
 
 	} else {
@@ -860,10 +870,11 @@ redo :
 			
 			lexerc_genv () ;
 			
-			if ( C_IFDEF == lexc->v ) stack ++ ;
-			else if ( C_IFNDEF == lexc->v ) stack ++ ;
-			else if ( C_IF == lexc->v ) stack ++ ;
-			if ( C_ENDIF == lexc->v ) stack -- ;
+			if ( C_PI_IFDEF == lexc->v ) stack ++ ;
+			else if ( C_PI_IFNDEF == lexc->v ) stack ++ ;
+			else if ( C_PI_IF == lexc->v ) stack ++ ;
+			else if ( C_PI_ENDIF == lexc->v ) stack -- ;
+
 			if ( 0 == stack ) break ; 
 
 		}
@@ -887,7 +898,7 @@ static int read_ifndef () {
 	int key_pos = 0 ;
 	int key_scope = 0 ;
 
-	if ( C_IFNDEF != lexc->v ) 
+	if ( C_PI_IFNDEF != lexc->v ) 
 		return 0 ;
 
 	//	length of token "#ifdef" save it starting pos here
@@ -907,11 +918,16 @@ static int read_ifndef () {
 
 redo :
 		
-		while ( !lexc->stop && C_ENDIF != lexc->v && C_IFDEF != lexc->v && C_IFNDEF != lexc->v && C_IF != lexc->v ) {
+		while ( !lexc->stop && 
+			C_PI_ENDIF != lexc->v && 
+			C_PI_IFDEF != lexc->v && 
+			C_PI_IFNDEF != lexc->v && 
+			C_PI_IF != lexc->v && 
+			C_PI_DEFINE != lexc->v ) {
 			lexerc_genv () ;
 		}
 
-		if ( C_ENDIF == lexc->v ) {
+		if ( C_PI_ENDIF == lexc->v ) {
 
 			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc -> stack -- ;
@@ -920,28 +936,32 @@ redo :
 			//	this is a recursive function , when recursiving is rollback we need a new value of lex
 			lexc->v = 0 ;
 
-		} else if ( C_IFDEF == lexc->v ) {
+		} else if ( C_PI_IFDEF == lexc->v ) {
 		
 			read_ifdef () ;
 
 			goto redo ;
 		
-		} else if ( C_IFNDEF == lexc->v ) {
-
+		} else if ( C_PI_IFNDEF == lexc->v ) {
 			
 			read_ifndef () ;
 
 			goto redo ;
 			
-		} else if ( C_IF == lexc->v ) {
+		} else if ( C_PI_IF == lexc->v ) {
 
 			
 			read_if () ;
 
 			goto redo ;
 			
+		} else if ( C_PI_DEFINE == lexc->v ) {
+
+			read_macro () ;
+
+			goto redo ;
 		}
-		
+
 
 	} else {
 		
@@ -952,10 +972,11 @@ redo :
 			
 			lexerc_genv () ;
 
-			if ( C_IFDEF == lexc->v ) stack ++ ;
-			else if ( C_IFNDEF == lexc->v ) stack ++ ;
-			else if ( C_IF == lexc->v ) stack ++ ;
-			if ( C_ENDIF == lexc->v ) stack -- ;
+			if ( C_PI_IFDEF == lexc->v ) stack ++ ;
+			else if ( C_PI_IFNDEF == lexc->v ) stack ++ ;
+			else if ( C_PI_IF == lexc->v ) stack ++ ;
+			else if ( C_PI_ENDIF == lexc->v ) stack -- ;
+
 			if ( 0 == stack ) break ; 
 
 		}
@@ -979,11 +1000,8 @@ static int read_if () {
 
 
 	int key_pos = 0 ;
-
-	if ( '#' != lexc -> pc )
-		return 0 ;
 	
-	if ( C_IF != lexc->v ) 
+	if ( C_PI_IF != lexc->v ) 
 		return 0 ;
 
 	//	length of token "#if" save it starting pos here
@@ -998,11 +1016,16 @@ static int read_if () {
 
 redo :
 		
-		while ( !lexc->stop && C_ENDIF != lexc->v && C_IFDEF != lexc->v && C_IFNDEF != lexc->v && C_IF != lexc->v ) {
+		while ( !lexc->stop && 
+			C_PI_ENDIF != lexc->v && 
+			C_PI_IFDEF != lexc->v && 
+			C_PI_IFNDEF != lexc->v && 
+			C_PI_IF != lexc->v && 
+			C_PI_DEFINE != lexc->v ) {
 			lexerc_genv () ;
 		}
 
-		if ( C_ENDIF == lexc->v ) {
+		if ( C_PI_ENDIF == lexc->v ) {
 
 			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc -> stack -- ;
@@ -1011,26 +1034,31 @@ redo :
 			//	this is a recursive function , when recursiving is rollback we need a new value of lex
 			lexc->v = 0 ;
 
-		} else if ( C_IFDEF == lexc->v ) {
+		} else if ( C_PI_IFDEF == lexc->v ) {
 		
 			read_ifdef () ;
 
 			goto redo ;
 		
-		} else if ( C_IFNDEF == lexc->v ) {
+		} else if ( C_PI_IFNDEF == lexc->v ) {
 
 			
 			read_ifndef () ;
 
 			goto redo ;
 			
-		} else if ( C_IF == lexc->v ) {
+		} else if ( C_PI_IF == lexc->v ) {
 
 			
 			read_if () ;
 
 			goto redo ;
 			
+		} else if ( C_PI_DEFINE == lexc->v ) {
+
+			read_macro () ;
+
+			goto redo ;
 		}
 		
 
@@ -1043,10 +1071,11 @@ redo :
 			
 			lexerc_genv () ;
 
-			if ( C_IFDEF == lexc->v ) stack ++ ;
-			else if ( C_IFNDEF == lexc->v ) stack ++ ;
-			else if ( C_IF == lexc->v ) stack ++ ;
-			if ( C_ENDIF == lexc->v ) stack -- ;
+			if ( C_PI_IFDEF == lexc->v ) stack ++ ;
+			else if ( C_PI_IFNDEF == lexc->v ) stack ++ ;
+			else if ( C_PI_IF == lexc->v ) stack ++ ;
+			else if ( C_PI_ENDIF == lexc->v ) stack -- ;
+
 			if ( 0 == stack ) break ; 
 
 		}
@@ -1060,14 +1089,57 @@ redo :
 	
 }
 
+static int read_else () {
+
+	//	author : Jelo Wang
+	//	since : 20120314
+	//	(C)TOK
+
+	int stack = 0 ;
+	int key_pos = 0 ;
+
+	if ( C_PI_ELSE != lexc->v ) 
+		return 0 ;
+
+	//	length of token "#ifdef" save it starting pos here
+	key_pos = lexc->code->get_walker - 5 ; //sc_strlen("#ifdef") ;
+	SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+	
+	stack ++ ;
+
+	while ( !lexc->stop ) {
+			
+		lexerc_genv () ;
+			
+		if ( C_PI_IFDEF == lexc->v ) stack ++ ;
+		else if ( C_PI_IFNDEF == lexc->v ) stack ++ ;
+		else if ( C_PI_IF == lexc->v ) stack ++ ;
+		else if ( C_PI_ENDIF == lexc->v ) stack -- ;
+
+		if ( 0 == stack ) break ; 
+
+	}
+		
+	lexc->v = 0 ;
+	key_pos = lexc->code->get_walker-strlen("#endif") ;
+	SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+
+	return 1 ;
+
+}
+
+
 static void precompiling () {
 
 	//	author : Jelo Wang
 	//	notes : read precompiling instructions
 	//	since : 20090817
 	//	(C)TOK
+
+	lexerc_ready () ;
+	lexerc_genv () ; 
 	
- 	for ( lexerc_ready () , lexerc_genv () ; !lexc->stop ; lexerc_genv () ) {
+ 	for ( ; !lexc->stop ; lexerc_genv () ) {
 
 		read_include () ;
 		read_macro () ;
@@ -1096,7 +1168,7 @@ int presor_c_run ( char* presor_file ) {
 	void* file = 0 ;
 	
 	ASSERT(presor_results) ;
-
+	
 	precompiling () ;
 	
 	SCClStringInit ( presor_results ) ;
@@ -1121,7 +1193,7 @@ int presor_c_run ( char* presor_file ) {
 				SCClStackPush ( &macro_stack , (void* )macro_finder->name ) ;
 				
 				subed = macro_subsit ( macro_finder , macro_finder , get_macro_param ( lexc->code->data , lexc->code->get_walker )) ;
-				if ( MACRO_FUNC == macro_finder->type ) skip_smart_brackets_scope () ; 
+ 				if ( MACRO_FUNC == macro_finder->type ) skip_smart_brackets_scope () ; 
 				lexerc_set ( (LEXERC* ) SCClStackPop ( &stack ) ) ;
 				SCClStackDestroy ( &macro_stack ) ;
  

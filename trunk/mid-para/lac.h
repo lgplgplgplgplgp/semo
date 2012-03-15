@@ -64,16 +64,22 @@ typedef enum {
 	//	author : Jelo Wang
 	//	since : 20100722
 	//	(C)TOK
-	
+
+	//	A procedure , function or method and some thing like that
 	LAC_PROC ,	
+	//	An if logic node
 	LAC_IF ,
+	//	A lvalue
 	LAC_L_DELT ,
+	//	A rvalue but you know it already
 	LAC_R_DELT ,
+	//	A rvalue of memory mode
 	LAC_L_MEM ,
+	//	A lvalue of memory mode
 	LAC_R_MEM ,
-	LAC_P_CALL ,
-	
-	//	change row
+	//	A function call
+	LAC_P_CALL ,	
+	//	just change row
 	LAC_CR ,
 	
 } LAC_ATOM ;
@@ -85,7 +91,7 @@ typedef struct {
 	//	(C)TOK
 
 	//	LAC-CALL-FRAME
-	//	call-frame is a manager for the parameter transfer of function-calling 
+	//	call-frame is a manager for the parameter transfering of function-calling 
 
 	//	type of frame , value bettwen LAC_REG_CFRAME , LAC_STK_CFRAME
 	int type ;
@@ -134,33 +140,6 @@ typedef struct {
 	int size ;	
 	
 } LAC_SYMBOL ;
-
-typedef struct {
-
-	//	author : Jelo Wang
-	//	since : 20100722
-	//	(C)TOK
-
-	//	LAC EXPR
-
-	char* lvalue ;
-	
-	struct {
-		int type ;
-		char* name ;
-	} oprand1 ;
-
-	struct {
-		int type ;
-		char* name ;
-	} operator ;
-
-	struct {
-		int type ;
-		char* name ;
-	} oprand2 ;
-
-} LAC_EXP ;
 
 typedef struct LACA {
 

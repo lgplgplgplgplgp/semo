@@ -477,6 +477,48 @@ int sc_substrcmp ( char* A , char* B , int start ) {
 
 }
 
+int sc_substrcmp_ex ( char* A , char* B , int start , char border ) {
+
+	//	author : Jelo Wang
+	//	since : 20090816
+	// (C)TOK
+	
+	///	notes : whole words macthing
+
+	int walker = start;
+	int counter = 0 ;
+	int length_of_B = sc_strlen (B) ;
+	int lenth_of_A = sc_strlen (A) ;
+
+	if ( lenth_of_A == length_of_B )
+		return strcmp ( A , B ) ;
+
+	if ( 0x20 != A [ walker ] && '\t' != A [ walker ] && '\r' != A [ walker ] && '\n' != A [ walker ] && '\\' != A [ walker ] 
+		&& border != A [ walker ] )
+		return 1 ;
+
+	//	skip 
+	while ( 0x20 == A [ walker ] || '\t' == A [ walker ] || '\r' == A [ walker ] || '\n' == A [ walker ] || '\\' == A [ walker ] 
+		|| border == A [ walker ] ) {
+		walker ++ ;
+	}
+	
+	for ( ; counter < length_of_B; walker ++ , counter ++ ) {
+		if ( A [ walker ] != B [ counter ] ) 
+			return 1;
+	}
+
+	if ( walker < lenth_of_A ) {
+		if ( 0x20 != A [ walker ] && '\t' != A [ walker ] && '\r' != A [ walker ] && '\n' != A [ walker ] && '\\' != A [ walker ] 
+			&& border != A [ walker ] )
+			return 1 ;
+	} 
+	
+	return 0;
+
+
+}
+
 int sc_strfuzcmp ( char* A , char* B ) {
 
 	//	author : Jelo Wang
@@ -773,11 +815,13 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 
 	int len_s = sc_strlen (S) ;	
 
+	//	Jelo Edited 20120314
 	//	SCClStringAdd would add a '\0' at the end of SCClString
-	while ( 0 < A->add_walker && '\0' == A->data [A->add_walker-1] || 
-		'\0' == A->data [A->add_walker] ) {
-		A->add_walker = A->add_walker - 1 ;
-	}
+	//while ( 0 < A->add_walker && '\0' == A->data [A->add_walker-1] || 
+	//	'\0' == A->data [A->add_walker] ) {
+	//	A->add_walker = A->add_walker - 1 ;
+	//}
+	//	Jelo Edited Finished
 
 	if ( (len_s + A->add_walker) >= A->length ) {
 
@@ -800,7 +844,9 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 		A->data [ counter ] = S [ counter - start ] ;
 	}
 	
-	A->data [ A->add_walker ] = '\0' ;
+	if ( A->add_walker == A->length ) {
+		A->data [ A->add_walker ] = '\0' ;
+	}
 
 }
 
@@ -862,7 +908,8 @@ void SCClStringRepStr ( SCClString* A , char* S , int start , int len_b) {
 		move_border = start + len_b ;	
 		
 		//	the last length of data = A->length-(len_s - len_b)-1
-		for ( walker = A->length - (len_s - len_b)-1 ; walker >= move_border ; walker -- ) {
+		//for ( walker = A->length - (len_s - len_b)-1; walker >= move_border ; walker -- ) {
+		for ( walker = A->add_walker ; walker >= move_border ; walker -- ) {
 			A->data [ move_step + walker ] = A->data [ walker ] ;
 		}
 
@@ -923,6 +970,48 @@ void SCClStringRepStrMulti ( SCClString* A , char* B , char* C ) {
 
 
 }
+
+
+void SCClStringRepStrMultiEx ( SCClString* A , char* B , char* C , char border ) {
+
+	//	author : Jelo Wang
+	//	since : 20120314
+	//	(C)TOK
+
+	//	notes : lookup all substr B in A , then replace B with C
+	//	input : A = "asdf b sadf asdf bbb sdf b"
+	//	input : B = b
+	//	input : C = B
+
+	//	output: A = "asdf B sadf asdf bbb sdf B"
+
+	int walker = 0 ;
+	int counter = 0 ;
+
+	int len_b = sc_strlen(B) ;
+
+	if ( !B || !C ) return ;
+
+	for ( walker = 0 ; walker < A->length ; walker ++ ) {
+		
+		if ( !sc_substrcmp_ex ( A->data , B , walker , border ) ) {
+			
+			//	skip 
+			while ( 0x20 == A->data [ walker ] || '\t' == A->data [ walker ] 
+			|| '\r' == A->data [ walker ] || '\n' == A->data [ walker ] 
+			|| '\\' == A->data [ walker ] || border == A->data [ walker ] ) {
+				walker ++ ;
+			}
+
+			SCClStringRepStr ( A , C , walker , len_b ) ;
+
+		}
+
+	}
+
+
+}
+
 
 void SCClStringDestroy ( SCClString* string ) {
 

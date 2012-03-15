@@ -94,17 +94,18 @@ static C_KEYWORDS c_key[ C_LANGUGE_KEYWORDS_TOTALL ] = {
 };
 
 
-static C_KEYWORDS c_presorinstruc [9] = {
+static C_KEYWORDS c_presorinstruc [10] = {
 
-	{ "define" , C_DEFINE } ,
-	{ "ifdef" , C_IFDEF } ,
-	{ "ifndef" , C_IFNDEF } ,
-	{ "pagrama" ,C_PAGRAMA } ,
-	{ "defined" ,C_DEFINED } ,
-	{ "endif" , C_ENDIF } ,
-	{ "include" , C_INCLUDE } ,
-	{ "if" , C_IF },
-	{"elif",C_ELIF}
+	{ "define" , C_PI_DEFINE } ,
+	{ "ifdef" , C_PI_IFDEF } ,
+	{ "ifndef" , C_PI_IFNDEF } ,
+	{ "pagrama" ,C_PI_PAGRAMA } ,
+	{ "defined" ,C_PI_DEFINED } ,
+	{ "endif" , C_PI_ENDIF } ,
+	{ "include" , C_PI_INCLUDE } ,
+	{ "if" , C_PI_IF } ,
+	{"elif",C_PI_ELIF} ,
+	{"else",C_PI_ELSE} 
 
 
 } ;
@@ -519,6 +520,7 @@ unsigned char lexerc_get_atom ()  {
 	if ( lexerc_overflowed () )
 		return 0;
 	
+	lexc->pc = lexc->c ;
 	lexc->c = lexc->code->data [ lexc->code->get_walker ] ;
  
 	return lexc->code->data [ lexc->code->get_walker ] ;
@@ -1644,6 +1646,7 @@ REDO :
 				if ( 'L' == lexc->c ) {
 					lexerc_skip_blank () ;
 					if ( '"' == lexerc_look (1) ) {
+						lexerc_next () ;
 						state = 6 ;
 					} else {
 						state = 1 ;
@@ -1656,7 +1659,7 @@ REDO :
 				else if ( 0x20 == lexc->c ) {
 
 					lexerc_next () ;
-					lexerc_get_atom () ;
+					//lexerc_get_atom () ;
 					
 					lexc->token = 0 ;
 
@@ -1742,6 +1745,7 @@ REDO :
 				}
 
 				else if ( '#' == lexc->c ) {
+					lexc->pc = lexc->c ;
 					lexerc_next () ;
 					state = 2 ;
 				}
@@ -2004,22 +2008,26 @@ REDO :
 			break;
 
 			case 2:
-
-				lexc->pc = lexc->c ;
 				
 				//	skip these junk streams that we donnt needed
 				lexerc_skip_space () ;
 				
  				while( lexerc_is_var () ) ;
 
-				lexc->token = CTOK.data ;
+				//	state 2 is coming from # token , when # detected there maybe a another # is flowing
+				//	so lexc->token could be 0
+				if ( 0 < strlen(CTOK.data) ) {
+					lexc->token = CTOK.data ;
+				} else {
+					lexc->token = 0 ;
+				}
 				
 				lexc->c = 0 ;
 				lexc->v = 0 ;
 					
 				lexc->pv = lexc->v;
 
-				lexc->v = lexerc_find_key ( c_presorinstruc , lexc->token , 9  ) ;
+				lexc->v = lexerc_find_key ( c_presorinstruc , lexc->token , 10  ) ;
 				
 				if ( !lexc->v ) lexc->v = C_VAR_REF ;	
 											
