@@ -30,6 +30,8 @@
 
 # include "sccl.h"
 
+//	Jelo Edited 20120315
+#if 0
 typedef enum {
 
 	//	author : Jelo Wang
@@ -57,6 +59,42 @@ typedef enum {
 	LAC_HEAP_MEMPORT ,
 
 } LAC_MEMPORT ;
+
+
+typedef struct {
+
+	//	author : Jelo Wang
+	//	since : 20100722
+	//	(C)TOK
+
+	//	LAC Control-flow 
+	
+	LAC_FLOW_ATOM type ;
+	
+	char* label ;
+	char* expr ;
+		
+} LAC_FLOW ;
+
+typedef struct {
+
+	//	author : Jelo Wang
+	//	since : 20100722
+	//	(C)TOK
+
+	//	LAC symbol 
+	
+	char* name ;
+	char* label ;
+
+	LAC_MEMPORT memport ;
+	int based ;
+	int size ;	
+	
+} LAC_SYMBOL ;
+
+#endif
+//	Jelo Edited Finished
 
 typedef enum {
 
@@ -108,38 +146,6 @@ typedef struct {
 	} stack ;
 	
 } LACMemoryFrame ;
-
-typedef struct {
-
-	//	author : Jelo Wang
-	//	since : 20100722
-	//	(C)TOK
-
-	//	LAC Control-flow 
-	
-	LAC_FLOW_ATOM type ;
-	
-	char* label ;
-	char* expr ;
-		
-} LAC_FLOW ;
-
-typedef struct {
-
-	//	author : Jelo Wang
-	//	since : 20100722
-	//	(C)TOK
-
-	//	LAC symbol 
-	
-	char* name ;
-	char* label ;
-
-	LAC_MEMPORT memport ;
-	int based ;
-	int size ;	
-	
-} LAC_SYMBOL ;
 
 typedef struct LACA {
 

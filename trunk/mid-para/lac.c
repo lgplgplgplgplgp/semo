@@ -367,7 +367,7 @@ readproc :
 						}
 						
 						if ( SC_IG & compiler->parameter ) {
-							CORENRIGBFSRender ( (SCClGraph* ) iG ) ;
+							CORENRIGBFSRender ( (SCClGraph* ) iG , 0 , 0 ) ;
 						}
 
 						//	start register allocation based on interference-graph					
