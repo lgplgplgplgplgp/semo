@@ -73,5 +73,5 @@ extern int CORENRLgaExpRender ( void* lgnosiaa , int anltype , int x , int y ) ;
 extern void CORENRCFBFSRender ( void* lgnosiaa , int x , int y ) ;
 extern int CORENRCFDFSRender ( void* lgnosiaa , int type , int x , int y , int fx , int fy , int deep ) ;
 extern int CORENRExpBFSRender ( void* exp , int x , int y ) ;	
-extern void CORENRIGBFSRender ( SCClGraph* graph  ) ;
+extern void CORENRIGBFSRender ( SCClGraph* graph , int x , int y ) ;
 

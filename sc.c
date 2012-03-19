@@ -563,7 +563,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		compiler->parameter |= SC_LAC ;
 		compiler->parameter |= SC_SASM ;	
 		compiler->parameter |= SC_CR ;							
-		compiler->parameter |= SC_IG ;	
+		compiler->parameter |= SC_EXP ;	
 						
 	}
 	#endif

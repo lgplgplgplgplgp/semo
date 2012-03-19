@@ -186,18 +186,17 @@ extern void sc_strinsert ( char* A , char* S , int start ) ;
 //	SCClString
 extern SCClString* SCClStringNew () ;
 extern SCClString* SCClStringCreate ( char* el , int len ) ;
+extern void SCClStringInit ( SCClString* string ) ;
+extern void SCClStringInitEx ( SCClString* string , int len ) ;
 extern void SCClStringRepStr ( SCClString* A , char* S , int start , int len_d ) ;
 extern void SCClStringRepStrMulti ( SCClString* A , char* B , char* C ) ;
 extern void SCClStringRepStrMultiEx ( SCClString* A , char* B , char* C , char border ) ;
-extern void SCClStringInit ( SCClString* string ) ;
-extern void SCClStringInitEx ( SCClString* string , int len ) ;
 extern void SCClStringReset ( SCClString* string ) ;
 extern void SCClStringAdd ( SCClString* string , char el ) ;
 extern int SCClStringAddStr ( SCClString* string , char* el ) ;
 extern void SCClStringInsert ( SCClString* A , char* S , int start ) ;
 extern void SCClStringReplaceAtom ( SCClString* A , char atom , int start , int end ) ;
 extern void SCClStringDestroy ( SCClString* string ) ;
-extern void SCClStringDestroyEx ( SCClString* string ) ;
 extern void SCClStringDestroyEx ( SCClString* string ) ;
 
 //	SCClList

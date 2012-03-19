@@ -212,6 +212,7 @@
 //	(13) static[13:1]
 //	(14) extern[14:1]
 
+# define C_VOID_BIT			0
 # define C_CHAR_BIT			0x1
 # define C_INT_BIT			0x2
 # define C_FLOAT_BIT			0x4
