@@ -334,10 +334,14 @@ long int c_evalor () {
 	//	since : 20091123
 	//	(C)TOK
 
-	//c_gen_suffix_exp () ;
+	while ( C_ENTER != lexc->v ) {
+		
+		lexerc_genv () ;	
+
+		SClog ( "lexical value %x\n" , lexc->v ) ;
+		
+	}
 	
-	//return c_suffix_exp_evalor () ;
-	lexerc_genv () ;
 	return 1 ;
 
 
