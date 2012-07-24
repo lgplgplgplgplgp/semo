@@ -493,9 +493,10 @@ int sc_substrcmp_ex ( char* A , char* B , int start , char border ) {
 	if ( lenth_of_A == length_of_B )
 		return strcmp ( A , B ) ;
 
-	if ( 0x20 != A [ walker ] && '\t' != A [ walker ] && '\r' != A [ walker ] && '\n' != A [ walker ] && '\\' != A [ walker ] 
-		&& border != A [ walker ] )
-		return 1 ;
+	if ( 0x20 != A [ walker ] && '\t' != A [ walker ] && '\r' != A [ walker ] && '\n' != A [ walker ] && '\\' != A [ walker ] && border != A [ walker ] ) {
+		if ( 0 == sc_is_alpha ( A[walker] ) )
+			return 1 ;
+	}
 
 	//	skip 
 	while ( 0x20 == A [ walker ] || '\t' == A [ walker ] || '\r' == A [ walker ] || '\n' == A [ walker ] || '\\' == A [ walker ] 

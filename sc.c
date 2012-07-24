@@ -110,20 +110,21 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 
 	SCClString str = {0} ;
 
+	//	format argv with SCClString
 	for ( walker = 0 ; walker < argc-1 ; walker ++ ) {
 		
 		SCClStringAddStr ( &str , argv[walker + 1] ) ;
 		SCClStringAdd ( &str , 0x20 ) ;	
 
 	}	
-
 	SCClStringAdd ( &str , '\0' ) ;
-
+	
 	//	Use lexer of c for the commands analysing
 	lexerc_set ( lexerc_new ( str.data , LEXERC_DEFAULT_MODE ) ) ; 
 
 	SCClStringReset ( &str ) ;
-	
+
+	//	Analyzing compiling parameters
 	while ( !lexc->stop ) {
 
 		lexerc_genv () ;
@@ -611,6 +612,8 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 		//	Preprcessor of the front-para
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
+		
+#if 0
 		//	Parser of the front-para
 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 
@@ -622,6 +625,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		o = sc_strcat (file,".elf") ;
 		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
 		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
+#endif
 
 		lexerc_destroy () ;
 		SCHalFileClose ( inputfile ) ;
