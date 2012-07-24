@@ -52,6 +52,8 @@
 # define DefineHeadBitmapSet( bit ,op) lexc->headbit op= bit ;
 # define is_define_head_flow(flow) ( C_AUTO <= flow && flow <= C_DOUBLE )
 
+#define CTOK_LENGTH 256 
+
 static SCClString CTOK = { 0 , 0 , 0 , 0 , 0 } ;
 
 LEXERC* lexc = 0 ;
@@ -136,7 +138,7 @@ LEXERC* lexerc_new ( unsigned char* data , int mmode ) {
 	lexer->code = SCClStringCreate ( data , sc_strlen ( data ) ) ;
 	lexer->scstack = (SCClStack* ) SCMalloc ( sizeof ( SCClStack ) ) ;
 
-	SCClStringInitEx ( &CTOK , 256 ) ;
+	SCClStringInitEx ( &CTOK , CTOK_LENGTH ) ;
 
 	return lexer ;
 
@@ -522,7 +524,7 @@ unsigned char lexerc_get_atom ()  {
 	
 	lexc->pc = lexc->c ;
 	lexc->c = lexc->code->data [ lexc->code->get_walker ] ;
- 
+
 	return lexc->code->data [ lexc->code->get_walker ] ;
 
 }
@@ -1689,7 +1691,7 @@ REDO :
 
 				} 
 
-				else if ( 13 == lexc->c ) {
+				else if ( '\r' == lexc->c ) {
 					
 					//	dont return a changing row token to above modules
 					//	lexc->line ++;
@@ -1699,18 +1701,39 @@ REDO :
 					//	lexc->v = CHROW ;
 					
 					lexerc_next () ;
+
+					if ( C_ENTER == lexerc_head_genv (1) ) {
+						
+						lexerc_next () ;
+						
+						lexc->line ++;						
+
+						lexc->token = 0 ;
+						
+						lexc->c = '\n';
+						lexc->ppv = lexc->pv ;
+						lexc->pv = lexc->v ;				
+						lexc->v = C_ENTER ;
+						
+						if ( !(lexc->mode & LEXERC_FLITER_MODE) )
+							return 1 ;						
+						
+					} else {
 					
-					lexc->token = 0 ;
-					
-					lexc->c = 0 ;
+						lexc->token = 0 ;
+						
+						lexc->c = '\r' ;
 
-					lexc->ppv = lexc->pv ;
-					lexc->pv = lexc->v ;				
-					lexc->v = C_CHROW ;
+						lexc->ppv = lexc->pv ;
+						lexc->pv = lexc->v ;				
+						lexc->v = C_CHROW ;
 
-					if ( !(lexc->mode & LEXERC_FLITER_MODE) )
-						return 1 ;
+						if ( !(lexc->mode & LEXERC_FLITER_MODE) )
+							return 1 ;
 
+					}
+
+						
 				}
 
 				else if ( '\\' == lexc->c ) {
@@ -1762,10 +1785,8 @@ REDO :
 				else if ( '/' == lexc->c ) state = 5 ;
 				else if ( '%' == lexc->c ) state = 5 ;
 				else if ( '^' == lexc->c ) state = 5 ;
-
 				else if( '\''== lexc->c ) state = 6;
 				else if( '"'== lexc->c ) state = 6;
-
 				else if ( '{' == lexc->c ) { 
 
 					lexerc_next () ;

@@ -113,20 +113,20 @@ static SCClString* skip_smart_brackets_scope () {
 		
 	SCClStringInit( s ) ;
 
-	lexc -> stack = 0 ;
+	lexc->stack = 0 ;
 	
 	while ( !lexc->stop ) {
 		
 		lexerc_genv () ;
 		
-		if ( 0 == lexc -> stack && sc_is_space(lexc->c) ) continue ;
+		if ( 0 == lexc->stack && sc_is_space(lexc->c) ) continue ;
 
 		if ( C_XKL == lexc->v )
-			lexc -> stack ++ ;
+			lexc->stack ++ ;
 		if ( C_XKR == lexc->v )
-			lexc -> stack -- ;
+			lexc->stack -- ;
 
-		if ( 0 == lexc -> stack )
+		if ( 0 == lexc->stack )
 			break;
 
 		if ( lexc->c ) SCClStringAdd ( s , lexc->c ) ;
@@ -134,7 +134,7 @@ static SCClString* skip_smart_brackets_scope () {
 
 	}
 
-	lexc -> stack = 0 ;
+	lexc->stack = 0 ;
 	
 	SCClStringAdd ( s , ')' ) ;
 	SCClStringAdd ( s , '\0' ) ;
@@ -213,8 +213,8 @@ static char* subparambody ( char* param_body , char* subedstr , int body_len , i
 	
 	subedstr = (char* ) SCMalloc ( body_len ) ;
 
-	if ( 0 == subedstr ) return 0 ;
-
+	ASSERT(subedstr) ;
+		
 	for ( counter = 0 ; *walker < body_len ; counter ++ ) {
 
 		if ( ',' == param_body [ *walker ] ) {
@@ -223,17 +223,46 @@ static char* subparambody ( char* param_body , char* subedstr , int body_len , i
 			subedstr [ counter ] = C_EOS ;
 			return subedstr ;
 			
-		} else if ( ')' == param_body [ *walker ] ) {
+		} 
 
+		//	Jelo Committed 20120724
+		else if ( ')' == param_body [ *walker ] || '\0' == param_body [ *walker ] ) {
+		//else if ( ')' == param_body [ *walker ] ) {
+		//	Jelo Committed Finished
+		
 			subedstr [ counter ] = C_EOS ;
 			return subedstr ;
 			
 		}
 
 		subedstr [ counter ] = param_body [ *walker ] ;
-		
 		*walker = *walker + 1 ;
 
+		//	macrco(..()..) inner bracket detected get it all
+		if ( '(' == subedstr [ counter ] ) {
+			counter ++ ;
+			goto GETRECURSIVE ;
+		}
+		
+
+	}
+
+GETRECURSIVE:
+
+	for ( ; *walker < body_len ; counter ++ ) {
+		
+		if ( ')' == param_body [ *walker ] || '\0' == param_body [ *walker ] ) {
+
+			subedstr [ counter ] = param_body [ *walker ] ;
+			subedstr [ counter + 1 ] = C_EOS ;
+			*walker = *walker + 1 ;
+			return subedstr ;
+			
+		}		
+
+		subedstr [ counter ] = param_body [ *walker ] ;
+		*walker = *walker + 1 ;
+		
 	}
 	
 	return subedstr ;
@@ -320,17 +349,21 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 			for  ( walker = 0 ; walker < param_body_len ; ) {
 				
 				if ( '(' == param_body[walker]  ) {
-					lexc -> stack ++ ;
-					walker ++ ;
+					lexc->stack ++ ;
+					
+					//	macrco(..()..) , inner-bracket is part of macro-para donnot flit it here
+					if ( 1 == lexc->stack ) { 
+						walker ++ ;
+						continue ;
+					}
 
-					continue ;
+					
 				}
 				
 				if ( ')' == param_body[walker] ) {
-					lexc -> stack -- ;
-					walker ++ ;
+					lexc->stack -- ;
 								
-					if ( 0 == lexc -> stack )
+					if ( 0 == lexc->stack )
 						break;	
 
 					continue ;
@@ -359,11 +392,11 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 
 			}
 
-			if ( lexc -> stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error :: bracket of a macro is not matched , macro : %s , line %d\n" , macro -> name ,  lexc->line ) ;
+			if ( lexc->stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error :: bracket of a macro is not matched , macro : %s , line %d\n" , macro -> name ,  lexc->line ) ;
 			
-			if ( lexc -> stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ::  macro : %s has %d parameters , line %d\n" , macro -> name , lexc->line ) ;
+			if ( lexc->stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ::  macro : %s has %d parameters , line %d\n" , macro -> name , lexc->line ) ;
 
-			lexc -> stack = 0 ;
+			lexc->stack = 0 ;
 
 		} 
 
@@ -391,14 +424,14 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 
 				if ( macro_finder ) {
 
-					if ( !sc_strcmp( macro->name , macro_finder -> name ) ) {
+					if ( !sc_strcmp( macro->name , macro_finder->name ) ) {
 
 						//	#define A ffff A
 						//	if a macro is pointed by himself , we return it name here
-						SCClStringAddStr ( &body_reasult , macro_finder -> name ) ;
+						SCClStringAddStr ( &body_reasult , macro_finder->name ) ;
 						continue ;
 
-					} else if ( SCClStackLook ( &macro_stack , macro_finder -> name ) ) {
+					} else if ( SCClStackLook ( &macro_stack , macro_finder->name ) ) {
 						
 						SCClString* s = 0 ; 
 
@@ -411,10 +444,10 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 
 						//	if a circuit has detected we skiping it
 
-						if ( MACRO_FUNC == macro_finder -> type ) {
+						if ( MACRO_FUNC == macro_finder->type ) {
 							s = skip_smart_brackets_scope () ; 
 							
-							SCClStringAddStr ( &body_reasult , s -> data ) ;
+							SCClStringAddStr ( &body_reasult , s->data ) ;
 
 							SCFree ( s ) ;
 						}
@@ -423,7 +456,7 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 				
 					}
 					
-					SCClStackPush ( &macro_stack , (void* )macro_finder -> name ) ;
+					SCClStackPush ( &macro_stack , (void* )macro_finder->name ) ;
 					bodystr = macro_subsit ( macro_finder , macro , get_macro_param(lexc->code->data,lexc->code->get_walker) ) ;
 					
 					//	skip the body of macro's param
@@ -432,12 +465,12 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 					//	C(gtkings)
 					//	skip (...) of B when B has subsited
 					
-					if ( macro_finder && MACRO_FUNC == macro_finder -> type )
+					if ( macro_finder && MACRO_FUNC == macro_finder->type )
 						skip_smart_brackets_scope () ; 
 
 					if ( 0 == bodystr ) {
 					
-						SCClStringAddStr ( &body_reasult , macro_finder -> name ) ;
+						SCClStringAddStr ( &body_reasult , macro_finder->name ) ;
 	
 					} else {
 
@@ -498,22 +531,22 @@ static void skip_macro  ()  {
 	//	get marco param
 	if ( C_XKL == lexc->v ) {
 
-		lexc -> stack ++ ;
+		lexc->stack ++ ;
 	
 		for  ( ; !lexc->stop ; lexerc_genv () )  {
 
-			if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
-				break;
-//			else if ( lexc->v == ENTER  && lexc->ppv != ESCAPE )
+//			if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
 //				break;
+			if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
+				break;
 
 			if ( C_XKL == lexc->v )
-				lexc -> stack ++ ;
+				lexc->stack ++ ;
 
 			if ( C_XKR == lexc->v )
-				lexc -> stack -- ;
+				lexc->stack -- ;
 
-			if ( 0 == lexc -> stack )
+			if ( 0 == lexc->stack )
 				break;
 			
 		}
@@ -525,7 +558,7 @@ static void skip_macro  ()  {
 	
 	for  ( ; !lexc->stop ; lexerc_genv () )  {
 
-		if ( (lexc->v == C_CHROW || lexc->v == C_ENTER ) && lexc->pv != C_ESCAPE )
+		if ( lexc->v == C_ENTER && lexc->pv != C_ESCAPE )
 			break;
 
 	}
@@ -557,7 +590,7 @@ static int read_macro () {
 
 	nmc = (MACRO* ) SCMalloc ( sizeof(MACRO) ) ; 
 	
-	if ( !nmc )  return 0 ;
+	ASSERT(nmc) ;
 
 	sc_memset ( nmc , 0 , sizeof(MACRO) ) ;
 		
@@ -568,18 +601,20 @@ static int read_macro () {
 	//	skip these junk streams that we donnt needed
 	lexerc_skip_space () ;
 	lexerc_genv () ;
+	lexerc_skip_space () ;
 	
 	if ( macro_find ( lexc->token ) )
 		SClog ( "error ! macro '%s' has already defined in file %s at line : %d\n" , lexc->token , lexc->file , lexc->line );
 	
 	nmc->name = (char* ) SCMalloc ( sc_strlen(lexc->token) ) ;
 
-	if ( !nmc->name ) {
-
-		SClog ( "error ! Not enough memory for macro name%s,%d\n",__FILE__,__LINE__);
-		return 0 ;
-
-	}
+	//	Jelo Edited 2012-07-17
+	ASSERT(nmc->name) ; 
+	//if ( !nmc->name ) {
+	//	SClog ( "error ! Not enough memory for macro name%s,%d\n",__FILE__,__LINE__);
+	//	return 0 ;
+	//}
+	//	Jelo Edited Finished
 
 	sc_strcpy ( nmc->name , lexc->token ) ;
 
@@ -590,7 +625,7 @@ static int read_macro () {
 	//	get marco param
 	if ( C_XKL == lexc->v ) {
 
-		lexc -> stack ++ ;
+		lexc->stack ++ ;
 	
 		while ( !lexc->stop )  {
 			
@@ -598,20 +633,22 @@ static int read_macro () {
 			//	if lexc->v == ENTER and ESCAPE != lexc->pv
 			//	exp : .....()
 
-			if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
+			//	For win32 text
+			//if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
+			//	break;
+			//	For unix text
+			if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
 				break;
-//			else if ( lexc->v == ENTER  && lexc->pv != ESCAPE )
-//				break;
 
   			lexerc_genv () ;
 
 			if ( C_XKL == lexc->v )
-				lexc -> stack ++ ;
+				lexc->stack ++ ;
 
 			if ( C_XKR == lexc->v )
-				lexc -> stack -- ;
+				lexc->stack -- ;
 
-			if ( 0 == lexc -> stack )
+			if ( 0 == lexc->stack )
 				break;
 
 			if ( C_VAR_REF == lexc->v ) {
@@ -626,32 +663,33 @@ static int read_macro () {
 
 		}
 		
-		if ( lexc -> stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ! bracket of a macro is not matched , macro : %s , line %d\n" , nmc->name , lexc->line ) ;
+		if ( lexc->stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ! bracket of a macro is not matched , macro : %s , line %d\n" , nmc->name , lexc->line ) ;
 		
-		lexc -> stack = 0 ;
+		lexc->stack = 0 ;
 
 		nmc->type = MACRO_FUNC ;
 
 	}
 
-//	lexerc_skip_blank () ;
 	SCClStringInit ( &(nmc->body) ) ;
 	
 	while ( !lexc->stop ) {
 
 		lexerc_genv () ;
 
-		if ( lexc->v == C_ENTER  && lexc->ppv != C_ESCAPE )
-			break;
-
-		if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
+		//	For win32 text
+		//if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
+		//	break;
+		//	For unix text
+		if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
 			break;
 
 		//	ignore transferred symbol '\\'
 		//	flow like : #define MAIN gtkings(a,b) gtkisngasdfsadf\maindsfni hao
 
-		if ( '\\' == lexc->c ) continue ;
-
+		if ( '\\' == lexc->c ) {
+			continue ;
+		}
 		
 		if( 0 != lexc->token ) SCClStringAddStr ( &(nmc->body) , lexc->token ) ;
 		//	for #define name(cont) Hello##cont##There
@@ -664,16 +702,19 @@ static int read_macro () {
 	SCClStringAdd ( &(nmc->body) , '\0' ) ;
 		
 	if ( lexc->file ) {
+		
 		nmc->file = (char* ) SCMalloc ( sc_strlen(lexc->file) + 1 ) ;
 
-		if ( !nmc->file ) {
-
-			SClog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
-			return 0 ;
-
-		}
+		//	Jelo Edited 2012-07-17
+		ASSERT(nmc->file) ; 
+		//if ( !nmc->file ) {
+		//	SClog ( "[sc][c-presor][read_macro] not enough memory %s,%d\n",__FILE__,__LINE__);
+		//	return 0 ;
+		//}
+		//	Jelo Edited Finished
 		
 		sc_strcpy ( nmc->file , lexc->file ) ;
+		
 	}
 
 	macro_insert ( nmc ) ;
@@ -725,22 +766,25 @@ static void read_include () {
 			goto end ;
 			
 		}
-	
+		
 		SCHalFileSeek ( file , 0 , SEEK_HEAD ) ;
 		fillen = SCHalFileLength( file ) ;
 		buffer = (char* ) SCMalloc ( fillen ) ;
 
-		if ( !buffer ) {
-			SClog ( "Not enough memory %s , %d\n",__FILE__,__LINE__);
-			SCHalFileClose ( file ) ;
-			return ;
-		}
+		//	Jelo Edited 2012-07-17
+		ASSERT(buffer) ;
+		//if ( !buffer ) {
+		//	SClog ( "Not enough memory %s , %d\n",__FILE__,__LINE__);
+		//	SCHalFileClose ( file ) ;
+		//	return ;
+		//}
+		//	Jelo Edited Finished
 
 		for ( walker = lexc->code->get_walker ; walker >= 0 && '#' != lexc->code->data [walker] ; walker -- ) {
 			lexc->code->data [walker] = 0x20 ;
 		}
 
-		if ( walker >= 0 && lexc->code->data && '#' == lexc->code->data [walker] ) lexc->code->data [walker] = 0x20 ;
+		if ( walker >= 0 && '#' == lexc->code->data [walker] ) lexc->code->data [walker] = 0x20 ;
 	
 		memset ( buffer , 0 , fillen ) ;
 		SCHalFileSeek ( file , 0 , SEEK_HEAD ) ;		
@@ -753,13 +797,18 @@ static void read_include () {
 		SCHalFileClose ( file ) ;
 
 		SCFree ( buffer ) ;
-		
-		lexerc_backup () ;
-		precompiling () ;
-		lexerc_rollback () ;
+
+		//	Jelo Edited 2011-07-17
+		//lexerc_backup () ;
+		//precompiling () ;
+		//lexerc_rollback () ;
+		//	Jelo Edited Finished
 			
 	} else if ( '<' == lexc->token [0] ) {
-		
+
+		//	desnt support #inlcude <...> yet
+		//	Jelo Edited 2011-07-17
+ 		#if 0
 		int walker = 0 ;
 		char path [ MAX_PATH ] ;
 		
@@ -777,6 +826,8 @@ static void read_include () {
 		path [ walker ] = '\0' ;
 
 		sc_strcpy ( abpath , SCHalGetFilePath(path) ) ;
+		#endif
+		//	Jelo Edited Finished
 
 	}
 
@@ -813,7 +864,7 @@ static int read_ifdef () {
 	if ( macro_find ( lexc->token ) ) {
 
 		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
-		lexc -> stack ++ ;
+		lexc->stack ++ ;
 
 redo :
 		
@@ -822,14 +873,15 @@ redo :
 			C_PI_IFDEF != lexc->v && 
 			C_PI_IFNDEF != lexc->v && 
 			C_PI_IF != lexc->v && 
-			C_PI_DEFINE != lexc->v ) {
+			C_PI_DEFINE != lexc->v ) 
+		{
 			lexerc_genv () ;
 		}
 
 		if ( C_PI_ENDIF == lexc->v ) {
 
 			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
-			lexc -> stack -- ;
+			lexc->stack -- ;
 			
 			//	clear lexc->v
 			//	this is a recursive function , when recursive is rollback we need a new value of lex
@@ -914,7 +966,7 @@ static int read_ifndef () {
 	if ( !macro_find ( lexc->token ) ) {
 
 		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
-		lexc -> stack ++ ;
+		lexc->stack ++ ;
 
 redo :
 		
@@ -923,14 +975,15 @@ redo :
 			C_PI_IFDEF != lexc->v && 
 			C_PI_IFNDEF != lexc->v && 
 			C_PI_IF != lexc->v && 
-			C_PI_DEFINE != lexc->v ) {
+			C_PI_DEFINE != lexc->v ) 
+		{
 			lexerc_genv () ;
 		}
 
 		if ( C_PI_ENDIF == lexc->v ) {
 
 			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
-			lexc -> stack -- ;
+			lexc->stack -- ;
 			
 			//	clear lexc->v
 			//	this is a recursive function , when recursiving is rollback we need a new value of lex
@@ -1021,14 +1074,15 @@ redo :
 			C_PI_IFDEF != lexc->v && 
 			C_PI_IFNDEF != lexc->v && 
 			C_PI_IF != lexc->v && 
-			C_PI_DEFINE != lexc->v ) {
+			C_PI_DEFINE != lexc->v ) 
+		{
 			lexerc_genv () ;
 		}
 
 		if ( C_PI_ENDIF == lexc->v ) {
 
 			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
-			lexc -> stack -- ;
+			lexc->stack -- ;
 			
 			//	clear lexc->v
 			//	this is a recursive function , when recursiving is rollback we need a new value of lex
@@ -1101,8 +1155,8 @@ static int read_else () {
 	if ( C_PI_ELSE != lexc->v ) 
 		return 0 ;
 
-	//	length of token "#ifdef" save it starting pos here
-	key_pos = lexc->code->get_walker - 5 ; //sc_strlen("#ifdef") ;
+	//	length of token "#else" save it starting pos here
+	key_pos = lexc->code->get_walker - 5 ; //sc_strlen("#else") ;
 	SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 	
 	stack ++ ;
@@ -1121,7 +1175,7 @@ static int read_else () {
 	}
 		
 	lexc->v = 0 ;
-	key_pos = lexc->code->get_walker-strlen("#endif") ;
+	key_pos = lexc->code->get_walker-5 ; //sc_strlen("#else") ;
 	SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	return 1 ;
@@ -1138,14 +1192,36 @@ static void precompiling () {
 
 	lexerc_ready () ;
 	lexerc_genv () ; 
-	
+
+	//	Format win32 text to unix text
+	//	use lexer plz!
+	//SCClStringRepStrMulti ( lexc->code , "\r\n" , "\n" ) ;
+
  	for ( ; !lexc->stop ; lexerc_genv () ) {
 
-		read_include () ;
-		read_macro () ;
-		read_ifdef () ;
-		read_ifndef () ;
-		read_if () ;
+		switch ( lexc->v ) {
+			
+			case C_PI_INCLUDE :
+				read_include () ;
+			break ;
+			
+			case C_PI_DEFINE :
+				read_macro () ;				
+			break ;
+			
+			case C_PI_IFDEF :
+				read_ifdef () ;
+			break ;
+			
+			case C_PI_IFNDEF :
+				read_ifndef () ;
+			break ;
+			
+			case C_PI_IF :
+				read_if () ;
+			break ;
+
+		}
 
 	}
 
@@ -1160,13 +1236,14 @@ int presor_c_run ( char* presor_file ) {
 	//	notes : preprocessor of c language
 
 	MACRO* macro_finder = 0 ;
-	SCClString* presor_results = SCClStringNew () ;
+	SCClString* presor_results = 0 ;
 
 	char* subed = 0 ;
 	int line = 0 ;
 	
 	void* file = 0 ;
-	
+
+	presor_results = SCClStringNew () ; 
 	ASSERT(presor_results) ;
 	
 	precompiling () ;
@@ -1176,10 +1253,11 @@ int presor_c_run ( char* presor_file ) {
 	SCClStackInit ( &stack ) ;
 	SCClStackInit ( &macro_stack ) ;
 
+	//	marco replacing
  	for ( lexerc_ready () ; !lexc->stop ; ) {
 
 		lexerc_genv () ;
-		
+	
 		skip_macro () ;
 
 		if ( C_VAR_REF == lexc->v || C_FUNC_REF == lexc->v ) {

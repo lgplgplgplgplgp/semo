@@ -282,11 +282,11 @@ static void c_gen_suffix_exp () {
 		
 		lexerc_genv() ;
 
-		if ( lexc -> v == C_ENTER  && lexc -> ppv != C_ESCAPE )
+		if ( lexc -> v == C_ENTER  && lexc -> pv != C_ESCAPE )
 			break;
 
-		if ( lexc -> v == C_CHROW  && lexc -> pv != C_ESCAPE )
-			break;
+//		if ( lexc -> v == C_CHROW  && lexc -> pv != C_ESCAPE )
+//			break;
 		
 		if ( is_functer  ( lexc -> v ) )
 			c_suffix_exp_build ( ieval , lexc -> v , ARITHMETIC_SCOPE ) ;
