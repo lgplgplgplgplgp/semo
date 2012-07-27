@@ -158,7 +158,7 @@ static char* get_macro_param ( unsigned char* data , int pos ) {
 
 	char* buffer = (char* ) SCMalloc ( data_len ) ;
 
-	if ( 0 == buffer ) return 0 ;
+	ASSERT(buffer) ;
 
 	for ( walker = pos ; walker < data_len ; walker ++ ) {
 		
@@ -182,7 +182,7 @@ static char* get_macro_param ( unsigned char* data , int pos ) {
 
 }
 
-static MACRO* macro_find ( char* nname ) {
+static MACRO* macro_find ( char* nname , int line ) {
 
 	//	author : Jelo Wang
 	//	since : 20090814
@@ -191,15 +191,20 @@ static MACRO* macro_find ( char* nname ) {
 	//	(1) param : MACRO name 
 
 
-	MACRO* walker = macro . next ;
+	MACRO* walker = macro.next ;
 
 	if ( !nname ) return 0 ;
 
-	for ( ; walker && sc_strcmp ( walker -> name , nname ) ; walker = walker -> next ) ;
+	for ( ; walker ; walker = walker->next ) {
+		if ( 0 == sc_strcmp ( walker->name , nname ) ) {
+			if ( line > walker->line ) {
+				return walker ;
+			}
+		}
+	}
 
-	return walker ? walker : 0 ;
-
-
+	return 0 ;
+ 
 }
 
 
@@ -208,6 +213,8 @@ static char* subparambody ( char* param_body , char* subedstr , int body_len , i
 	//	author : Jelo Wang
 	//	since : 20090830
 	//	(C)TOK
+
+	//	marco (..,.....(.....)...,....,....) , return parameters of marco
 	
 	int counter = 0 ;
 	
@@ -224,7 +231,7 @@ static char* subparambody ( char* param_body , char* subedstr , int body_len , i
 			return subedstr ;
 			
 		} 
-
+		
 		//	Jelo Committed 20120724
 		else if ( ')' == param_body [ *walker ] || '\0' == param_body [ *walker ] ) {
 		//else if ( ')' == param_body [ *walker ] ) {
@@ -269,7 +276,7 @@ GETRECURSIVE:
 	
 }
 
-static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
+static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body , int line ) {
 
 	//	author : Jelo Wang
 	//	notes : read_macro
@@ -335,9 +342,9 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 	SCClStringInit ( &body_reasult ) ;
 
 	SCClStringInit ( &macrobody ) ;
-	SCClStringAddStr ( &macrobody , macro -> body . data ) ;
+	SCClStringAddStr ( &macrobody , macro -> body.data ) ;
 
-	if ( MACRO_FUNC == macro -> type ) {
+	if ( MACRO_FUNC == macro->type ) {
 		
 		//	gen a temp lexer to analysis marco's param
 
@@ -402,11 +409,12 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 
 	}
 	
-	//	we need a lexer to walkthrough macro body here
+	//	we need a lexer to walkthrough macro body here to lookup other marcos
+	//	a recursive flow
 	
 	//	save the current lexer in SCClStack
 	SCClStackPush ( &stack , (void* ) lexc ) ;
-
+	
 	//	get a new lexer
 	macro_lexer = lexerc_new ( macrobody.data , LEXERC_DEFAULT_MODE ) ;
 	lexerc_set ( macro_lexer ) ;
@@ -420,7 +428,7 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 			case C_FUNC_REF :
 			case C_VAR_REF :
 
-				macro_finder = macro_find ( lexc->token ) ;
+				macro_finder = macro_find ( lexc->token , line ) ;
 
 				if ( macro_finder ) {
 
@@ -457,7 +465,11 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body ) {
 					}
 					
 					SCClStackPush ( &macro_stack , (void* )macro_finder->name ) ;
-					bodystr = macro_subsit ( macro_finder , macro , get_macro_param(lexc->code->data,lexc->code->get_walker) ) ;
+					
+					if ( MACRO_FUNC == macro_finder->type ) 
+						bodystr = macro_subsit ( macro_finder , macro , get_macro_param(lexc->code->data,lexc->code->get_walker) , line ) ;
+					else 
+						bodystr = macro_subsit ( macro_finder , macro , macro_finder->body.data , line ) ;
 					
 					//	skip the body of macro's param
 					//	#define C(x) B(x)
@@ -537,7 +549,10 @@ static void skip_macro  ()  {
 
 //			if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
 //				break;
-			if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
+//			if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
+//				break;
+
+			if ( lexc->v == C_ENTER )
 				break;
 
 			if ( C_XKL == lexc->v )
@@ -603,7 +618,7 @@ static int read_macro () {
 	lexerc_genv () ;
 	lexerc_skip_space () ;
 	
-	if ( macro_find ( lexc->token ) )
+	if ( macro_find ( lexc->token , lexc->line ) )
 		SClog ( "error ! macro '%s' has already defined in file %s at line : %d\n" , lexc->token , lexc->file , lexc->line );
 	
 	nmc->name = (char* ) SCMalloc ( sc_strlen(lexc->token) ) ;
@@ -619,12 +634,12 @@ static int read_macro () {
 	sc_strcpy ( nmc->name , lexc->token ) ;
 
 	nmc->type = MACRO_CONST ;
-
-  	lexerc_genv () ;
-
+	nmc->line = lexc->line ;
+	
 	//	get marco param
-	if ( C_XKL == lexc->v ) {
-
+	if ( C_XKL == lexerc_head_genv (1) ) {
+		
+		lexerc_genv () ;
 		lexc->stack ++ ;
 	
 		while ( !lexc->stop )  {
@@ -637,9 +652,12 @@ static int read_macro () {
 			//if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
 			//	break;
 			//	For unix text
-			if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
-				break;
+			//if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
+			//	break;
 
+			if ( lexc->v == C_ENTER )
+				break;
+			
   			lexerc_genv () ;
 
 			if ( C_XKL == lexc->v )
@@ -681,7 +699,10 @@ static int read_macro () {
 		//if ( lexc->v == C_CHROW  && lexc->pv != C_ESCAPE )
 		//	break;
 		//	For unix text
-		if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
+		//if ( lexc->v == C_ENTER  && lexc->pv != C_ESCAPE )
+		//	break;
+
+		if ( lexc->v == C_ENTER )
 			break;
 
 		//	ignore transferred symbol '\\'
@@ -861,7 +882,7 @@ static int read_ifdef () {
 
 	key_scope = lexc->code->get_walker - key_pos ;
 	
-	if ( macro_find ( lexc->token ) ) {
+	if ( macro_find ( lexc->token , lexc->line ) ) {
 
 		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
 		lexc->stack ++ ;
@@ -963,7 +984,7 @@ static int read_ifndef () {
 
 	key_scope = lexc->code->get_walker - key_pos ;
 	
-	if ( !macro_find ( lexc->token ) ) {
+	if ( !macro_find ( lexc->token , lexc->line ) ) {
 
 		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
 		lexc->stack ++ ;
@@ -1262,15 +1283,19 @@ int presor_c_run ( char* presor_file ) {
 
 		if ( C_VAR_REF == lexc->v || C_FUNC_REF == lexc->v ) {
 			
-			macro_finder = macro_find ( lexc->token ) ;
+			macro_finder = macro_find ( lexc->token , lexc->line ) ;
 			
 			if ( macro_finder ) {
 		
 				SCClStackPush ( &stack , (void* ) lexc ) ;
-
 				SCClStackPush ( &macro_stack , (void* )macro_finder->name ) ;
-				
-				subed = macro_subsit ( macro_finder , macro_finder , get_macro_param ( lexc->code->data , lexc->code->get_walker )) ;
+
+				//#define C A ffff F A F ff C A
+				//#define A A FF A
+				//#define F A ffff
+				//C
+				//	when C called A F is defined
+				subed = macro_subsit ( macro_finder , macro_finder , get_macro_param ( lexc->code->data , lexc->code->get_walker ) , lexc->line ) ;
  				if ( MACRO_FUNC == macro_finder->type ) skip_smart_brackets_scope () ; 
 				lexerc_set ( (LEXERC* ) SCClStackPop ( &stack ) ) ;
 				SCClStackDestroy ( &macro_stack ) ;
