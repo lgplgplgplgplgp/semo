@@ -55,6 +55,7 @@ typedef struct c_macro {
 	
 	char* name ;
 	char* file ;
+	int line ;
 	SCClString body ;
 
 	unsigned short type ;

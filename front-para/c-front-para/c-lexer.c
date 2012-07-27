@@ -504,6 +504,14 @@ int lexerc_next ()  {
 	if ( lexerc_overflowed () )
 		return 1;
 
+	//	flit '\r'
+	if( '\r' == lexc->code->data [ lexc->code->get_walker + 1 ] && 
+		'\n' == lexc->code->data [ lexc->code->get_walker + 2 ] ) {
+		//	replace '\r\n' with '\n\0x20' is no problem
+		lexc->code->data [ lexc->code->get_walker + 1 ] = '\n' ;
+		lexc->code->data [ lexc->code->get_walker + 2 ] = ' ' ;
+	}
+
 	lexc->c = lexc->code->data [ lexc->code->get_walker + 1 ] ;
 
 	lexc->code->last_walker = lexc->code->get_walker ;
@@ -521,6 +529,14 @@ unsigned char lexerc_get_atom ()  {
 	
 	if ( lexerc_overflowed () )
 		return 0;
+
+	//	flit '\r'
+	if( '\r' == lexc->code->data [ lexc->code->get_walker ] && 
+		'\n' == lexc->code->data [ lexc->code->get_walker + 1 ] ) {
+		//	replace '\r\n' with '\n\0x20' is no problem
+		lexc->code->data [ lexc->code->get_walker ] = '\n' ;
+		lexc->code->data [ lexc->code->get_walker + 1 ] = ' ' ;
+	}	
 	
 	lexc->pc = lexc->c ;
 	lexc->c = lexc->code->data [ lexc->code->get_walker ] ;
@@ -626,6 +642,14 @@ void lexerc_jump ( int step ) {
 	
 	if ( lexc->code->get_walker + step >= lexc->code->length )
 		return ;
+
+	//	flit '\r'
+	if( '\r' == lexc->code->data [ lexc->code->get_walker + step ] && 
+		'\n' == lexc->code->data [ lexc->code->get_walker + step + 1 ] ) {
+		//	replace '\r\n' with '\n\0x20' is no problem
+		lexc->code->data [ lexc->code->get_walker + step ] = '\n' ;
+		lexc->code->data [ lexc->code->get_walker + step + 1 ] = ' ' ;
+	}	
 	
 	lexc->code->last_walker = lexc->code->get_walker ;
 	lexc->code->get_walker = lexc->code->get_walker + step ;
@@ -870,12 +894,12 @@ int lexerc_drop_junk ( int el ) {
 	char escape = 0 ; 
 
 	if ( '/' == el ) {
-
+		
 		while ( lexc->code->get_walker < lexc->code->length ) {
-
+			
 			if ( '\\' == lexc->code->data[lexc->code->get_walker] ) {
 				escape = '\\' ;
-			} else if( 13 == lexc->code->data[lexc->code->get_walker] && '\\' != escape ) {
+			} else if( '\n' == lexc->code->data[lexc->code->get_walker] && '\\' != escape ) {
 				break ;
 			} else escape = 0 ;
 			
@@ -1692,62 +1716,47 @@ REDO :
 				} 
 
 				else if ( '\r' == lexc->c ) {
-					
-					//	dont return a changing row token to above modules
-					//	lexc->line ++;
-					//	lexerc_next () ;
-					//	lexc->ppv = lexc->pv ;
-					//	lexc->pv = lexc->v ;				
-					//	lexc->v = CHROW ;
-					
+
 					lexerc_next () ;
 
-					if ( C_ENTER == lexerc_head_genv (1) ) {
+					lexc->token = 0 ;
 						
-						lexerc_next () ;
-						
-						lexc->line ++;						
+					lexc->c = '\r' ;
 
-						lexc->token = 0 ;
-						
-						lexc->c = '\n';
-						lexc->ppv = lexc->pv ;
-						lexc->pv = lexc->v ;				
-						lexc->v = C_ENTER ;
-						
-						if ( !(lexc->mode & LEXERC_FLITER_MODE) )
-							return 1 ;						
-						
-					} else {
-					
-						lexc->token = 0 ;
-						
-						lexc->c = '\r' ;
+					lexc->ppv = lexc->pv ;
+					lexc->pv = lexc->v ;				
+					lexc->v = C_CHROW ;
 
-						lexc->ppv = lexc->pv ;
-						lexc->pv = lexc->v ;				
-						lexc->v = C_CHROW ;
-
-						if ( !(lexc->mode & LEXERC_FLITER_MODE) )
-							return 1 ;
-
-					}
-
+					if ( !(lexc->mode & LEXERC_FLITER_MODE) )
+						return 1 ;
 						
 				}
 
 				else if ( '\\' == lexc->c ) {
 
 					lexerc_next () ;
-
-					lexc->token = 0 ;
 					
-					lexc->c = '\\';
-					lexc->ppv = lexc->pv ;
-					lexc->pv = lexc->v ;
-					lexc->v = C_ESCAPE ;
- 
-					return 1 ;
+					if ( C_ENTER == lexerc_head_genv (1) ) {
+
+						//	flit '\'
+						lexerc_next () ;
+						//	flit '\n'
+						lexerc_next () ;
+						
+					} else {
+ 					
+						lexerc_next () ;
+
+						lexc->token = 0 ;
+						
+						lexc->c = '\\';
+						lexc->ppv = lexc->pv ;
+						lexc->pv = lexc->v ;
+						lexc->v = C_ESCAPE ;
+	 
+						return 1 ;
+						
+					}
 
 				}				
 				
