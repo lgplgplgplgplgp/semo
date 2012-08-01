@@ -1741,8 +1741,21 @@ REDO :
 						//	flit '\'
 						lexerc_next () ;
 						//	flit '\n'
-						lexerc_next () ;
-						
+						lexerc_next () ;	
+
+							
+						//	return space
+						lexc->token = 0 ;
+
+						lexc->c = ' ';
+
+						lexc->ppv = lexc->pv ;
+						lexc->pv = lexc->v ;				
+						lexc->v = C_SPACE ;
+
+						if ( !(lexc->mode & LEXERC_FLITER_MODE) )
+							return 1 ;
+					
 					} else {
  					
 						lexerc_next () ;
