@@ -317,9 +317,7 @@ static long int c_suffix_exp_evalor () {
 		int op_1 = (int )SCClStackPop ( &suffix_stack ) ;
 
 		SCClStackPush ( &suffix_stack , (void* )value_calac ( op_1 , op_2 , functer ) ) ;
-			
-		
-		
+							
 //	}
 
 	results = (int )SCClStackPop ( &suffix_stack ) ;

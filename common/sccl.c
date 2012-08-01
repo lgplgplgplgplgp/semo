@@ -485,7 +485,8 @@ int sc_substrcmp_ex ( char* A , char* B , int start , char border ) {
 	
 	///	notes : whole words macthing
 
-	int walker = start;
+	int walker = start ;
+	int length_of_matched = 0 ;
 	int counter = 0 ;
 	int length_of_B = sc_strlen (B) ;
 	int lenth_of_A = sc_strlen (A) ;
@@ -504,16 +505,15 @@ int sc_substrcmp_ex ( char* A , char* B , int start , char border ) {
 		walker ++ ;
 	}
 	
-	for ( ; counter < length_of_B; walker ++ , counter ++ ) {
+	for ( ; counter < length_of_B; walker ++ , counter ++ , length_of_matched ++ ) {
 		if ( A [ walker ] != B [ counter ] ) 
 			return 1;
 	}
 
-	if ( walker < lenth_of_A ) {
-		if ( 0x20 != A [ walker ] && '\t' != A [ walker ] && '\r' != A [ walker ] && '\n' != A [ walker ] && '\\' != A [ walker ] 
-			&& border != A [ walker ] )
+	if ( length_of_matched < lenth_of_A ) {
+		if ( 0 != sc_is_alpha ( A[walker] ) || 0 != sc_is_digit ( A[walker] ) || '_' == A[walker] )
 			return 1 ;
-	} 
+	}
 	
 	return 0;
 
