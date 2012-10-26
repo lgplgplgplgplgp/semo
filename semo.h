@@ -47,7 +47,7 @@ enum {
 	//	export pre-compiling results to external file
 	SC_PO = 0x8 ,
 	//	export IR to external file
-	SC_LAC = 0x10,
+	SC_LAIR = 0x10,
 	//	export semo assembly code to external file
 	SC_SASM = 0x20 ,
 	//	enable compiling-render and export results
@@ -143,7 +143,7 @@ typedef struct COMPILER_NODE {
 	
 } COMPILER ;
 
-extern COMPILER* compiler ;
+extern COMPILER* semo ;
 
 # endif
 

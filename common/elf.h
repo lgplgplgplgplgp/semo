@@ -29,7 +29,7 @@
 
 	You should have received a copy of the GNU Library General Public
 	License along with the GNU C Library; see the file COPYING.LIB.  If not,
-	write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+	write to the Free Software Foundation, Inc., 59 Temple Plaire - Suite 330,
 	Boston, MA 02111-1307, USA. 
 
    
@@ -1430,7 +1430,7 @@ typedef struct
 #define RHF_NONE                   0            /* No flags */
 #define RHF_QUICKSTART             (1 << 0)     /* Use quickstart */
 #define RHF_NOTPOT                 (1 << 1)     /* Hash size not power of 2 */
-#define RHF_NO_LIBRARY_REPLACEMENT (1 << 2)     /* Ignore LD_LIBRARY_PATH */
+#define RHF_NO_LIBRARY_REPLAIREMENT (1 << 2)     /* Ignore LD_LIBRARY_PATH */
 #define RHF_NO_MOVE                (1 << 3)
 #define RHF_SGI_ONLY               (1 << 4)
 #define RHF_GUARANTEE_INIT         (1 << 5)
@@ -1526,7 +1526,7 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_PARISC_PCREL21L       5       /* PC-relative, left 21 bits.  */
 #define R_PARISC_PCREL14R       6       /* PC-relative, right 14 bits.  */
 #define R_PARISC_PCREL17C       7       /* Conditional PC-relative, ignore
-                                           if displacement > 17bits.  */
+                                           if displairement > 17bits.  */
 #define R_PARISC_PCREL17F       8       /* Conditional PC-relative, must
                                            fit in 17bits.  */
 #define R_PARISC_DPREL21L       9       /* DP-relative, left 21 bits.  */
@@ -1572,7 +1572,7 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ALPHA_GPREL32         3       /* GP relative 32 bit */
 #define R_ALPHA_LITERAL         4       /* GP relative 16 bit w/optimization */
 #define R_ALPHA_LITUSE          5       /* Optimization hint for LITERAL */
-#define R_ALPHA_GPDISP          6       /* Add displacement to GP */
+#define R_ALPHA_GPDISP          6       /* Add displairement to GP */
 #define R_ALPHA_BRADDR          7       /* PC+4 relative 23 bit shifted */
 #define R_ALPHA_HINT            8       /* PC+4 relative 16 bit shifted */
 #define R_ALPHA_SREL16          9       /* PC relative 16 bit */

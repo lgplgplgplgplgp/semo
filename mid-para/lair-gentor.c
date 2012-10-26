@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC (Lgnosia Code) Form Generator , part of SC mid-para
++	LAIR's Code Generator , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -25,7 +25,7 @@
 
 */ 
 
-# include "sc.h"
+# include "semo.h"
 # include "schal.h"
 # include "sccl.h"
 # include "c-grammar.h"
@@ -37,98 +37,79 @@
 # include "corenr.h"
 
 static SCClStack LabelStack = { 0 , 0 , 0 , 0 , 0 } ;
-static SCClString* lacgentor_results = 0 ;
-static LAC_GENTOR lacgentor = { -1 , 0 , 0 , 0 , 0 , 0 , 0 } ;
+static SCClString* lairgentor_results = 0 ;
+static LAIR_GENTOR lairgentor = { -1 , 0 , 0 , 0 , 0 , 0 , 0 } ;
 
 int corenr = 0 ;
 
-# define LACGENTOR_STATUS_RESET()\
-	lacgentor.form = -1;\
+# define LAIRGENTOR_STATUS_RESET()\
+	lairgentor.form = -1;\
 
-# define SET_LACGENTOR_DELT(deltn)\
-	SCClStackPush ( &lacgentor.deltstack, (void* )lacgentor.delt );\
-	lacgentor.delt = deltn;\
+# define SET_LAIRGENTOR_DELT(deltn)\
+	SCClStackPush ( &lairgentor.deltstack, (void* )lairgentor.delt );\
+	lairgentor.delt = deltn;\
 
-# define UNSET_LACGENTOR_DELT()\
-	lacgentor.delt = SCClStackPop ( &lacgentor.deltstack ) ;\
+# define UNSET_LAIRGENTOR_DELT()\
+	lairgentor.delt = SCClStackPop ( &lairgentor.deltstack ) ;\
 
-# define GET_LACGENTOR_SCOPE() SCClStackGet( &lacgentor.scopestack )
+# define GET_LAIRGENTOR_SCOPE() SCClStackGet( &lairgentor.scopestack )
 
-# define SET_LACGENTOR_SCOPE(sscope)\
-	SCClStackPush ( &lacgentor.scopestack , (void* )sscope ) ;\
+# define SET_LAIRGENTOR_SCOPE(sscope)\
+	SCClStackPush ( &lairgentor.scopestack , (void* )sscope ) ;\
 
-# define UNSET_LACGENTOR_SCOPE()\
-	SCClStackPop ( &lacgentor.scopestack ) ;\
+# define UNSET_LAIRGENTOR_SCOPE()\
+	SCClStackPop ( &lairgentor.scopestack ) ;\
 
-# define PUSH_LACGENTOR_LGA(lga)\
-	SCClStackPush ( &lacgentor.lgastack  , (void* )lga ) ;\
+# define PUSH_LAIRGENTOR_LGA(lga)\
+	SCClStackPush ( &lairgentor.lgastack  , (void* )lga ) ;\
 	
-# define GET_LACGENTOR_LGA() SCClStackGet( &lacgentor.lgastack )
+# define GET_LAIRGENTOR_LGA() SCClStackGet( &lairgentor.lgastack )
 
-# define POP_LACGENTOR_LGA()\
-	SCClStackPop ( &lacgentor.lgastack ) ;\
+# define POP_LAIRGENTOR_LGA()\
+	SCClStackPop ( &lairgentor.lgastack ) ;\
 
-char* lacgentor_gen_operator ( int operator ) {
 
-	//	author : Jelo Wang
-	//	since : 20100428
-	//	(C)TOK
+static void LAIRIdentorPush () ;
+static void LAIRIdentorPop () ;
+static char* gentorLAIR_get_identor () ;
+static void gentorLAIR_ready () ;
+static void gentorLAIR_next () ;
+static void gentorLAIR_genv () ;
+static void genterLAIR_gen_funcdef () ;
+static void gentorLAIR_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
+static void lairgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
+static void lairgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
+static void gentorLAIR_switcher ( LGNOSIA* lgnosia ) ;
+static void gentorLAIR_gen_variable ( AZONAL* azonal ) ;
+static int gentorLAIR_gen_expr ( EXPR* expression , int drop ) ;
+static void gentorLAIR_disp_expr (  EXPR* expression ) ;
+static void lairgentor_switcher ( LGNOSIA* lgnosia ) ;
+static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) ; 
+static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
+static void lairgentor_gen_pochain ( LGNOSIA* po_chain ) ;
+static void lairgentor_gen_nechain ( LGNOSIA* ne_chain ) ;
 
-	switch ( operator ) {
-
-		case C_MUL : return "*" ;
-		case C_DIV : return "/" ;
-		case C_MOD : return "%" ;
-
-		case C_ADD : return "+" ;
-		case C_SUB : return "-" ;
-
-		case C_SHL : return "<<" ;
-		case C_SHR : return ">>" ;
-
-		case C_GE :	return ">=" ;
-		case C_GT :	return ">" ;
-		case C_LT :	return "<" ;
-		case C_LE :	return "<=" ;
-
-		case C_EQ :	return "==" ;
-		case C_NE :	return "!=" ;
-
-		case C_YHH : return "^" ;
-
-		case C_HE :	return "&" ;
-
-		case C_HU :	return "|" ;
-
-		case C_AND : return "&&" ;
-
-		case C_OR :	return "||" ;
-
-	}
-
-}
-
-static void LACIdentorPush () {
+static void LAIRIdentorPush () {
 
 	//	author : Jelo Wang
 	//	since : 20100130
 	//	(C)TOK
 
-	SCClStackPush ( &lacgentor.identor , (void* )1 ) ;
+	SCClStackPush ( &lairgentor.identor , (void* )1 ) ;
 	
 }
 
-static void LACIdentorPop () {
+static void LAIRIdentorPop () {
 
 	//	author : Jelo Wang
 	//	since : 20100130
 	//	(C)TOK
 
-	SCClStackPop ( &lacgentor.identor ) ;
+	SCClStackPop ( &lairgentor.identor ) ;
 	
 }
 
-char* lacgentor_get_register ( int index ) {
+static char* lairgentor_get_register ( int index ) {
 
 	//	author : Jelo Wang
 	//	since : 20100425
@@ -140,7 +121,7 @@ char* lacgentor_get_register ( int index ) {
 }
 
 
-char* lacgentor_get_label () {
+static char* lairgentor_get_label () {
 
 	//	author : Jelo Wang
 	//	since : 20100503
@@ -148,7 +129,7 @@ char* lacgentor_get_label () {
 	static char tempv [64] = {"L"} ;
 	static char result [64] = {0} ;
 
-	char* A = sc_strcat ( tempv , SCClItoa (lacgentor.label++) ) ;
+	char* A = sc_strcat ( tempv , SCClItoa (lairgentor.label++) ) ;
 	char* B = sc_strcat ( A , ":" ) ;
 
 	SCFree ( A ) ;
@@ -162,7 +143,7 @@ char* lacgentor_get_label () {
 }
 
 
-char* lacgentor_head_label ( int label ) {
+static char* lairgentor_head_label ( int label ) {
 
 	//	author : Jelo Wang
 	//	since : 20100503
@@ -183,7 +164,7 @@ char* lacgentor_head_label ( int label ) {
 	
 }
 
-static char* lacgentor_get_identor () {
+static char* lairgentor_get_identor () {
 
 	//	author : Jelo Wang
 	//	since : 20100130
@@ -194,11 +175,11 @@ static char* lacgentor_get_identor () {
 	int walker = 0 ;
 	char* scope = 0 ;
 	
-	if ( 0 == lacgentor.identor.deep ) return 0 ;
+	if ( 0 == lairgentor.identor.deep ) return 0 ;
 	
-	scope = (char* ) SCMalloc ( lacgentor.identor.deep + 1 ) ;
+	scope = (char* ) SCMalloc ( lairgentor.identor.deep + 1 ) ;
 
-	for ( walker = 0 ; walker < lacgentor.identor.deep ; walker ++ )
+	for ( walker = 0 ; walker < lairgentor.identor.deep ; walker ++ )
 		scope [ walker ] = '\t' ;
 	
 	scope [ walker ] = '\0' ;
@@ -207,70 +188,70 @@ static char* lacgentor_get_identor () {
 
 }
 
-void lacgentor_ready () {
+static void lairgentor_ready () {
 	
 	//	author : Jelo Wang
 	//	since : 20100107
 	//	(C)TOK
 	
-	lacgentor.form =-1 ;
-	lacgentor.stop = 0  ;
-	lacgentor.delt = 0 ;
-	lacgentor.label = 0 ;
-	lacgentor.tree = 0 ;
-	lacgentor.lgnosia = 0 ;
+	lairgentor.form =-1 ;
+	lairgentor.stop = 0  ;
+	lairgentor.delt = 0 ;
+	lairgentor.label = 0 ;
+	lairgentor.tree = 0 ;
+	lairgentor.lgnosia = 0 ;
 	
-	SCClStackInit ( &lacgentor.identor ) ;
-	SCClStackInit ( &lacgentor.deltstack ) ;
+	SCClStackInit ( &lairgentor.identor ) ;
+	SCClStackInit ( &lairgentor.deltstack ) ;
 
 	//	get LGA tree
-	lacgentor.tree = (SCClList* ) LgnosiaGet () ;
+	lairgentor.tree = (SCClList* ) LgnosiaGet () ;
 	
-	if ( lacgentor.tree ) 
-		lacgentor.lgnosia = lacgentor.tree->element ;
+	if ( lairgentor.tree ) 
+		lairgentor.lgnosia = lairgentor.tree->element ;
 
 } 
 
-void lacgentor_next () {
+static void lairgentor_next () {
 	
 	//	author : Jelo Wang
 	//	since : 20100107
 	//	(C)TOK
 
-	if ( lacgentor.tree ) lacgentor.tree = lacgentor.tree->next ;
+	if ( lairgentor.tree ) lairgentor.tree = lairgentor.tree->next ;
 	
-	if ( !lacgentor.tree ) {
-		lacgentor.stop = 1 ; 
+	if ( !lairgentor.tree ) {
+		lairgentor.stop = 1 ; 
 		return ;
 	}
 
-	lacgentor.lgnosia = lacgentor.tree->element ;
+	lairgentor.lgnosia = lairgentor.tree->element ;
 
 }
 
-void lacgentor_genv () {
+static void lairgentor_genv () {
 	
 	//	author : Jelo Wang
 	//	since : 20100107
 	//	(C)TOK
 	
-	if ( !lacgentor.tree ) {
-		lacgentor.form = -1 ;
+	if ( !lairgentor.tree ) {
+		lairgentor.form = -1 ;
 		return ;
 	}
 
-	if ( !lacgentor.stop ) {
+	if ( !lairgentor.stop ) {
 		
-		if ( !lacgentor.lgnosia ) return ;
+		if ( !lairgentor.lgnosia ) return ;
 		
-		lacgentor.form = ((LGNOSIA*)(lacgentor.lgnosia))->type ;
+		lairgentor.form = ((LGNOSIA*)(lairgentor.lgnosia))->type ;
 		
 	}
 	
 }
 
 
-void lacgentor_gen_funcdef () {
+static void lairgentor_gen_funcdef () {
 	
 	//	author : Jelo Wang
 	//	since : 20100107
@@ -280,16 +261,16 @@ void lacgentor_gen_funcdef () {
 	LGNOSIA* lgnosia = 0 ;
 	SCClList* listlooper = 0 ;
 
-	if ( LGNOSIA_TOP_IDENT != lacgentor.form ) {
-		LACGENTOR_STATUS_RESET() ;
+	if ( LGNOSIA_TOP_IDENT != lairgentor.form ) {
+		LAIRGENTOR_STATUS_RESET() ;
 		return ;
 	}
 
-	lgnosia = (LGNOSIA* ) lacgentor.lgnosia ;
+	lgnosia = (LGNOSIA* ) lairgentor.lgnosia ;
 	azonal = (AZONAL* ) lgnosia->azonal ;
 
-	LACAdd ( azonal->name , LAC_PROC , lacgentor.identor.deep ) ;
-	LACAdd ( "(" , -1 , -1 ) ;
+	LairAddCode ( azonal->name , LAIR_PROC , lairgentor.identor.deep ) ;
+	LairAddCode ( "(" , -1 , -1 ) ;
 
 	//	gen __armcall para	 pattern
 	//	根据__armcall 调用规范生成参数列表
@@ -307,122 +288,122 @@ void lacgentor_gen_funcdef () {
 			anl = (AZONAL* ) listlooper->element ;
 
 			if ( counter < 4 ) {
-				LACMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
-				LACAdd ( vn[counter] , LAC_L_DELT , -1 ) ;
+				LAIRMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
+				LairAddCode ( vn[counter] , LAIR_L_DELT , -1 ) ;
 			} else {
-				LACMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
+				LAIRMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
 			}
 				
 		}
 		
 	}
 	
-	LACAdd ( ")\r\n" , LAC_CR , -1 ) ;
-	LACAdd ( "{\r\n" , LAC_CR , -1 ) ;
+	LairAddCode ( ")\r\n" , LAIR_CR , -1 ) ;
+	LairAddCode ( "{\r\n" , LAIR_CR , -1 ) ;
 	
-	PUSH_LACGENTOR_LGA(lgnosia) ;
-	SET_LACGENTOR_SCOPE(ISA_FUNCTION);
-	SET_LACGENTOR_DELT(0);
-	LACIdentorPush () ;
+	PUSH_LAIRGENTOR_LGA(lgnosia) ;
+	SET_LAIRGENTOR_SCOPE(ISA_FUNCTION);
+	SET_LAIRGENTOR_DELT(0);
+	LAIRIdentorPush () ;
 	//	if this function has local variables
 	//	we initialize the MF here
 	if ( 0 < azonal->layer ) {
-		LACMemoryFrameInit ( azonal->layer ) ;
-		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
-		LACAdd ( "%$MEMORY." , -1 , -1 ) ;
-		LACAdd ( SCClItoa (azonal->layer) , -1 , -1 ) ;
-		LACAdd ("\r\n",LAC_CR,-1);
+		LAIRMemoryFrameInit ( azonal->layer ) ;
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
+		LairAddCode ( "%$MEMORY." , -1 , -1 ) ;
+		LairAddCode ( SCClItoa (azonal->layer) , -1 , -1 ) ;
+		LairAddCode ("\r\n",LAIR_CR,-1);
 	}
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
-		lacgentor_switcher ( (LGNOSIA*)listlooper->element ) ;		
+		lairgentor_switcher ( (LGNOSIA*)listlooper->element ) ;		
 	}
-	LACIdentorPop () ;
-	UNSET_LACGENTOR_DELT();
-	UNSET_LACGENTOR_SCOPE();
-	POP_LACGENTOR_LGA() ;
+	LAIRIdentorPop () ;
+	UNSET_LAIRGENTOR_DELT();
+	UNSET_LAIRGENTOR_SCOPE();
+	POP_LAIRGENTOR_LGA() ;
 	
-	LACAdd ( "}" , LAC_CR , -1 ) ;
-	LACAdd ("\r\n",LAC_CR,-1);
+	LairAddCode ( "}" , LAIR_CR , -1 ) ;
+	LairAddCode ("\r\n",LAIR_CR,-1);
 	
-	SCFree ( (void* )lacgentor.lgnosia ) ;
+	SCFree ( (void* )lairgentor.lgnosia ) ;
 
 }
 
-void lacgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+static void lairgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100130
 	//	(C)TOK
 	
-	int lac = 0 ;
+	int lair = 0 ;
 	static int ifflow_deep = 0 ;
 	LGNOSIA* lgnosiawalker = 0 ;
 	SCClList* parameter = 0 ;
 
-	PUSH_LACGENTOR_LGA(lgnosia) ;
-	SET_LACGENTOR_SCOPE(ISA_IFCF);
+	PUSH_LAIRGENTOR_LGA(lgnosia) ;
+	SET_LAIRGENTOR_SCOPE(ISA_IFCF);
 
-	SET_LACGENTOR_DELT(0);
-	LACIdentorPush () ;
+	SET_LAIRGENTOR_DELT(0);
+	LAIRIdentorPush () ;
 	parameter = lgnosia->parameter.head ;
-	lacgentor_gen_expr ( (EXPR*)parameter->element , 1 ) ;
-	LACIdentorPop () ;
-	UNSET_LACGENTOR_DELT();
+	lairgentor_gen_expr ( (EXPR*)parameter->element , 1 ) ;
+	LAIRIdentorPop () ;
+	UNSET_LAIRGENTOR_DELT();
 
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "if ( " ) , LAC_IF , -1 ) ;
-	LACAdd ( ((EXPR*)parameter->element)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "if ( " ) , LAIR_IF , -1 ) ;
+	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
 
-	lac = LACAdd ( " ) FALSE goto " , -1 , -1 ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	lair = LairAddCode ( " ) FALSE goto " , -1 , -1 ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 
-	//	push lga and lac 
+	//	push lga and lair 
 	//	for if-flow label generating
-	SCClStackPush ( &LabelStack , (void* )lac ) ;
+	SCClStackPush ( &LabelStack , (void* )lair ) ;
 	SCClStackPush ( &LabelStack , (void* )lgnosia ) ;
 	
 	ifflow_deep ++ ;
 
-	SET_LACGENTOR_DELT(0);
-	LACIdentorPush () ;
+	SET_LAIRGENTOR_DELT(0);
+	LAIRIdentorPush () ;
 	//	generate po_chain
-	lacgentor_gen_pochain ( lgnosia->po_chain ) ;
-	LACIdentorPop () ;
-	UNSET_LACGENTOR_DELT();
+	lairgentor_gen_pochain ( lgnosia->po_chain ) ;
+	LAIRIdentorPop () ;
+	UNSET_LAIRGENTOR_DELT();
 	
 	{
 
 		//	checking NEC
 		//	if NEC exits make a label for it
 		LGNOSIA* lga = (LGNOSIA* ) SCClStackPop ( &LabelStack ) ;
-		int lacc = SCClStackPop ( &LabelStack ) ;
+		int lairc = SCClStackPop ( &LabelStack ) ;
 		
 		if ( lga && lga->ne_chain ) {
-			LACAddLabel ( lac , lacgentor_head_label (lacgentor.label) ) ;
+			LairAddCodeLabel ( lair , lairgentor_head_label (lairgentor.label) ) ;
 		} else {
-			LACLabelMoiAdd ( lacc ) ;
+			LairLabelMoiAdd ( lairc ) ;
 		}
 		
 	}
 
-	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	LairLabelMoiAdd ( LairAddCode ( sc_strcat ( lairgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 	
-	SET_LACGENTOR_DELT(0);
-	LACIdentorPush () ;		
+	SET_LAIRGENTOR_DELT(0);
+	LAIRIdentorPush () ;		
 	//	generate ne_chain	
-	lacgentor_gen_nechain ( lgnosia->ne_chain ) ;
-	LACIdentorPop () ;
-	UNSET_LACGENTOR_DELT();
+	lairgentor_gen_nechain ( lgnosia->ne_chain ) ;
+	LAIRIdentorPop () ;
+	UNSET_LAIRGENTOR_DELT();
 
 	ifflow_deep -- ;
 	//	确保当前节点为控制链最后一个节点
 	if ( 0 == ifflow_deep ) {
 		//	set label
-		LACLabelMoiSetLabel ( lacgentor_head_label (lacgentor.label) ) ;
+		LairLabelMoiSetLabel ( lairgentor_head_label (lairgentor.label) ) ;
 	}
 
-	UNSET_LACGENTOR_SCOPE();
-	POP_LACGENTOR_LGA() ;
+	UNSET_LAIRGENTOR_SCOPE();
+	POP_LAIRGENTOR_LGA() ;
 
 	SCFree ( lgnosia ) ;
 
@@ -431,74 +412,74 @@ void lacgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 }
 
 
-void lacgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+static void lairgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100811
 	//	(C)TOK
 	
-	int lac = 0 ;
+	int lair = 0 ;
 	static int ifflow_deep = 0 ;
 	LGNOSIA* lgnosiawalker = 0 ;
 	SCClList* parameter = 0 ;
 
-	PUSH_LACGENTOR_LGA(lgnosia) ;
-	SET_LACGENTOR_SCOPE(ISA_ELSEIFCF);
+	PUSH_LAIRGENTOR_LGA(lgnosia) ;
+	SET_LAIRGENTOR_SCOPE(ISA_ELSEIFCF);
 
 	parameter = lgnosia->parameter.head ;
-	lacgentor_gen_expr ( (EXPR*)parameter->element , 1 ) ;
+	lairgentor_gen_expr ( (EXPR*)parameter->element , 1 ) ;
 		
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "if ( " ) , LAC_IF , -1  ) ;
-	LACAdd ( ((EXPR*)parameter->element)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "if ( " ) , LAIR_IF , -1  ) ;
+	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
 
-	lac = LACAdd ( " ) FALSE goto " , -1 , -1 ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	lair = LairAddCode ( " ) FALSE goto " , -1 , -1 ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 
-	//	push lga and lac 
+	//	push lga and lair 
 	//	for if-flow label generating
-	SCClStackPush ( &LabelStack , (void* )lac ) ;
+	SCClStackPush ( &LabelStack , (void* )lair ) ;
 	SCClStackPush ( &LabelStack , (void* )lgnosia ) ;
 
-//	SET_LACGENTOR_DELT(0);
-//	LACIdentorPush () ;			
+//	SET_LAIRGENTOR_DELT(0);
+//	LAIRIdentorPush () ;			
 	//	generate po_chain
-	lacgentor_gen_pochain ( lgnosia->po_chain ) ;
-//	LACIdentorPop () ;
-//	UNSET_LACGENTOR_DELT();
+	lairgentor_gen_pochain ( lgnosia->po_chain ) ;
+//	LAIRIdentorPop () ;
+//	UNSET_LAIRGENTOR_DELT();
 
 	{
 
 		LGNOSIA* lga = (LGNOSIA* ) SCClStackPop ( &LabelStack ) ;
-		int lacc = SCClStackPop ( &LabelStack ) ;
+		int lairc = SCClStackPop ( &LabelStack ) ;
 		
 		if ( lga && lga->ne_chain ) {
 			
-			LACAddLabel ( lac , lacgentor_head_label (lacgentor.label) ) ;
+			LairAddCodeLabel ( lair , lairgentor_head_label (lairgentor.label) ) ;
 
 		} else {
-			LACLabelMoiAdd ( lacc ) ;
+			LairLabelMoiAdd ( lairc ) ;
 		}
 		
 	}
 
-	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	LairLabelMoiAdd ( LairAddCode ( sc_strcat ( lairgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 	
-//	SET_LACGENTOR_DELT(0);
-//	LACIdentorPush () ;		
+//	SET_LAIRGENTOR_DELT(0);
+//	LAIRIdentorPush () ;		
 	//	generate ne_chain	
-	lacgentor_gen_nechain ( lgnosia->ne_chain ) ;
-//	LACIdentorPop () ;
-//	UNSET_LACGENTOR_DELT();
+	lairgentor_gen_nechain ( lgnosia->ne_chain ) ;
+//	LAIRIdentorPop () ;
+//	UNSET_LAIRGENTOR_DELT();
 
 	//	确保当前节点为控制链最后一个节点
 	if ( 0 == ifflow_deep ) {
 		//	set label
-		LACLabelMoiSetLabel ( lacgentor_head_label (lacgentor.label) ) ;
+		LairLabelMoiSetLabel ( lairgentor_head_label (lairgentor.label) ) ;
 	}
 
-	UNSET_LACGENTOR_SCOPE();
-	POP_LACGENTOR_LGA() ;
+	UNSET_LAIRGENTOR_SCOPE();
+	POP_LAIRGENTOR_LGA() ;
 
 	SCFree ( lgnosia ) ;
 	
@@ -506,35 +487,35 @@ void lacgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 }
 
 
-void lacgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+static void lairgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100502
 	//	(C)TOK
 	
-	int lac = 0 ;
+	int lair = 0 ;
 
 	SCClList* listlooper = 0 ;
 
-	PUSH_LACGENTOR_LGA(lgnosia) ;
-	SET_LACGENTOR_SCOPE(ISA_ELSECF);
+	PUSH_LAIRGENTOR_LGA(lgnosia) ;
+	SET_LAIRGENTOR_SCOPE(ISA_ELSECF);
 	
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "// else-flow\r\n" ) , LAC_CR , -1 ) ;
+	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "// else-flow\r\n" ) , LAIR_CR , -1 ) ;
 		
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
 			
-		lacgentor_switcher ( (LGNOSIA*)listlooper->element ) ;
+		lairgentor_switcher ( (LGNOSIA*)listlooper->element ) ;
 			
 	}
 
-	LACLabelMoiAdd ( LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	LairLabelMoiAdd ( LairAddCode ( sc_strcat ( lairgentor_get_identor () , "goto ") , -1 , -1 ) ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 
 	//	release the LGA
 	SCFree ( lgnosia ) ;	
 
-	UNSET_LACGENTOR_SCOPE();
-	POP_LACGENTOR_LGA() ;
+	UNSET_LAIRGENTOR_SCOPE();
+	POP_LAIRGENTOR_LGA() ;
 
 	SCFree ( lgnosia ) ;
 
@@ -542,7 +523,7 @@ void lacgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 }
 
 
-void lacgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+static void lairgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100502
@@ -551,45 +532,45 @@ void lacgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	char* entry_label = 0 ;
 	SCClList* listlooper = 0 ;
 	SCClList* parameter = 0 ;
-	int lac = 0 ;
+	int lair = 0 ;
 
-	PUSH_LACGENTOR_LGA(lgnosia) ;
-	SET_LACGENTOR_DELT(0);
+	PUSH_LAIRGENTOR_LGA(lgnosia) ;
+	SET_LAIRGENTOR_DELT(0);
 	parameter = lgnosia->parameter.head ;
-	lacgentor_gen_expr ( (EXPR*)parameter->element , 0 ) ;
-	UNSET_LACGENTOR_DELT();
+	lairgentor_gen_expr ( (EXPR*)parameter->element , 0 ) ;
+	UNSET_LAIRGENTOR_DELT();
 
-	entry_label = lacgentor_get_label () ;
-	LACAdd ( entry_label , -1 , -1 );
-	LACAdd ( "\r\n" , LAC_CR , -1 );		
+	entry_label = lairgentor_get_label () ;
+	LairAddCode ( entry_label , -1 , -1 );
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );		
 
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "while ( " ) , -1 , -1 ) ;
-	LACAdd ( ((EXPR*)parameter->element)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
-	lac = LACAdd ( " ) FALSE goto " , -1 , -1 ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "while ( " ) , -1 , -1 ) ;
+	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+	lair = LairAddCode ( " ) FALSE goto " , -1 , -1 ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 	
-	LACLabelMoiAdd ( lac ) ;
+	LairLabelMoiAdd ( lair ) ;
 
-	SET_LACGENTOR_DELT(0);
-	LACIdentorPush () ;
+	SET_LAIRGENTOR_DELT(0);
+	LAIRIdentorPush () ;
 
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {	
-		lacgentor_switcher ( (LGNOSIA*)listlooper->element ) ;
+		lairgentor_switcher ( (LGNOSIA*)listlooper->element ) ;
 	}
 
-	lacgentor_gen_expr ( (EXPR*)parameter->head , 1 ) ;
-	LACAdd ( sc_strcat ( lacgentor_get_identor () , "goto " ) , -1 , -1 ) ;
-	LACAdd ( entry_label , -1 , -1 ) ;
-	LACAdd ( "\r\n" , LAC_CR , -1 );
+	lairgentor_gen_expr ( (EXPR*)parameter->head , 1 ) ;
+	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "goto " ) , -1 , -1 ) ;
+	LairAddCode ( entry_label , -1 , -1 ) ;
+	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 
 	SCFreeEx ( &((EXPR*)parameter->element)->delt ) ;
 	SCFreeEx ( (void**)&parameter->element ) ;	
 	
-	LACIdentorPop () ;
-	UNSET_LACGENTOR_DELT();
+	LAIRIdentorPop () ;
+	UNSET_LAIRGENTOR_DELT();
 	
-	LACLabelMoiSetLabel ( lacgentor_head_label (lacgentor.label) ) ;
-	POP_LACGENTOR_LGA() ;
+	LairLabelMoiSetLabel ( lairgentor_head_label (lairgentor.label) ) ;
+	POP_LAIRGENTOR_LGA() ;
 
 	SCFree ( lgnosia ) ;
 
@@ -598,7 +579,7 @@ void lacgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 
 
-void lacgentor_switcher ( LGNOSIA* lgnosia ) {
+static void lairgentor_switcher ( LGNOSIA* lgnosia ) {
 
 	//	author : Jelo Wang
 	//	since : 20100130
@@ -608,29 +589,29 @@ void lacgentor_switcher ( LGNOSIA* lgnosia ) {
 	
 	if ( !azonal ) return ;
 		
-	LACAdd ( lacgentor_get_label() , -1 , -1 );
-	LACAdd ( "\r\n" , LAC_CR , -1 ) ;
+	LairAddCode ( lairgentor_get_label() , -1 , -1 );
+	LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;
 
 	switch ( azonal->azonaltype ) {
 		
 		case ISA_IFCF :
-			lacgentor_gen_ifcf ( lgnosia , azonal ) ;
+			lairgentor_gen_ifcf ( lgnosia , azonal ) ;
 		break ;
 		case ISA_ELSEIFCF :
-			lacgentor_gen_elseifcf ( lgnosia , azonal ) ;
+			lairgentor_gen_elseifcf ( lgnosia , azonal ) ;
 		break ;
 		case ISA_ELSECF :
-			lacgentor_gen_else ( lgnosia , azonal ) ;
+			lairgentor_gen_else ( lgnosia , azonal ) ;
 		break ;
 		case ISA_WHILECF :
-			lacgentor_gen_while ( lgnosia , azonal ) ;
+			lairgentor_gen_while ( lgnosia , azonal ) ;
 		break ;
 
 		case ISA_VARIABLE :
-			lacgentor_gen_variable ( lgnosia , azonal ) ;
+			lairgentor_gen_variable ( lgnosia , azonal ) ;
 		break ;
 		case ISA_FUNCCAL :
-			lacgentor_gen_funccal ( lgnosia , azonal ) ;			
+			lairgentor_gen_funccal ( lgnosia , azonal ) ;			
 		break ;	
 
 	}
@@ -638,7 +619,7 @@ void lacgentor_switcher ( LGNOSIA* lgnosia ) {
 
 }
 
-void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	//	author : Jelo Wang
 	//	since : 20100425
@@ -648,12 +629,12 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	if ( !lgnosia->parameter.head ) {
 
-		char* name = SymboleDRCAdd ( azonal , lacgentor.identor.deep , GET_LACGENTOR_SCOPE() , GET_LACGENTOR_LGA() ) ;
+		char* name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;
 
-//		LACAdd ( lacgentor_get_identor () ) ;
-//		LACAdd ( "%$STACK 4 " ) ;	
-//		LACAdd ( name ) ;		
-//		LACAdd ( " = 0 ;\r\n" ) ;		
+//		LairAddCode ( lairgentor_get_identor () ) ;
+//		LairAddCode ( "%$STACK 4 " ) ;	
+//		LairAddCode ( name ) ;		
+//		LairAddCode ( " = 0 ;\r\n" ) ;		
 		SCFree ( (void*)name ) ;
 
 	} else {
@@ -662,22 +643,22 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 			
 		expression = (EXPR*)lgnosia->parameter.head->element ;
 
-		lacgentor_gen_expr ( (EXPR*)expression , 1 ) ;
+		lairgentor_gen_expr ( (EXPR*)expression , 1 ) ;
 
-		name = SymboleDRCAdd ( azonal , lacgentor.identor.deep , GET_LACGENTOR_SCOPE() , GET_LACGENTOR_LGA() ) ;		
+		name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;		
 		SymboleDRCDropCFF ( azonal ) ;
 		
-		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
 
-		LACAdd ( name , LAC_L_DELT , lacgentor.identor.deep ) ;
-		LACAdd ( " = " , -1 , -1 ) ;
+		LairAddCode ( name , LAIR_L_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( " = " , -1 , -1 ) ;
 
 		if ( expression->delttype == EXP_DELT_ANLNUMERIC ) 
-			LACAdd ( ((EXPR*)expression)->delt , -1 , -1 ) ;
+			LairAddCode ( ((EXPR*)expression)->delt , -1 , -1 ) ;
 		else 
-			LACAdd ( ((EXPR*)expression)->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
+			LairAddCode ( ((EXPR*)expression)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
 		
-		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 
 		SCFreeEx ( &((EXPR*)expression)->delt ) ;
 		SCFreeEx ( (void**)&expression ) ;
@@ -689,7 +670,7 @@ void lacgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 }
 
-static void lacgentor_gen_calltransfer ( AZONAL* azonal , int type ) {
+static void lairgentor_gen_calltransfer ( AZONAL* azonal , int type ) {
 
 	//	author : Jelo Wang
 	//	since : 20110223
@@ -702,28 +683,28 @@ static void lacgentor_gen_calltransfer ( AZONAL* azonal , int type ) {
 	//	before calling
 	if ( 0 == type ) {
 
-		if ( SC_C0 & compiler->parameter ) {
+		if ( SC_C0 & semo->parameter ) {
 
 			//	for __stdcall type			
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
-			LACAdd ( "%$STACK INIT " , -1 , -1 ) ;
-			LACAdd ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
-			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
+			LairAddCode ( "%$STACK INIT " , -1 , -1 ) ;
+			LairAddCode ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
+			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 		
-		} else if ( SC_C3 & compiler->parameter ) {
+		} else if ( SC_C3 & semo->parameter ) {
 		
 			//	for __armcall type						
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
-//			LACAdd ( "%$STACK INIT " , -1 , -1 ) ;
-//			LACAdd ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
-//			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
+//			LairAddCode ( "%$STACK INIT " , -1 , -1 ) ;
+//			LairAddCode ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
+//			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 
 			if ( 5 > azonal->tack.totall ) {
 				AZONAL* looper = azonal->tack.head ;
 				while ( looper ) {
-					LACAdd ( "%$V1 = " , -1 , -1 ) ;
-					LACAdd ( looper->name , -1 , -1 ) ;
-					LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+					LairAddCode ( "%$V1 = " , -1 , -1 ) ;
+					LairAddCode ( looper->name , -1 , -1 ) ;
+					LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 					looper = looper->next ;
 				}
 			}
@@ -734,13 +715,13 @@ static void lacgentor_gen_calltransfer ( AZONAL* azonal , int type ) {
  	} else if ( 1 == type ) {
 
 		//	after calling
-		if ( SC_C3 & compiler->parameter ) {
+		if ( SC_C3 & semo->parameter ) {
 		
 			//	for __armcall type						
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
-			LACAdd ( "%$STACK UNIT " , -1 , -1 ) ;
-			LACAdd ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
-			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
+			LairAddCode ( "%$STACK UNIT " , -1 , -1 ) ;
+			LairAddCode ( SCClItoa ( azonal->tack.totall ) , -1 , -1 ) ; 
+			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 		
 		}
 		
@@ -748,7 +729,7 @@ static void lacgentor_gen_calltransfer ( AZONAL* azonal , int type ) {
 
 }
 
-void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
+static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	//	author : Jelo Wang
 	//	since : 20110212
@@ -764,14 +745,14 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	//	backup V1,V2,V3,V4
 	for ( walker = 0 ; walker < azonal->tack.totall && 0 != walker-4 ; walker ++ ) {
-		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 											
-		LACAdd ( "%$STACK IN " , -1 , -1 ) ;				
-		LACAdd ( vn[walker] , -1 , -1 ) ;				
-		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 						
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 											
+		LairAddCode ( "%$STACK IN " , -1 , -1 ) ;				
+		LairAddCode ( vn[walker] , -1 , -1 ) ;				
+		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ; 						
 	}
 	
 	//	generate __armcall pattern
-	if ( SC_C3 & compiler->parameter ) {
+	if ( SC_C3 & semo->parameter ) {
 		
 		//	totall parameters is <= 4
 		if ( 4 >= azonal->tack.totall ) {			
@@ -781,23 +762,23 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 				AZONAL* anl = (AZONAL* ) lga->azonal ;
 				
-				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;	
+				LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;	
 
-				LACAdd ( vn[walker] , -1 , -1 ) ;				
-				LACAdd ( " = " , -1 , -1 ) ;
+				LairAddCode ( vn[walker] , -1 , -1 ) ;				
+				LairAddCode ( " = " , -1 , -1 ) ;
 
-				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
+				name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+				LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
 				SCFree ( name ) ;
-				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
+				LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;			
 
 				
 			}
 
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
-			LACAdd ( "%$CA " , -1 , -1 ) ;
-			LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
-			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 
+			LairAddCode ( "%$CA " , -1 , -1 ) ;
+			LairAddCode ( azonal->name , LAIR_P_CALL , lairgentor.identor.deep ) ;
+			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 			
 		} else if ( 4 < azonal->tack.totall ) {
 
@@ -807,21 +788,21 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 			}
 
 			//	generate STACK usage
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
-			LACAdd ( "%$STACK INIT " , -1 , -1 ) ;
-			LACAdd ( SCClItoa ( azonal->tack.totall - counter ) , -1 , -1 ) ;
-			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 
+			LairAddCode ( "%$STACK INIT " , -1 , -1 ) ;
+			LairAddCode ( SCClItoa ( azonal->tack.totall - counter ) , -1 , -1 ) ;
+			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 			
 			for ( ; looper ; looper = looper->next ) {
 			
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 				AZONAL* anl = (AZONAL* ) lga->azonal ;				
 			
-				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 								
-				LACAdd ( "%$STACK IN " , -1 , -1 ) ;
-				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ; 	
-				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 		
+				LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 								
+				LairAddCode ( "%$STACK IN " , -1 , -1 ) ;
+				name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+				LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ; 	
+				LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ; 		
 				SCFree ( name ) ;
 				
 			}
@@ -832,68 +813,42 @@ void lacgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
 				AZONAL* anl = (AZONAL* ) lga->azonal ;
 				
-				LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;	
-				LACAdd ( vn[counter] , -1 , -1 ) ;				
-				LACAdd ( " = " , -1 , -1 ) ;
+				LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;	
+				LairAddCode ( vn[counter] , -1 , -1 ) ;				
+				LairAddCode ( " = " , -1 , -1 ) ;
 
-				name = SymboleDRCGetDRC ( anl , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
-				LACAdd ( name , LAC_R_DELT , lacgentor.identor.deep ) ;		
-				LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;			
+				name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+				LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
+				LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;			
 //				SCFree ( name ) ;
 				
 			}
 			
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 
-			LACAdd ( "%$CA " , -1 , -1 ) ;
-			LACAdd ( azonal->name , LAC_P_CALL , lacgentor.identor.deep ) ;
-			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 
+			LairAddCode ( "%$CA " , -1 , -1 ) ;
+			LairAddCode ( azonal->name , LAIR_P_CALL , lairgentor.identor.deep ) ;
+			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 			
-			LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 								
-			LACAdd ( "%$STACK UNIT " , -1 , -1 ) ;
-			LACAdd ( SCClItoa ( azonal->tack.totall - counter ) , -1 , -1 ) ;
-			LACAdd ( " ;\r\n" , LAC_CR , -1 ) ;
+			LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 								
+			LairAddCode ( "%$STACK UNIT " , -1 , -1 ) ;
+			LairAddCode ( SCClItoa ( azonal->tack.totall - counter ) , -1 , -1 ) ;
+			LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 			
 		}
 
 	}
 
 	for ( walker = 0 ; walker < azonal->tack.totall && 0 != walker-4 ; walker ++ ) {
-		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ; 							
-		LACAdd ( "%$STACK OUT " , -1 , -1 ) ; 	 		
-		LACAdd ( vn[walker] , -1 , -1 ) ;				
-		LACAdd ( " ;\r\n" , LAC_CR , -1 ) ; 						
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 							
+		LairAddCode ( "%$STACK OUT " , -1 , -1 ) ; 	 		
+		LairAddCode ( vn[walker] , -1 , -1 ) ;				
+		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ; 						
 	}
 	
 
 }
 
-int lacgentor_get_exp_deep ( EXPR* expression , EXPR* father , int deep , int* totall ) {
-
-	//	author : Jelo Wang
-	//	since : 20100802
-	//	(C)TOK
-
-	int ld = 0 ;
-	int rd = 0 ;
-	
-	if ( !expression ) {
-		return deep ;
-	}
-
-	*totall = *totall + 1 ;
-
-	expression->deep = deep ;
-	expression->father = father ;
-	
-	ld = lacgentor_get_exp_deep ( expression->left , expression , deep+1 , totall ) ; 
-	rd = lacgentor_get_exp_deep ( expression->right , expression , deep+1 , totall ) ;
-	
-	return ld  > rd ? ld  : rd ;
-	
-}
-
-
-int lacgentor_gen_expr ( EXPR* expression , int drop ) {
+static int lairgentor_gen_expr ( EXPR* expression , int drop ) {
 
 	//	author : Jelo Wang
 	//	since : 20100425
@@ -907,12 +862,12 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 	
 	if ( expression->left ) {
 		recursived = 1 ;
-		lacgentor_gen_expr ( expression->left , drop ) ;
+		lairgentor_gen_expr ( expression->left , drop ) ;
 	}
 
 	if ( expression->right ) {
 		recursived = 1 ;		
-		lacgentor_gen_expr ( expression->right , drop ) ;
+		lairgentor_gen_expr ( expression->right , drop ) ;
 	}
 
 	if ( EXP_OPERAND == expression->type ) {
@@ -921,11 +876,11 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 		AZONAL* azonal = expression->handle ;
 
 		//	if this azonal is not a parameter
-		//	else it would be in LAC-CALL-FRAME
+		//	else it would be in LAIR-CALL-FRAME
 		if ( 0 == azonal->isparam ) {
 			
 	 		if ( ISA_INTEGER != azonal->azonaltype ) {
-				name = SymboleDRCGetDRC ( azonal , lacgentor.identor.deep , GET_LACGENTOR_LGA() ) ;
+				name = SymboleDRCGetDRC ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
 				expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
 				sc_strcpy ( expression->delt  , name ) ;
 				SCFree ( name ) ;
@@ -940,8 +895,8 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 				expression->delttype = EXP_DELT_ANLDATA ;
 
 		} else {
-//			char* frame = LACMemoryFrameGet ( azonal->name ) ;
-//			//	get LAC-CALL-FRAME
+//			char* frame = LAIRMemoryFrameGet ( azonal->name ) ;
+//			//	get LAIR-CALL-FRAME
 //			expression->delt = (char* ) SCMalloc ( sc_strlen (frame) + 1 ) ;
 //			sc_strcpy ( expression->delt  , frame ) ;		
 //			expression->delttype = EXP_DELT_ANLDATA ;			
@@ -952,25 +907,25 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 
 		char* tvalue = 0 ;
 		
-		LACAdd ( lacgentor_get_identor () , -1 , -1 ) ;
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
 
-		tvalue = lacgentor_get_register (lacgentor.delt+1) ;
+		tvalue = lairgentor_get_register (lairgentor.delt+1) ;
 		expression->delt = (char* ) SCMalloc ( sc_strlen(tvalue) + 1 ) ;
 		sc_strcpy ( expression->delt  , tvalue ) ;
 
 		expression->delttype = EXP_DELT_DEFAULT ;
 		
-		LACAdd ( expression->delt , LAC_L_DELT , lacgentor.identor.deep ) ;
-		LACAdd ( " = " , -1 , -1 ) ;
-		LACAdd ( expression->left->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
-		LACAdd ( lacgentor_gen_operator(expression->handle) , -1 , -1 ) ;
-		LACAdd ( expression->right->delt , LAC_R_DELT , lacgentor.identor.deep ) ;
-		LACAdd ( ";\r\n" , LAC_CR , -1 ) ;
+		LairAddCode ( expression->delt , LAIR_L_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( " = " , -1 , -1 ) ;
+		LairAddCode ( expression->left->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( lexerc_get_operator (expression->handle) , -1 , -1 ) ;
+		LairAddCode ( expression->right->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( ";\r\n" , LAIR_CR , -1 ) ;
 
-		lacgentor.delt = lacgentor.delt + 1 ;
+		lairgentor.delt = lairgentor.delt + 1 ;
 		
 		if ( (EXP_DELT_DEFAULT == expression->left->delttype) && (EXP_DELT_DEFAULT == expression->right->delttype) ) {
-			lacgentor.delt = 0 ;
+			lairgentor.delt = 0 ;
 		}
 
 		if ( drop ) {
@@ -986,7 +941,7 @@ int lacgentor_gen_expr ( EXPR* expression , int drop ) {
 	
 }
 
-void lacgentor_gen_pochain ( LGNOSIA* po_chain ) {
+static void lairgentor_gen_pochain ( LGNOSIA* po_chain ) {
 
 	//	author : Jelo Wang
 	//	since : 20100719
@@ -1000,7 +955,7 @@ void lacgentor_gen_pochain ( LGNOSIA* po_chain ) {
 
 		for ( listlooper = po_chain->context.head ; listlooper ; listlooper = listlooper->next ) {
 	
-			lacgentor_switcher ( (LGNOSIA* )listlooper->element ) ;
+			lairgentor_switcher ( (LGNOSIA* )listlooper->element ) ;
 	
 		}
 
@@ -1008,7 +963,7 @@ void lacgentor_gen_pochain ( LGNOSIA* po_chain ) {
 
 }
 
-void lacgentor_gen_nechain ( LGNOSIA* ne_chain ) {
+static void lairgentor_gen_nechain ( LGNOSIA* ne_chain ) {
 
 	//	author : Jelo Wang
 	//	since : 20100719
@@ -1022,7 +977,7 @@ void lacgentor_gen_nechain ( LGNOSIA* ne_chain ) {
 	
 		for ( listlooper = ne_chain->context.head ; listlooper ; listlooper = listlooper->next ) {
 		
-			lacgentor_switcher ( (LGNOSIA* )listlooper->element ) ;
+			lairgentor_switcher ( (LGNOSIA* )listlooper->element ) ;
 		
 		}
 
@@ -1031,7 +986,7 @@ void lacgentor_gen_nechain ( LGNOSIA* ne_chain ) {
 
 }
 
-char* gentor_lac_run ( char* lacfile ) {
+char* LairGentorRun ( char* lairfile ) {
 
 	//	author : Jelo Wang
 	//	since : 20100107
@@ -1039,28 +994,28 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	static int runtimes = 0 ;
 
-	char* lac = 0 ;
-	//	Create LAC Pool
-	int lactex = LACNew () ;
+	char* lair = 0 ;
+	//	Create LAIR Pool
+	int lairtex = LairCreate () ;
 	int LabelMoiGlobal = 0 ;
 
 	int lgay = 120 ;
 
-	LACSetContext ( lactex ) ;
+	LairSetContext ( lairtex ) ;
 	//	generate Global LabelMoi
-	LabelMoiGlobal = LACLabelMoiNew () ;
+	LabelMoiGlobal = LairLabelMoiNew () ;
 	//	Set Current Monitor
-	LACLabelMoiSetContext ( LabelMoiGlobal ) ;
+	LairLabelMoiSetContext ( LabelMoiGlobal ) ;
 
-	//	Initialize Lac Gentor
-	lacgentor_ready () ; 
+	//	Initialize Lair Gentor
+	lairgentor_ready () ; 
 
-	LACAdd ( "# Codes Generated As Semo Compiler 0.3.0\r\n" , -1 , -1 ) ;
-	LACAdd ( "# Techniques of Knowledge\r\n" , -1 , -1 ) ;
-	LACAdd ( "# 突壳开源\r\n\r\n" , -1 , -1 ) ;	
+	LairAddCode ( "# Codes Generated As Semo Compiler 0.3.0\r\n" , -1 , -1 ) ;
+	LairAddCode ( "# Techniques of Knowledge\r\n" , -1 , -1 ) ;
+	LairAddCode ( "# 突壳开源\r\n\r\n" , -1 , -1 ) ;	
 	
 	//	use compiling-render
-	if ( SC_CR & compiler->parameter ) {
+	if ( SC_CR & semo->parameter ) {
 
 		CORENRCreatePanel ( CORENR_RGB565 , 2048 , 2048 ) ;
 		CORENRDrawText ( 15 , 10 , "Semo C()mpiler Compiling-Render" , 200 , 200 , 200 ) ;	
@@ -1069,62 +1024,62 @@ char* gentor_lac_run ( char* lacfile ) {
 
 	}
 	
-	while ( !lacgentor.stop ) {
+	while ( !lairgentor.stop ) {
 		
-		lacgentor_genv () ;
+		lairgentor_genv () ;
 
-		switch ( lacgentor.form ) {
+		switch ( lairgentor.form ) {
 			
 			case LGNOSIA_TOP_IDENT :
 				
-				if ( SC_CR & compiler->parameter ) {		
+				if ( SC_CR & semo->parameter ) {		
 
-					if ( SC_EXP & compiler->parameter )
-						lgay = CORENRLgaExpRender ( lacgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
-					if ( SC_LGA & compiler->parameter )
-						CORENRCFDFSRender ( lacgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
-	 				//CORENRCFBFSRender ( corenr , lacgentor.lgnosia , 200 , lgay ) ;
+					if ( SC_EXP & semo->parameter )
+						lgay = CORENRLgaExpRender ( lairgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
+					if ( SC_LGA & semo->parameter )
+						CORENRCFDFSRender ( lairgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
+	 				//CORENRCFBFSRender ( corenr , lairgentor.lgnosia , 200 , lgay ) ;
 				}
 				
-				lacgentor_gen_funcdef () ; 
+				lairgentor_gen_funcdef () ; 
 				
 			break ;
 			
 		}
 
-		LgnosiaDestroy ( lacgentor.lgnosia ) ;		
-		lacgentor_next () ;
+		LgnosiaDestroy ( lairgentor.lgnosia ) ;		
+		lairgentor_next () ;
 
 	}
 
 	//	generate live-scope and start register allocation
-	if ( SC_ARM & compiler->parameter ) {
+	if ( SC_ARM & semo->parameter ) {
 		//	there are only 8 gernel registers for programer from ARM
-		LACLiveScopeGenerate ( 8 ) ;
+		LairAllocRegister ( 8 ) ;
 	}
 	
-	//	Get Lac Codes
-	lac = LACGetContent () ;
-	LACClear () ;
+	//	Get Lair Codes
+	lair = LairGetCode () ;
+	LairClearCode () ;
 
-	if ( SC_CR & compiler->parameter ) {
-		char* file = sc_strcat ( lacfile , ".cr.bmp" ) ;		
+	if ( SC_CR & semo->parameter ) {
+		char* file = sc_strcat ( lairfile , ".cr.bmp" ) ;		
 		CORENROutputPanel ( file ) ;
 		CORENRDestroyPanel () ;
 		SCFree ( file ) ;
 	}
 
-	if ( SC_LAC & compiler->parameter ) {
-		void* file = SCHalFileOpen ( lacfile , "wb+" ) ;
-		SCHalFileWrite ( file , lac , 1 , sc_strlen (lac) ) ;
+	if ( SC_LAIR & semo->parameter ) {
+		void* file = SCHalFileOpen ( lairfile , "wb+" ) ;
+		SCHalFileWrite ( file , lair , 1 , sc_strlen (lair) ) ;
 		SCHalFileClose ( file ) ;
 		//	release it here
-		SCFree ( lacfile ) ;
+		SCFree ( lairfile ) ;
 	}
 
 	SymboleUninstall () ;
 
-	return lac ;
+	return lair ;
 
 }
 

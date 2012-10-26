@@ -37,7 +37,7 @@
 # include "sccl.h"
 # include "semo.h"
 
-COMPILER* compiler = 0 ;
+COMPILER* semo = 0 ;
 
 static void help () {
 	
@@ -55,7 +55,7 @@ Options :\n\
 \t -cpp \t\t compile c plus plus language\n\
 \t -java \t\t compile java language\n\
 \t -po \t\t export pre-compiling results to external file\n\
-\t -lac \t\t export IR to external file\n\
+\t -lair \t\t export IR to external file\n\
 \t -sasm \t\t export semo assembly code to external file\n\
 \t -cr \t\t enable compiling-render and export results\n\
 \t -elf \t\t generate object-file with ELF format as defaul\n\
@@ -85,8 +85,8 @@ SET :\n\
 \n\
 Example :\n\
 \t sc test.c -c -X86\n\
-\t sc -c -lac -sasm test.c test2.c test3.c\n\
-\t sc -c -lac -sasm -cr -arm SET po=dc,ms SET cr=lga test.c test2.c\n\
+\t sc -c -lair -sasm test.c test2.c test3.c\n\
+\t sc -c -lair -sasm -cr -arm SET po=dc,ms SET cr=lga test.c test2.c\n\
 \t sc test.c SET linker=test2.lib test3.lib\n\
 \n\
 More :\n\
@@ -212,9 +212,9 @@ static int sc_command_parser ( COMPILER* compiler , int argc , char** argv ) {
 
 					compiler->parameter |= SC_PO ;						
 
-				} else if ( !sc_strcmp ( lexc->token , "lac" ) ) {
+				} else if ( !sc_strcmp ( lexc->token , "lair" ) ) {
 
-					compiler->parameter |= SC_LAC ;						
+					compiler->parameter |= SC_LAIR ;						
 
 				} else if ( !sc_strcmp ( lexc->token , "sasm" ) ) {
 
@@ -457,23 +457,23 @@ static void SCCompilerDestroy () {
 
 	int walker = 0 ;
 	
-	if ( !compiler ) return ;
+	if ( !semo ) return ;
 
-	SCClListSetIterator ( compiler->il , SCCLLISTSEEK_HEAD ) ;
-	for ( ; SCClListIteratorPermit ( compiler->il ) ; SCClListListIteratorNext ( compiler->il ) )
-		SCFree ( SCClListIteratorGetElement ( compiler->il ) ) ;
+	SCClListSetIterator ( semo->il , SCCLLISTSEEK_HEAD ) ;
+	for ( ; SCClListIteratorPermit ( semo->il ) ; SCClListListIteratorNext ( semo->il ) )
+		SCFree ( SCClListIteratorGetElement ( semo->il ) ) ;
 
-	SCClListDestroy ( compiler->il ) ;
-	SCFree ( compiler->il ) ;
+	SCClListDestroy ( semo->il ) ;
+	SCFree ( semo->il ) ;
 
-	SCClListSetIterator ( compiler->ol , SCCLLISTSEEK_HEAD ) ;
-	for ( ; SCClListIteratorPermit ( compiler->ol ) ; SCClListListIteratorNext ( compiler->ol ) )
-		SCFree ( SCClListIteratorGetElement ( compiler->ol ) ) ;
+	SCClListSetIterator ( semo->ol , SCCLLISTSEEK_HEAD ) ;
+	for ( ; SCClListIteratorPermit ( semo->ol ) ; SCClListListIteratorNext ( semo->ol ) )
+		SCFree ( SCClListIteratorGetElement ( semo->ol ) ) ;
 
-	SCClListDestroy ( compiler->ol ) ;
-	SCFree ( compiler->ol ) ;
+	SCClListDestroy ( semo->ol ) ;
+	SCFree ( semo->ol ) ;
 
-	SCFreeEx ( &compiler ) ;
+	SCFreeEx ( &semo ) ;
 
 	SCHalMemoryOverflowed () ;
 	SCHalMemoryLeaked () ;
@@ -501,40 +501,40 @@ static int SCCompilerReady ( int argc , char** argv  ) {
 		
 	}
 	
-	compiler = SCCompilerCreate () ;
+	semo = SCCompilerCreate () ;
 
-	if ( !compiler ) return 0 ;
+	if ( !semo ) return 0 ;
 	
-	if ( !sc_command_parser ( compiler , argc , argv ) ) {
-		SCFreeEx ( &compiler ) ;
+	if ( !sc_command_parser ( semo , argc , argv ) ) {
+		SCFreeEx ( &semo ) ;
 		return 0 ;
 	}
 	
-	if ( SC_C99 & compiler->parameter ) {
+	if ( SC_C99 & semo->parameter ) {
 		//	preprocessor of c lanuage
-		compiler->PRESOR = (void* )presor_c_run ;
+		semo->PRESOR = (void* )presor_c_run ;
 		//	parser of c lanuage
-		compiler->PARSER = (void* )parser_c_run ;
+		semo->PARSER = (void* )parser_c_run ;
 	}
 
-	if ( SC_ARM & compiler->parameter ) {
+	if ( SC_ARM & semo->parameter ) {
 		//	ARMv6 assembly codes generator.
-		compiler->ASMOR = (void* )asmor_arm_run ;
+		semo->ASMOR = (void* )asmor_arm_run ;
 		//	ARMv6 assembler. 		
-		compiler->ASSEMER = (void* )assemer_arm_run ;
+		semo->ASSEMER = (void* )assemer_arm_run ;
 	}
 
-	if ( SC_C2J & compiler->parameter ) {
+	if ( SC_C2J & semo->parameter ) {
 		//	preprocessor of c lanuage
-		compiler->PRESOR = (void* )presor_c_run ;
+		semo->PRESOR = (void* )presor_c_run ;
 		//	parser of c lanuage
-		compiler->PARSER = (void* )parser_c_run ;		
-		compiler->GENTOR = (void* )gentor_java_run ;
+		semo->PARSER = (void* )parser_c_run ;		
+		semo->GENTOR = (void* )gentor_java_run ;
 	} else {
-		compiler->GENTOR = (void* )gentor_lac_run ;	
+		semo->GENTOR = (void* )LairGentorRun ;	
 	}
 
-	compiler->RELEASE = (void* )SCCompilerDestroy ;
+	semo->RELEASE = (void* )SCCompilerDestroy ;
 	
 	return 1 ;
 
@@ -554,30 +554,30 @@ int SCCompile ( int argc , char** argv , int type ) {
 	if ( !SCCompilerReady ( argc , argv ) )
 		return 0 ;
 	
-	compiler->stime = clock () ;
+	semo->stime = clock () ;
 
 	#ifdef SEMO_DEBUG
 	{
 
 		//	just for debug bellow
-		compiler->parameter |= SC_PO ;	
-		compiler->parameter |= SC_LAC ;
-		compiler->parameter |= SC_SASM ;	
-		compiler->parameter |= SC_CR ;							
-		compiler->parameter |= SC_EXP ;	
+		semo->parameter |= SC_PO ;	
+		semo->parameter |= SC_LAIR ;
+		semo->parameter |= SC_SASM ;	
+		semo->parameter |= SC_CR ;							
+		semo->parameter |= SC_EXP ;	
 						
 	}
 	#endif
 
-	for ( ; SCClListIteratorPermit ( compiler->il ) ; SCClListListIteratorNext ( compiler->il ) ) {
+	for ( ; SCClListIteratorPermit ( semo->il ) ; SCClListListIteratorNext ( semo->il ) ) {
 
 		//	lgnosia codes
-		char* lac = 0 ;
+		char* lair = 0 ;
 		//	assembly codes
 		char* asm = 0 ;
 		char* buffer = 0 ;
 		//	source file of codes
-		char* file = (char* ) SCClListIteratorGetElement ( compiler->il ) ;
+		char* file = (char* ) SCClListIteratorGetElement ( semo->il ) ;
 		//	objective files been compiled
 		char* o = 0 ;
 
@@ -606,25 +606,25 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 		//	create a lexer for c language which is a low-level analyzer under the parser
 		//	lexer would cut the source streams as a 'lexical atom' to the parser.
-		if ( SC_C99 & compiler->parameter ) {
+		if ( SC_C99 & semo->parameter ) {
 			lexerc_set ( lexerc_new ( buffer , LEXERC_DEFAULT_MODE ) ) ; 		
 		}
 
 		//	Preprcessor of the front-para
-		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
+		if ( !semo->PRESOR ( sc_strcat (file,".po") ) ) continue ;
 		
 #if 1
 		//	Parser of the front-para
-	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
+	 	if ( !semo->PARSER ( &semo->lines ) ) continue ;
 
 		//	Lgnosia Codes Generator
-		lac = compiler->GENTOR ( sc_strcat (file,".ir") ) ;		
+		lair = semo->GENTOR ( sc_strcat (file,".ir") ) ;		
 		//	Assembly Codes Generator
-		//asm = compiler->ASMOR ( lac , sc_strcat (file,".sasm") ) ;
+		//asm = compiler->ASMOR ( lair , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;
-		SCClListInsert  ( (SCClList* )compiler->ol , o ) ;
-		compiler->ASSEMER ( asm , o , &compiler->codes ) ;
+		SCClListInsert  ( (SCClList* )semo->ol , o ) ;
+		semo->ASSEMER ( asm , o , &semo->codes ) ;
 #endif
 
 		lexerc_destroy () ;
@@ -635,29 +635,29 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 	//	objective files are saved with compiler->ol which is a SCClList.
 	//	its the parameter of LINKER.
-	if ( SC_LINK & compiler->parameter ) {
-		compiler->LINKER ( compiler->ol ) ;
+	if ( SC_LINK & semo->parameter ) {
+		semo->LINKER ( semo->ol ) ;
 	}
 	
-	compiler->etime = clock () ;
+	semo->etime = clock () ;
 
 	//	print compiling logs bellow
-	if ( compiler->lines && compiler->etime - compiler->stime )
-		perline = ((float)compiler->lines / (compiler->etime - compiler->stime)) ;
+	if ( semo->lines && semo->etime - semo->stime )
+		perline = ((float)semo->lines / (semo->etime - semo->stime)) ;
 
 	//	print compiling logs
 	SClog ("\n") ;
-	SClog ("Totall Costs : %1.3f sec\n" , (float)(compiler->etime - compiler->stime)/1000 ) ;
-	SClog ("Orignal Lines : %d \n" , compiler->lines ) ;
+	SClog ("Totall Costs : %1.3f sec\n" , (float)(semo->etime - semo->stime)/1000 ) ;
+	SClog ("Orignal Lines : %d \n" , semo->lines ) ;
 	SClog ("Compiling Speed : %1.3f\n" , perline ) ;
-	SClog ("Binarys Compiled : %1.3fkb\n" , (float)compiler->codes / 1024 ) ;
+	SClog ("Binarys Compiled : %1.3fkb\n" , (float)semo->codes / 1024 ) ;
 	//	live-scopes spliting times of York-Town allocator
-	SClog ("Lives Splited : %d times\n" , compiler->lssplits ) ;
+	SClog ("Lives Splited : %d times\n" , semo->lssplits ) ;
 	//	register allocation times
-	SClog ("Reg-Alloc Costs : %d ms\n" , compiler->regoccosts ) ;
+	SClog ("Reg-Alloc Costs : %d ms\n" , semo->regoccosts ) ;
 	SClog ("\n" ) ;
 
-	compiler->RELEASE () ;
+	semo->RELEASE () ;
 
 	return 1 ;
 	

@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC LEXER , part of SC mid-para
++	LAIR's codes lex , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -30,51 +30,51 @@
 # include "lair-lexer.h"
 # include "lair-grammar.h"
 
-# define LAC_TOK_DEFAULT_LENGTH 256
-# define LAC_LANGUGE_KEYWORDS_TOTALL 10
+# define LAIR_TOK_DEFAULT_LENGTH 256
+# define LAIR_LANGUGE_KEYWORDS_TOTALL 10
 
-SCClString LACTOK = { 0 , 0 , 0 , 0 , 0 } ;
-LEXERLAC* lexac = 0 ;
+SCClString LAIRTOK = { 0 , 0 , 0 , 0 , 0 } ;
+LEXERLAIR* lexlair = 0 ;
 
 typedef struct {
 	
 	//	author : Jelo Wang
-	//	notes : key words of lac language
+	//	notes : key words of lair language
 	//	since : 20100503
 	//	(C)TOK
 
 	char* name ;
 	int   type ;
 
-} LAC_KEYWORDS ;
+} LAIR_KEYWORDS ;
 
-LAC_KEYWORDS lac_key[ LAC_LANGUGE_KEYWORDS_TOTALL ] = {
+LAIR_KEYWORDS LAIR_key[ LAIR_LANGUGE_KEYWORDS_TOTALL ] = {
 
-	{ "else" , LAC_ELSE } ,
-	{ "extern" , LAC_EXTERN } ,
-	{ "for" , LAC_FOR } ,
-	{ "goto" , LAC_GOTO } ,
-	{ "if" , LAC_IF } ,
-	{ "register" , LAC_REGISTER } ,
-	{ "return" , LAC_RETURN } ,
-	{ "static" , LAC_STATIC } ,
-	{ "volatile" , LAC_VOLATILE } ,
-	{ "while" , LAC_WHILE } ,
+	{ "else" , LAIR_ELSE } ,
+	{ "extern" , LAIR_EXTERN } ,
+	{ "for" , LAIR_FOR } ,
+	{ "goto" , LAIR_GOTO } ,
+	{ "if" , LAIR_IF } ,
+	{ "register" , LAIR_REGISTER } ,
+	{ "return" , LAIR_RETURN } ,
+	{ "static" , LAIR_STATIC } ,
+	{ "volatile" , LAIR_VOLATILE } ,
+	{ "while" , LAIR_WHILE } ,
 
 } ;
 
-static int lexerac_digit_lex ( int v ) {
+static int LexerLair_digit_lex ( int v ) {
 	
 	//	author : Jelo Wang
 	//	since : 20100412
 	//	(C)TOK
 
 	switch ( v ) {
-		case LAC_INTNUM : 
-		case LAC_FLTNUM :   
-		case LAC_HEXNUM :   
-		case LAC_FLTENUM :  
-		case LAC_INTENUM : 
+		case LAIR_INTNUM : 
+		case LAIR_FLTNUM :   
+		case LAIR_HEXNUM :   
+		case LAIR_FLTENUM :  
+		case LAIR_INTENUM : 
 			return 1 ; 
 		break ;
 	}
@@ -84,7 +84,657 @@ static int lexerac_digit_lex ( int v ) {
 }
 
 
-LEXERLAC* lexerac_new ( unsigned char* data , int mmode ) {
+static int LexerLair_find_key ( char* token ) {
+
+	//	author : Jelo Wang
+	//	since : 2008
+	//	updated : 20090816
+	//	(C)TOK
+	
+	//	notes : look over keywords table
+
+	int count = 0 ;
+
+
+	while ( count < LAIR_LANGUGE_KEYWORDS_TOTALL ) {
+
+		if ( !sc_strcmp ( LAIR_key[ count ].name , token ) )
+			return LAIR_key[ count ].type ;
+		
+		count ++ ;
+		
+	}
+
+	return 0 ;
+
+}
+
+
+static int LexerLair_search_function () {
+
+	//	author : Jelo Wang
+	//	since : 20100116
+	//	(C)TOK
+
+	int step_orignal = lexlair->code->get_walker ;
+
+	for ( ; lexlair->code->get_walker < lexlair->code->length && lexlair->code->data[lexlair->code->get_walker] != '{'; ) {
+		lexlair->code->get_walker  ++ ;
+	}
+
+	if (  '{'  == lexlair->code->data[lexlair->code->get_walker] ) {
+
+		for ( ; lexlair->code->get_walker < lexlair->code->length && lexlair->code->data[lexlair->code->get_walker] != ')'; )
+			lexlair->code->get_walker  -- ;
+
+		if (  ')'  == lexlair->code->data[lexlair->code->get_walker] ) {
+
+			lexlair->code->get_walker  = step_orignal ;
+			return 1 ;
+
+		} else {
+
+			lexlair->code->get_walker  = step_orignal ;
+			return 0 ;
+
+		}
+
+	} else {
+		lexlair->code->get_walker  = step_orignal ;
+		return 0 ;
+	}
+
+	
+}
+
+
+static int LexerLair_matchop ( int el ) {
+
+	//	author : Jelo Wang
+	//	since : 2008
+	//	updated : 20090813
+	//	notes : identify operator
+	//	(C)TOK
+	
+	int STATE=0;
+	int TYPE=0;
+
+	static char buffer [ 4 ] ;
+
+	if ( '=' == LexerLairLook ( 1 ) ) {
+		
+		switch ( el ) {
+			
+			case '=':
+				
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "==" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;
+				lexlair->v = LAIR_EQ ;
+
+			break;
+			
+			case '<':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "<=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_LE ;	
+
+			break;
+			
+			case '>':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , ">=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_GE ;					
+			break;
+			
+			case '!':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "!=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_NE ;						
+			break;
+			
+			case '+':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "+=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_SLA ;							
+			break;
+			
+			case '-':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "-=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_SLS ;				
+			break;
+			
+			case '*':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "*=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_SLM ;							
+			break;
+			
+			case '/':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "/=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_SLD ;						
+			break;
+			
+			case '|':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "|=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_BEO ;						
+			break;
+			
+			case '&':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "&=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_BEA ;						
+			break;
+			
+			case '^':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "^=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_BEY ;						
+			break;
+			
+			case '%':
+				LexerLairJump ( 2 ) ;
+				sc_strcpy ( buffer , "%=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_BEB ;						
+			break;
+			
+		}
+		
+	} else {
+
+		switch ( el ) {
+			
+			case '=':
+				
+				LexerLairJump ( 1 ) ;
+				sc_strcpy ( buffer , "=" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_EQU ;			
+				
+			break;
+			
+			case '<':
+
+				if ( '<' == LexerLairLook ( 1 ) && '=' == LexerLairLook ( 2 ) ) {
+					
+					LexerLairJump(3) ;
+					sc_strcpy ( buffer , "<<=" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_SHLL ;	
+				
+				} else if ( '<' == LexerLairLook ( 1 ) ) {
+
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "<<" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_SHL ;						
+
+				} else {
+				
+					LexerLairJump ( 1 ) ;
+					sc_strcpy ( buffer , "<" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					 
+					lexlair->v = LAIR_LT ;			
+
+				}
+				
+			break;
+			
+			case '>':
+				
+				if ( '>' == LexerLairLook ( 1 ) && '=' == LexerLairLook ( 2 ) ) {
+
+					LexerLairJump ( 3 )  ;
+					sc_strcpy ( buffer , ">>=" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					 
+					lexlair->v = LAIR_SHRR ;
+				
+				} else if ( '>' == LexerLairLook ( 1 ) ) {
+
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , ">>" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;	
+				 	lexlair->v = LAIR_SHR ;
+				
+				} else {
+			    	
+					LexerLairJump ( 1 ) ;
+					sc_strcpy ( buffer , ">" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+				 	lexlair->v = LAIR_GT ;		
+				
+				}
+					
+			break;
+			
+			case '!':
+				
+				LexerLairJump ( 1 ) ;
+				sc_strcpy ( buffer , "!" ) ;
+				
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_TAN ;						
+				
+			break;
+			
+			case '+':
+				
+				if ( '+' == LexerLairLook ( 1 ) ) {
+
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "++" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_JAA ;	
+					
+				} else {
+					
+					int lexv = 0 ; 
+					LexerLairJump ( 1 ) ;
+					//lexv = LexerLairHeadGenv (1) ;
+
+					//if ( LexerLair_digit_lex (lexv) ) {
+						
+					//	LexerLairGenv () ;
+
+					//	return 1 ;
+
+					//} else {
+
+						sc_strcpy ( buffer , "+" ) ;
+						
+						lexlair->token = buffer ;
+						lexlair->c = 0 ;
+						lexlair->pv = lexlair->v ;					 
+						lexlair->v = LAIR_ADD ;
+						
+					//}
+
+					
+				}
+				
+			break;
+			
+			case '-':
+				
+				if ( '-' == LexerLairLook ( 1 ) ) {
+					
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "--" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_JNN ;
+				
+				} else if ( '>' == LexerLairLook ( 1 ) ) {
+			    	
+					 LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "->" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					 
+					lexlair->v = LAIR_PNT ;					 
+					 
+				} else {
+
+					int lexv = 0 ; 
+					LexerLairJump ( 1 ) ;
+					lexv = LexerLairHeadGenv (1) ;
+					
+					if ( LexerLair_digit_lex (lexv) ) {
+						
+						LexerLairGenv () ;
+						SCClStringInsert ( &LAIRTOK , "-" , 0 ) ;
+						
+						switch ( lexlair->v ) {
+							case LAIR_INTNUM : 
+								lexlair->pv = lexlair->v ;
+								lexlair->v = LAIR_MUS_INTNUM ;
+							break ;
+							case LAIR_FLTNUM :   
+								lexlair->pv = lexlair->v ;
+								lexlair->v = LAIR_MUS_FLTNUM ;
+							break ;
+							case LAIR_HEXNUM :   
+								lexlair->pv = lexlair->v ;
+								lexlair->v = LAIR_MUS_HEXNUM ;
+							break ;
+							case LAIR_FLTENUM :  
+								lexlair->pv = lexlair->v ;
+								lexlair->v = LAIR_MUS_FLTENUM ;
+							break ;
+							case LAIR_INTENUM : 
+								lexlair->pv = lexlair->v ;
+								lexlair->v = LAIR_MUS_INTENUM ;
+							break ;
+						}
+
+						return 1 ;
+
+					} else {
+						
+						sc_strcpy ( buffer , "-" ) ;
+						
+						lexlair->token = buffer ;
+						lexlair->c = 0 ;
+						lexlair->pv = lexlair->v ;					 
+						lexlair->v = LAIR_SUB ;			
+					
+					}
+					 
+				}
+				
+			break;
+			
+			//	int* gtkings;
+			//	int a,a2,a3,*a4,a5;
+			//	pointer gtkings;
+			//	pointer a4;
+			
+			case '*':
+				
+				if ( '*' == LexerLairLook ( 1 ) ) {
+
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "**" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_PPT ;							 
+
+				} else {
+
+					LexerLairJump ( 1 ) ;
+					sc_strcpy ( buffer , "*" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_MUL ;						 
+
+				}
+				
+			break;
+			
+			case '/':
+				
+
+				if ( '/' == LexerLairLook ( 1 ) ) {
+					
+					LexerLairDropJunk ('/') ;
+
+					lexlair->token = 0 ;
+					lexlair->c = 0 ;
+					lexlair->pv = 0 ;				
+					lexlair->v = 0 ;
+
+				} else if( '*' == LexerLairLook ( 1 ) ) {
+
+					LexerLairDropJunk ('*') ;
+
+					lexlair->token = 0 ;
+					lexlair->c = 0 ;
+					lexlair->pv = 0 ;				
+					lexlair->v = 0 ;
+
+				} else {
+
+					LexerLairJump ( 1 ) ;
+					sc_strcpy ( buffer , "/" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_DIV ;
+				
+				}
+				
+			break;
+			
+			case '|':
+				
+				if ( '|' == LexerLairLook ( 1 ) ) {
+
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "||" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_OR ;						 
+
+				} else {
+
+					LexerLairJump ( 1 ) ;
+					sc_strcpy ( buffer , "|" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_HU ;						 
+
+				}
+				
+			break;
+			
+			case '&':
+				
+				if ( '&' == LexerLairLook ( 1 ) ) {
+
+					LexerLairJump ( 2 ) ;
+					sc_strcpy ( buffer , "&&" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_AND ;			 
+					 
+				} else {
+
+					LexerLairJump ( 1 ) ;
+					sc_strcpy ( buffer , "&" ) ;
+					
+					lexlair->token = buffer ;
+					lexlair->c = 0 ;
+					lexlair->pv = lexlair->v ;					
+					lexlair->v = LAIR_HE ;		
+					
+				}
+				
+			break;
+			
+			case '^':
+				
+				LexerLairJump ( 1 ) ;
+				sc_strcpy ( buffer , "^" ) ;
+					
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_YHH ;					
+				
+			break;
+
+/*
+
+							{
+
+								//	generate lsn
+								SCClString Lsn = {0} ; 
+								LexerLairNext () ;
+									
+								while ( sc_is_digit(lexlair->c) ) {
+									SCClStringAdd ( &Lsn , LexerLairGetAtom () ) ;
+									LexerLairNext () ;
+								}   
+								
+								SCClStringAdd ( &Lsn , '\0' ) ;
+
+								lexlair->lsn = SCClAtoi ( Lsn.data ) ;								
+								SCClStringDestroyEx ( &Lsn ) ;
+	
+							}
+*/
+			
+			case '%':
+
+				if (  '$' == LexerLairLook ( 1 )  ) {
+					
+					LexerLairJump ( 2 ) ;
+					
+					//	skip these junk streams that we donnt needed
+					LexerLairSkipSpace () ;
+					
+					while( LexerLairIsVar () ) ;
+
+					if ( 'V' == LAIRTOK.data[0] && '.' == LexerLairLook ( 0 ) ) {
+					
+						//	virtual register detected 					
+						SCClStringInsert ( &LAIRTOK , "%$" , 0 ) ;
+						
+						{
+
+							//	generate lsn
+							SCClString Lsn = {0} ; 
+							LexerLairNext () ;
+									
+							while ( sc_is_digit(lexlair->c) ) {
+								SCClStringAdd ( &Lsn , LexerLairGetAtom () ) ;
+								LexerLairNext () ;
+							}   
+
+							SCClStringAdd ( &Lsn , '\0' ) ;
+
+							lexlair->lsn = SCClAtoi ( Lsn.data ) ;								
+							SCClStringDestroyEx ( &Lsn ) ;
+
+							SCClStringAdd ( &LAIRTOK , '.' ) ;										
+							SCClStringAddStr ( &LAIRTOK , SCClItoa (lexlair->lsn)) ;		
+							SCClStringAdd ( &LAIRTOK , '\0' ) ;							
+
+						}
+							
+						lexlair->pv = lexlair->v ;				
+						lexlair->v = LAIR_VREG ;
+						lexlair->token = LAIRTOK.data ;
+						
+					} else if ( 'P' == LAIRTOK.data[0] && 'E' == LAIRTOK.data[1] ) {
+						
+						lexlair->pv = lexlair->v ;				
+						lexlair->v = LAIR_PE ;
+						lexlair->token = LAIRTOK.data ;						
+
+ 					} else if ( 'C' == LAIRTOK.data[0] && 'A' == LAIRTOK.data[1] ) {
+
+						lexlair->pv = lexlair->v ;				
+						lexlair->v = LAIR_CA ;
+						lexlair->token = LAIRTOK.data ;						
+
+					}
+					
+					return STATE;
+					
+				}
+				
+				LexerLairJump ( 1 ) ;
+				sc_strcpy ( buffer , "%" ) ;
+					
+				lexlair->token = buffer ;
+				lexlair->c = 0 ;
+				lexlair->pv = lexlair->v ;				
+				lexlair->v = LAIR_MOD ;						
+				
+			break;
+
+		}
+	
+		
+	}
+	
+	return STATE;
+
+}
+
+
+LEXERLAIR* LexerLairNew ( unsigned char* data , int mmode ) {
 
 	//	author : Jelo Wang
 	//	since : 20090825
@@ -92,7 +742,7 @@ LEXERLAC* lexerac_new ( unsigned char* data , int mmode ) {
 
 	//	return a new lexer
 
-	LEXERLAC* lexer = (LEXERLAC* ) SCMalloc ( sizeof(LEXERLAC) ) ; 
+	LEXERLAIR* lexer = (LEXERLAIR* ) SCMalloc ( sizeof(LEXERLAIR) ) ; 
 
 	lexer->v = 0 ;
 	lexer->pv = 0 ;
@@ -112,13 +762,13 @@ LEXERLAC* lexerac_new ( unsigned char* data , int mmode ) {
 
 	lexer->scstack = (SCClStack* ) SCMalloc ( sizeof ( SCClStack ) ) ;
 
-	SCClStringInitEx ( &LACTOK , 256 ) ;	
+	SCClStringInitEx ( &LAIRTOK , 256 ) ;	
 
 	return lexer ;
 
 }
 
-void lexerac_set ( LEXERLAC* lexer ) {
+void LexerLairSet ( LEXERLAIR* lexer ) {
 
 	//	author : Jelo Wang
 	//	since : 20090825
@@ -126,11 +776,11 @@ void lexerac_set ( LEXERLAC* lexer ) {
 
 	//	set a runtime lexer
 
-	lexac = lexer ;
+	lexlair = lexer ;
 
 }
 
-void lexerac_clear_status () {
+void LexerLairClearStatus () {
 
 	//	author : Jelo Wang
 	//	since : 20091127
@@ -138,18 +788,18 @@ void lexerac_clear_status () {
 
 	//	set value
 
-	if ( !lexac ) return ;
+	if ( !lexlair ) return ;
 
-	lexac->v = 0 ;
-	lexac->c = 0 ;
-	lexac->pv = 0 ;
-	lexac->ppv = 0 ;
-	lexac->token = 0 ;
-	lexac->scale = 0 ;
+	lexlair->v = 0 ;
+	lexlair->c = 0 ;
+	lexlair->pv = 0 ;
+	lexlair->ppv = 0 ;
+	lexlair->token = 0 ;
+	lexlair->scale = 0 ;
 
 }
 
-void lexerac_set_file ( char* name ) {
+void LexerLairSetFile ( char* name ) {
 
 	//	author : Jelo Wang
 	//	since : 20090921
@@ -157,16 +807,16 @@ void lexerac_set_file ( char* name ) {
 
 	//	set file name 
 
-	if ( lexac -> file ) {
-		SCFree ( lexac -> file ) ;
+	if ( lexlair -> file ) {
+		SCFree ( lexlair -> file ) ;
 	}
 
-	lexac -> file = (char* ) SCMalloc ( sc_strlen ( name ) + 1 ) ;
-	sc_strcpy ( lexac -> file , name ) ;
+	lexlair -> file = (char* ) SCMalloc ( sc_strlen ( name ) + 1 ) ;
+	sc_strcpy ( lexlair -> file , name ) ;
 
 }
 
-void lexerac_destroy () {
+void LexerLairDestroy () {
 
 	//	author : Jelo Wang
 	//	since : 20090828
@@ -174,37 +824,37 @@ void lexerac_destroy () {
 
 	//	notes : destroy the current lexer
 
-	if ( ! lexac ) return ;
+	if ( ! lexlair ) return ;
 
-	SCClStringDestroy ( lexac->code ) ;
+	SCClStringDestroy ( lexlair->code ) ;
 
-	if ( lexac->file ) SCFree ( lexac->file ) ;  
+	if ( lexlair->file ) SCFree ( lexlair->file ) ;  
 
-	if ( lexac->scstack ) {
-		SCClStackDestroy ( lexac->scstack ) ;
-		SCFree ( lexac->scstack ) ;
+	if ( lexlair->scstack ) {
+		SCClStackDestroy ( lexlair->scstack ) ;
+		SCFree ( lexlair->scstack ) ;
 	}
 
-	SCFreeEx (& lexac ) ;
+	SCFreeEx (& lexlair ) ;
 
-	if ( LACTOK.data ) {
-		SCFreeEx ( &LACTOK.data ) ;
+	if ( LAIRTOK.data ) {
+		SCFreeEx ( &LAIRTOK.data ) ;
 	}
 
 }
 
 
-LEXERLAC* lexerac_get () {
+LEXERLAIR* LexerLairGet () {
 
 	//	author : Jelo Wang
 	//	since : 20090901
 	//	(C)TOK
 
-	return lexac ;
+	return lexlair ;
 
 }
 
-void lexerac_setmode ( int mmode ) {
+void LexerLairSetmode ( int mmode ) {
 
 	//	author : Jelo Wang
 	//	since : 20100129
@@ -212,310 +862,284 @@ void lexerac_setmode ( int mmode ) {
 
 	//	set lexer runing mode
 
-	if ( lexac )
-		lexac->mode = mmode ;
+	if ( lexlair )
+		lexlair->mode = mmode ;
 
 }
 
-static int lexerac_find_key ( char* token ) {
-
-	//	author : Jelo Wang
-	//	since : 2008
-	//	updated : 20090816
-	//	(C)TOK
-	
-	//	notes : look over keywords table
-
-	int count = 0 ;
-
-
-	while ( count < LAC_LANGUGE_KEYWORDS_TOTALL ) {
-
-		if ( !sc_strcmp ( lac_key[ count ].name , token ) )
-			return lac_key[ count ].type ;
-		
-		count ++ ;
-		
-	}
-
-	return 0 ;
-
-}
-
-
-void lexerac_ready ()  {
+void LexerLairReady ()  {
 
 	//	author : Jelo Wang
 	//	notes : code_set_iterator
 	//	since : 20090810
 	//	(C)TOK
 	
-	( (SCClString*) lexac->code)->get_walker = 0 ;
-	( (SCClString*) lexac->code)->last_walker = 0 ;
+	( (SCClString*) lexlair->code)->get_walker = 0 ;
+	( (SCClString*) lexlair->code)->last_walker = 0 ;
 
-	lexac->v = 0 ;
-	lexac->pv = 0 ;
-	lexac->ppv = 0;
+	lexlair->v = 0 ;
+	lexlair->pv = 0 ;
+	lexlair->ppv = 0;
 
-	lexac->line = 1 ;
-	lexac->stop = 0 ;
-	lexac->stack = 0 ;
+	lexlair->line = 1 ;
+	lexlair->stop = 0 ;
+	lexlair->stack = 0 ;
 
-	lexac->deep = 0 ;
-	lexac->headbit = 0 ;	
+	lexlair->deep = 0 ;
+	lexlair->headbit = 0 ;	
 
 
 }
 
-int lexerac_overflowed ()  {
+int LexerLairOverflowed ()  {
 
 	//	author : Jelo Wang
 	//	notes : code_overflowed
 	//	since : 20090810
 	//	(C)TOK
 	
-	if ( ( lexac->code -> get_walker >= lexac->code -> length ) ) {
-		lexac->c = 0;
-		lexac->token = 0;
-		lexac->v = 0;
-		lexac -> stop = 1;
+	if ( ( lexlair->code -> get_walker >= lexlair->code -> length ) ) {
+		lexlair->c = 0;
+		lexlair->token = 0;
+		lexlair->v = 0;
+		lexlair -> stop = 1;
 		return 1 ;
 	}
 
-	lexac->c = lexac->code -> data [ lexac->code -> get_walker ] ;
+	lexlair->c = lexlair->code -> data [ lexlair->code -> get_walker ] ;
 
 	return 0;
 
 }
 
-int lexerac_next ()  {
+int LexerLairNext ()  {
 
 	//	author : Jelo Wang
 	//	notes : code_next
 	//	since : 20090810
 	//	(C)TOK
 	
-	if ( lexerac_overflowed () )
+	if ( LexerLairOverflowed () )
 		return 1;
 
-	lexac->c = lexac->code -> data [ lexac->code -> get_walker + 1 ] ;
+	lexlair->c = lexlair->code -> data [ lexlair->code -> get_walker + 1 ] ;
 
-	lexac->code -> last_walker = lexac->code -> get_walker ;
-	lexac->code -> get_walker ++ ;
+	lexlair->code -> last_walker = lexlair->code -> get_walker ;
+	lexlair->code -> get_walker ++ ;
 	
 
 }
 
-unsigned char lexerac_get_atom ()  {
+unsigned char LexerLairGetAtom ()  {
 
 	//	author : Jelo Wang
 	//	notes : code_get
 	//	since : 20090810
 	//	(C)TOK
 	
-	if ( lexerac_overflowed () )
+	if ( LexerLairOverflowed () )
 		return 0;
 	
-	lexac->c = lexac->code -> data [ lexac->code -> get_walker ] ;
+	lexlair->c = lexlair->code -> data [ lexlair->code -> get_walker ] ;
 
-	return lexac->code -> data [ lexac->code -> get_walker ] ;
+	return lexlair->code -> data [ lexlair->code -> get_walker ] ;
 
 }
 
 
 
-void lexerac_put_atom ( unsigned char atom )  {
+void LexerLairPutAtom ( unsigned char atom )  {
 
 	//	author : Jelo Wang
 	//	notes : code_get
 	//	since : 20090926
 	//	(C)TOK
 	
-	if ( lexerac_overflowed () )
+	if ( LexerLairOverflowed () )
 		return 0;
 	
-	lexac->code -> data [ lexac->code -> get_walker ] = atom ;
+	lexlair->code -> data [ lexlair->code -> get_walker ] = atom ;
 
 }
 
-void lexerac_rollback ()  {
+void LexerLairRollback ()  {
 
 	//	author : Jelo Wang
 	//	notes : code_setback_walker
 	//	since : 20090810
 	//	(C)TOK
 	
-	lexac->code -> get_walker = SCClStackPop ( lexac -> scstack ) ; 
+	lexlair->code -> get_walker = SCClStackPop ( lexlair -> scstack ) ; 
 
 }
 
 
 
-void lexerac_backup () { 
+void LexerLairBackup () { 
 
 	//	author : Jelo Wang
 	//	since : 20100308
 	//	(C)TOK
 
-	SCClStackPush ( lexac -> scstack , lexac->code -> get_walker ) ;
+	SCClStackPush ( lexlair -> scstack , lexlair->code -> get_walker ) ;
 	
 }
 
-void lexerac_backup_clear () { 
+void LexerLairBackupClear () { 
 
 	//	author : Jelo Wang
 	//	since : 20100308
 	//	(C)TOK
 
-	SCClStackPop ( lexac->scstack ) ;
+	SCClStackPop ( lexlair->scstack ) ;
 	
 }
 
 
-void lexerac_setback ( int step )  {
+void LexerLairSetback ( int step )  {
 
 	//	author : Jelo Wang
 	//	notes : code_setback_walker
 	//	since : 20090810
 	//	(C)TOK
 	
-	if ( 0 > lexac->code->get_walker - step )
+	if ( 0 > lexlair->code->get_walker - step )
 		return 0 ;
 
-	lexac->code->get_walker = lexac->code->get_walker - step ;
+	lexlair->code->get_walker = lexlair->code->get_walker - step ;
 
 
 }
 
-void lexerac_skip_blank () {
+void LexerLairSkipBlank () {
 
 	//	author : Jelo Wang
 	//	notes : is_blank_token
 	//	since : 20090810
 	//	(C)TOK
 	
-	while ( sc_is_blank ( lexerac_get_atom () ) ) {
+	while ( sc_is_blank ( LexerLairGetAtom () ) ) {
 
-		if ( '\r' == lexac->c ) lexac->line ++ ;	
-		if ( '\n' == lexac->c ) lexac->line ++ ;
+		if ( '\r' == lexlair->c ) lexlair->line ++ ;	
+		if ( '\n' == lexlair->c ) lexlair->line ++ ;
 		
-		lexerac_next () ;
+		LexerLairNext () ;
 
 	}
 
 
 }
 
-void lexerac_skip_space () {
+void LexerLairSkipSpace () {
 
 	//	author : Jelo Wang
-	//	notes : lexerac_skip_space
+	//	notes : LexerLairSkipSpace
 	//	since : 20090816
 	//	(C)TOK
 	
-	while ( 0x20 == lexac->code -> data[ lexac->code -> get_walker ] || '\t' == lexac->code -> data[ lexac->code -> get_walker ] ) {
+	while ( 0x20 == lexlair->code -> data[ lexlair->code -> get_walker ] || '\t' == lexlair->code -> data[ lexlair->code -> get_walker ] ) {
 	
-		lexerac_next () ;
+		LexerLairNext () ;
 
 	}
 
 
 }
 
-void lexerac_jump ( int step ) {
+void LexerLairJump ( int step ) {
 
 	//	author : Jelo Wang
 	//	notes : code_setback_walker
 	//	since : 20090813
 	//	(C)TOK
 	
-	if ( lexac->code -> get_walker + step >= lexac->code -> length )
+	if ( lexlair->code -> get_walker + step >= lexlair->code -> length )
 		return ;
 	
-	lexac->code -> last_walker = lexac->code -> get_walker ;
-	lexac->code -> get_walker = lexac->code -> get_walker + step ;
-	lexac->c = lexac->code -> data [ lexac->code -> get_walker ] ;	
+	lexlair->code -> last_walker = lexlair->code -> get_walker ;
+	lexlair->code -> get_walker = lexlair->code -> get_walker + step ;
+	lexlair->c = lexlair->code -> data [ lexlair->code -> get_walker ] ;	
 
 
 }
 
-int lexerac_look ( int step )  {
+int LexerLairLook ( int step )  {
 
 	//	author : Jelo Wang
-	//	notes : lexerac_look
+	//	notes : LexerLairLook
 	//	since : 20090813
 	//	(C)TOK
 	
-	if ( lexac->code -> get_walker + step >= lexac->code -> length )
+	if ( lexlair->code -> get_walker + step >= lexlair->code -> length )
 		return 0 ;
 	
-	return lexac->code -> data [ lexac->code -> get_walker + step ] ; 
+	return lexlair->code -> data [ lexlair->code -> get_walker + step ] ; 
 
 
 }
 
-int lexerac_is_var () {
+int LexerLairIsVar () {
 	
 	//	author : Jelo Wang
 	//	rex model : $VAR => alpha(alpha | _)*
 	//	since : 2008
 	//	(C)TOK
 	
-	if( sc_is_alpha(lexac->c)||'_' == lexac->c|| sc_is_digit(lexac->c) ) {
-		SCClStringAdd ( &LACTOK , lexerac_get_atom () ) ;
-		lexerac_next () ;
+	if( sc_is_alpha(lexlair->c)||'_' == lexlair->c|| sc_is_digit(lexlair->c) ) {
+		SCClStringAdd ( &LAIRTOK , LexerLairGetAtom () ) ;
+		LexerLairNext () ;
 		return 1 ;
 	}
 
-	SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+	SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 
 	return 0 ;
 
 }
 
 
-int lexerac_is_num () {
+int LexerLairIsNum () {
 
 	//	author : Jelo Wang
 	//	rex model : $INTNUM
 	//	since : 2008
 	//	(C)TOK
 	
-	if( sc_is_digit(lexac->c) ) {
-		SCClStringAdd ( &LACTOK , lexerac_get_atom () ) ;
-		lexerac_next () ;
+	if( sc_is_digit(lexlair->c) ) {
+		SCClStringAdd ( &LAIRTOK , LexerLairGetAtom () ) ;
+		LexerLairNext () ;
 		return 1 ;
 	}   
 	
-	SCClStringAdd ( &LACTOK , '\0' ) ;
+	SCClStringAdd ( &LAIRTOK , '\0' ) ;
 
 	return 0 ;
 	
 }
 
-# define LACHEX(x) (sc_is_digit(x)||('a'<= x && x<='f')||('A'<=x && x<='F'))
+# define LAIRHEX(x) (sc_is_digit(x)||('a'<= x && x<='f')||('A'<=x && x<='F'))
 	
-int lexerac_is_hex() {
+int LexerLairIsHex() {
 
 	//	author : Jelo Wang
 	//	rex model : $HEXNUM
 	//	since : 2008
 	//	(C)TOK
 	
-	if(LACHEX(lexac->c)) {
-		SCClStringAdd ( &LACTOK , lexerac_get_atom () ) ;
-		lexerac_next () ;
+	if(LAIRHEX(lexlair->c)) {
+		SCClStringAdd ( &LAIRTOK , LexerLairGetAtom () ) ;
+		LexerLairNext () ;
 		return 1 ;
 	}  
 
-	SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+	SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 	
 	return 0 ;
 	
 }
 
 
-int lexerac_cluster ( int el ) {
+int LexerLairCluster ( int el ) {
 
 	//0x22 is "
 	//0x5c is \
@@ -530,37 +1154,37 @@ int lexerac_cluster ( int el ) {
 
 
 
-		while ( lexac->code->get_walker < lexac->code->length ) {
+		while ( lexlair->code->get_walker < lexlair->code->length ) {
 
 			
 			switch ( state ) {
 
 				case 0 :
 
-					if ( '"' == lexac->c ) { state = 1 ; SCClStringAdd ( &LACTOK , lexac->c ) ; lexerac_next () ; }
-					else { lexerac_next () ; return 0 ; }
+					if ( '"' == lexlair->c ) { state = 1 ; SCClStringAdd ( &LAIRTOK , lexlair->c ) ; LexerLairNext () ; }
+					else { LexerLairNext () ; return 0 ; }
 						
 				break ;
 
 				case 1 :
 
-					if ( '\\' == lexac->c ) { state = 2 ; lexerac_next () ; }
-					else if ( '"' == lexac->c ) {
+					if ( '\\' == lexlair->c ) { state = 2 ; LexerLairNext () ; }
+					else if ( '"' == lexlair->c ) {
 
-						SCClStringAdd ( &LACTOK , '"' ) ;
-						SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+						SCClStringAdd ( &LAIRTOK , '"' ) ;
+						SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 											
-						lexac->token = LACTOK.data ;
-						lexac->c = 0 ;
-						lexac->pv = lexac->v ;
-						lexac->v = LAC_STR ;
+						lexlair->token = LAIRTOK.data ;
+						lexlair->c = 0 ;
+						lexlair->pv = lexlair->v ;
+						lexlair->v = LAIR_STR ;
 
-						lexerac_next () ;
+						LexerLairNext () ;
 
 						return 1 ;
 
 						
-					} else { SCClStringAdd ( &LACTOK , lexac->c ) ; state = 1 ; lexerac_next () ; }
+					} else { SCClStringAdd ( &LAIRTOK , lexlair->c ) ; state = 1 ; LexerLairNext () ; }
 				
 					
 						
@@ -568,8 +1192,8 @@ int lexerac_cluster ( int el ) {
 
 				case 2 :
 
-					SCClStringAdd ( &LACTOK , lexac->c ) ; 
-					lexerac_next () ; 
+					SCClStringAdd ( &LAIRTOK , lexlair->c ) ; 
+					LexerLairNext () ; 
 					state = 1 ;
 						
 				break ;	
@@ -589,38 +1213,38 @@ int lexerac_cluster ( int el ) {
 
 				case 0 :
 
-					if ( '\'' == lexac->c ) { state = 1 ; SCClStringAdd ( &LACTOK , lexac->c ) ; lexerac_next () ; step ++ ; }
-					else { lexerac_next () ; return 0 ; }
+					if ( '\'' == lexlair->c ) { state = 1 ; SCClStringAdd ( &LAIRTOK , lexlair->c ) ; LexerLairNext () ; step ++ ; }
+					else { LexerLairNext () ; return 0 ; }
 						
 				break ;
 
 				case 1 :
 
-					if ( '\\' == lexac->c ) { state = 2 ; lexerac_next () ; }
-					else if ( '\'' == lexac->c ) {
+					if ( '\\' == lexlair->c ) { state = 2 ; LexerLairNext () ; }
+					else if ( '\'' == lexlair->c ) {
 
-						SCClStringAdd ( &LACTOK , '\'' ) ;
-						SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+						SCClStringAdd ( &LAIRTOK , '\'' ) ;
+						SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 
-						lexac->token = LACTOK.data ;
-						lexac->c = 0 ;
-						lexac->pv = lexac->v ;
-						lexac->v = LAC_CHA ;
+						lexlair->token = LAIRTOK.data ;
+						lexlair->c = 0 ;
+						lexlair->pv = lexlair->v ;
+						lexlair->v = LAIR_CHA ;
 						
-						lexerac_next () ;
+						LexerLairNext () ;
 						
 						return 1 ;
 						
 						
-					} else { SCClStringAdd ( &LACTOK , lexac->c ) ; state = 1 ; step ++ ; lexerac_next () ; }
+					} else { SCClStringAdd ( &LAIRTOK , lexlair->c ) ; state = 1 ; step ++ ; LexerLairNext () ; }
 				
 						
 				break ;		
 
 				case 2 :
 
-					SCClStringAdd ( &LACTOK , lexac->c ) ; 
-					lexerac_next () ; 
+					SCClStringAdd ( &LAIRTOK , lexlair->c ) ; 
+					LexerLairNext () ; 
 					state = 1 ;
 					step ++ ; 
 					
@@ -638,7 +1262,7 @@ int lexerac_cluster ( int el ) {
 }
 
 
-int lexerac_drop_junk ( int el ) {
+int LexerLairDropJunk ( int el ) {
 
 	//	author : Jelo Wang
 	//	since : 2008
@@ -652,17 +1276,17 @@ int lexerac_drop_junk ( int el ) {
 
 	if ( '/' == el ) {
 
-		while ( lexac->code->get_walker < lexac->code->length ) {
+		while ( lexlair->code->get_walker < lexlair->code->length ) {
 
-			if ( '\\' == lexac->code -> data[lexac->code->get_walker] ) {
+			if ( '\\' == lexlair->code -> data[lexlair->code->get_walker] ) {
 				escape = '\\' ;
-			} else if( 13 == lexac->code -> data[lexac->code->get_walker] && '\\' != escape ) {
+			} else if( 13 == lexlair->code -> data[lexlair->code->get_walker] && '\\' != escape ) {
 				break ;
 			} else escape = 0 ;
 			
-			lexac->code -> data [ lexac->code->get_walker ] = 0x20 ;
+			lexlair->code -> data [ lexlair->code->get_walker ] = 0x20 ;
 
-			lexerac_next () ; 
+			LexerLairNext () ; 
 
 		}
 
@@ -677,23 +1301,23 @@ int lexerac_drop_junk ( int el ) {
 		int atom = 0 ;
 
 
-		while ( lexac->code->get_walker < lexac->code->length ) {
+		while ( lexlair->code->get_walker < lexlair->code->length ) {
 
-			atom = lexac->code -> data [ lexac->code->get_walker ] ;
+			atom = lexlair->code -> data [ lexlair->code->get_walker ] ;
 
 			switch ( state ) {
 				
 				case 0 :
 					
 					if( '/' == atom ) {
-						lexerac_next () ; 
+						LexerLairNext () ; 
 						state = 1 ;
 					} else if ( '*' == atom ) {
-						lexerac_next () ; 
+						LexerLairNext () ; 
 						state = 2 ;
 					} else {
-						lexac->code -> data [ lexac->code->get_walker ] = 0x20 ;
-						lexerac_next () ; 
+						lexlair->code -> data [ lexlair->code->get_walker ] = 0x20 ;
+						LexerLairNext () ; 
 					}
 
 				break ;
@@ -701,13 +1325,13 @@ int lexerac_drop_junk ( int el ) {
 				case 1 :
 
 					if ( '*' == atom ) {
-						lexac->code -> data [ lexac->code->get_walker - 1 ] = 0x20 ;
-						lexac->code -> data [ lexac->code->get_walker ] = 0x20 ;
-						lexerac_next () ; 
+						lexlair->code -> data [ lexlair->code->get_walker - 1 ] = 0x20 ;
+						lexlair->code -> data [ lexlair->code->get_walker ] = 0x20 ;
+						LexerLairNext () ; 
 					} else {
-						lexac->code -> data [ lexac->code->get_walker - 1 ] = 0x20 ;
-						lexac->code -> data [ lexac->code->get_walker ] = 0x20 ;
-						lexerac_next () ; 
+						lexlair->code -> data [ lexlair->code->get_walker - 1 ] = 0x20 ;
+						lexlair->code -> data [ lexlair->code->get_walker ] = 0x20 ;
+						LexerLairNext () ; 
 					}
 
 					state = 0 ;
@@ -717,13 +1341,13 @@ int lexerac_drop_junk ( int el ) {
 				case 2 :
 
 					if ( '/' == atom ) {
-						lexac->code -> data [ lexac->code->get_walker - 1 ] = 0x20 ;
-						lexac->code -> data [ lexac->code->get_walker ] = 0x20 ;
-						lexerac_next () ; 
+						lexlair->code -> data [ lexlair->code->get_walker - 1 ] = 0x20 ;
+						lexlair->code -> data [ lexlair->code->get_walker ] = 0x20 ;
+						LexerLairNext () ; 
 						goto end_junk ;
 					} 
 					
-					lexac->code -> data [ lexac->code->get_walker - 1 ] = 0x20 ;
+					lexlair->code -> data [ lexlair->code->get_walker - 1 ] = 0x20 ;
 					state = 0 ;
 
 					
@@ -743,7 +1367,7 @@ end_junk :
 }
 
 
-int lexerac_lookahead ( char element , int step ) {
+int LexerLairLookahead ( char element , int step ) {
 
 	//	author : Jelo Wang
 	//	since : 20100111
@@ -756,14 +1380,14 @@ int lexerac_lookahead ( char element , int step ) {
 	//	search with element
 	if ( -2 == step ) {
 
-		int step_orignal = lexac->code->get_walker ;
+		int step_orignal = lexlair->code->get_walker ;
 
-		for ( ; lexac->code->get_walker < lexac->code->length && lexac->code->data[lexac->code->get_walker] != element; ) {
-			lexac->code->get_walker  ++ ;
+		for ( ; lexlair->code->get_walker < lexlair->code->length && lexlair->code->data[lexlair->code->get_walker] != element; ) {
+			lexlair->code->get_walker  ++ ;
 		}
 
-		if ( element  == lexac->code->data[lexac->code->get_walker] ) {
-			lexac->code->get_walker  = step_orignal ;
+		if ( element  == lexlair->code->data[lexlair->code->get_walker] ) {
+			lexlair->code->get_walker  = step_orignal ;
 			return 1 ;
 		} else {
 			return -1 ;
@@ -772,10 +1396,10 @@ int lexerac_lookahead ( char element , int step ) {
 	//	search with step
 	} else {
 
-		int step_append =  lexac->code->get_walker + step ;
+		int step_append =  lexlair->code->get_walker + step ;
 
-		if ( step_append < lexac->code->length ) {
-			if ( element  == lexac->code->data[step_append] )
+		if ( step_append < lexlair->code->length ) {
+			if ( element  == lexlair->code->data[step_append] )
 				return 1 ;
 			else
 				return 1 ;
@@ -784,59 +1408,23 @@ int lexerac_lookahead ( char element , int step ) {
 	
 }
 
-int lexerac_search_function () {
 
-	//	author : Jelo Wang
-	//	since : 20100116
-	//	(C)TOK
-
-	int step_orignal = lexac->code->get_walker ;
-
-	for ( ; lexac->code->get_walker < lexac->code->length && lexac->code->data[lexac->code->get_walker] != '{'; ) {
-		lexac->code->get_walker  ++ ;
-	}
-
-	if (  '{'  == lexac->code->data[lexac->code->get_walker] ) {
-
-		for ( ; lexac->code->get_walker < lexac->code->length && lexac->code->data[lexac->code->get_walker] != ')'; )
-			lexac->code->get_walker  -- ;
-
-		if (  ')'  == lexac->code->data[lexac->code->get_walker] ) {
-
-			lexac->code->get_walker  = step_orignal ;
-			return 1 ;
-
-		} else {
-
-			lexac->code->get_walker  = step_orignal ;
-			return 0 ;
-
-		}
-
-	} else {
-		lexac->code->get_walker  = step_orignal ;
-		return 0 ;
-	}
-
-	
-}
-
-int lexerac_expect ( int atom ) {
+int LexerLairExpect ( int atom ) {
 
 	//	author : Jelo Wang
 	//	since : 20100430
 	//	(C)TOK
 
-	if ( atom != lexerac_head_genv (1) ) {
+	if ( atom != LexerLairHeadGenv (1) ) {
 		return 0 ;
 	} else {
-		lexerac_genv () ;
+		LexerLairGenv () ;
 		return 1 ;
 	}
 	
 }
 
-int lexerac_skip_bracket ( int bracket_type ) {
+int LexerLairSkipBracket ( int bracket_type ) {
 
 	//	author : Jelo Wang
 	//	since : 20100116
@@ -849,31 +1437,31 @@ int lexerac_skip_bracket ( int bracket_type ) {
 	char bracket_left = 0 ;
 	char bracket_right = 0 ;
 
-	if ( LEXLAC_STRONG_BRACKET == bracket_type ) {
+	if ( LEXLAIR_STRONG_BRACKET == bracket_type ) {
 		
 		bracket_left = '{' ;
 		bracket_right = '}' ;
 		
-	} else if ( LEXLAC_MID_BRACKET == bracket_type ) { 
+	} else if ( LEXLAIR_MID_BRACKET == bracket_type ) { 
 	
 		bracket_left = '[' ;
 		bracket_right = ']' ;	
 		
-	} else if ( LEXLAC_SMART_BRACKET == bracket_type ) {
+	} else if ( LEXLAIR_SMART_BRACKET == bracket_type ) {
 	
 		bracket_left = '(' ;
 		bracket_right = ')' ;	
 		
 	}
 	
-	if ( bracket_left != lexac->c ) return 0 ;
+	if ( bracket_left != lexlair->c ) return 0 ;
 
-	while ( !lexac -> stop ) {
+	while ( !lexlair -> stop ) {
 
-		if ( bracket_left == lexac->c ) stack ++ ;
-		if ( bracket_right == lexac->c ) stack -- ;
+		if ( bracket_left == lexlair->c ) stack ++ ;
+		if ( bracket_right == lexlair->c ) stack -- ;
 
-		lexerac_next () ;
+		LexerLairNext () ;
 
 		if ( 0 == stack ) break ;
 			
@@ -885,592 +1473,7 @@ int lexerac_skip_bracket ( int bracket_type ) {
 	
 }
 
-int lexerac_matchop ( int el ) {
-
-	//	author : Jelo Wang
-	//	since : 2008
-	//	updated : 20090813
-	//	notes : identify operator
-	//	(C)TOK
-	
-	int STATE=0;
-	int TYPE=0;
-
-	static char buffer [ 4 ] ;
-
-	if ( '=' == lexerac_look ( 1 ) ) {
-		
-		switch ( el ) {
-			
-			case '=':
-				
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "==" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;
-				lexac->v = LAC_EQ ;
-
-			break;
-			
-			case '<':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "<=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_LE ;	
-
-			break;
-			
-			case '>':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , ">=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_GE ;					
-			break;
-			
-			case '!':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "!=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_NE ;						
-			break;
-			
-			case '+':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "+=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_SLA ;							
-			break;
-			
-			case '-':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "-=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_SLS ;				
-			break;
-			
-			case '*':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "*=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_SLM ;							
-			break;
-			
-			case '/':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "/=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_SLD ;						
-			break;
-			
-			case '|':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "|=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_BEO ;						
-			break;
-			
-			case '&':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "&=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_BEA ;						
-			break;
-			
-			case '^':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "^=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_BEY ;						
-			break;
-			
-			case '%':
-				lexerac_jump ( 2 ) ;
-				sc_strcpy ( buffer , "%=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_BEB ;						
-			break;
-			
-		}
-		
-	} else {
-
-		switch ( el ) {
-			
-			case '=':
-				
-				lexerac_jump ( 1 ) ;
-				sc_strcpy ( buffer , "=" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_EQU ;			
-				
-			break;
-			
-			case '<':
-
-				if ( '<' == lexerac_look ( 1 ) && '=' == lexerac_look ( 2 ) ) {
-					
-					lexerac_jump(3) ;
-					sc_strcpy ( buffer , "<<=" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_SHLL ;	
-				
-				} else if ( '<' == lexerac_look ( 1 ) ) {
-
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "<<" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_SHL ;						
-
-				} else {
-				
-					lexerac_jump ( 1 ) ;
-					sc_strcpy ( buffer , "<" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					 
-					lexac->v = LAC_LT ;			
-
-				}
-				
-			break;
-			
-			case '>':
-				
-				if ( '>' == lexerac_look ( 1 ) && '=' == lexerac_look ( 2 ) ) {
-
-					lexerac_jump ( 3 )  ;
-					sc_strcpy ( buffer , ">>=" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					 
-					lexac->v = LAC_SHRR ;
-				
-				} else if ( '>' == lexerac_look ( 1 ) ) {
-
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , ">>" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;	
-				 	lexac->v = LAC_SHR ;
-				
-				} else {
-			    	
-					lexerac_jump ( 1 ) ;
-					sc_strcpy ( buffer , ">" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-				 	lexac->v = LAC_GT ;		
-				
-				}
-					
-			break;
-			
-			case '!':
-				
-				lexerac_jump ( 1 ) ;
-				sc_strcpy ( buffer , "!" ) ;
-				
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_TAN ;						
-				
-			break;
-			
-			case '+':
-				
-				if ( '+' == lexerac_look ( 1 ) ) {
-
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "++" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_JAA ;	
-					
-				} else {
-					
-					int lexv = 0 ; 
-					lexerac_jump ( 1 ) ;
-					//lexv = lexerac_head_genv (1) ;
-
-					//if ( lexerac_digit_lex (lexv) ) {
-						
-					//	lexerac_genv () ;
-
-					//	return 1 ;
-
-					//} else {
-
-						sc_strcpy ( buffer , "+" ) ;
-						
-						lexac->token = buffer ;
-						lexac->c = 0 ;
-						lexac->pv = lexac->v ;					 
-						lexac->v = LAC_ADD ;
-						
-					//}
-
-					
-				}
-				
-			break;
-			
-			case '-':
-				
-				if ( '-' == lexerac_look ( 1 ) ) {
-					
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "--" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_JNN ;
-				
-				} else if ( '>' == lexerac_look ( 1 ) ) {
-			    	
-					 lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "->" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					 
-					lexac->v = LAC_PNT ;					 
-					 
-				} else {
-
-					int lexv = 0 ; 
-					lexerac_jump ( 1 ) ;
-					lexv = lexerac_head_genv (1) ;
-					
-					if ( lexerac_digit_lex (lexv) ) {
-						
-						lexerac_genv () ;
-						SCClStringInsert ( &LACTOK , "-" , 0 ) ;
-						
-						switch ( lexac->v ) {
-							case LAC_INTNUM : 
-								lexac->pv = lexac->v ;
-								lexac->v = LAC_MUS_INTNUM ;
-							break ;
-							case LAC_FLTNUM :   
-								lexac->pv = lexac->v ;
-								lexac->v = LAC_MUS_FLTNUM ;
-							break ;
-							case LAC_HEXNUM :   
-								lexac->pv = lexac->v ;
-								lexac->v = LAC_MUS_HEXNUM ;
-							break ;
-							case LAC_FLTENUM :  
-								lexac->pv = lexac->v ;
-								lexac->v = LAC_MUS_FLTENUM ;
-							break ;
-							case LAC_INTENUM : 
-								lexac->pv = lexac->v ;
-								lexac->v = LAC_MUS_INTENUM ;
-							break ;
-						}
-
-						return 1 ;
-
-					} else {
-						
-						sc_strcpy ( buffer , "-" ) ;
-						
-						lexac->token = buffer ;
-						lexac->c = 0 ;
-						lexac->pv = lexac->v ;					 
-						lexac->v = LAC_SUB ;			
-					
-					}
-					 
-				}
-				
-			break;
-			
-			//	int* gtkings;
-			//	int a,a2,a3,*a4,a5;
-			//	pointer gtkings;
-			//	pointer a4;
-			
-			case '*':
-				
-				if ( '*' == lexerac_look ( 1 ) ) {
-
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "**" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_PPT ;							 
-
-				} else {
-
-					lexerac_jump ( 1 ) ;
-					sc_strcpy ( buffer , "*" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_MUL ;						 
-
-				}
-				
-			break;
-			
-			case '/':
-				
-
-				if ( '/' == lexerac_look ( 1 ) ) {
-					
-					lexerac_drop_junk ('/') ;
-
-					lexac->token = 0 ;
-					lexac->c = 0 ;
-					lexac->pv = 0 ;				
-					lexac->v = 0 ;
-
-				} else if( '*' == lexerac_look ( 1 ) ) {
-
-					lexerac_drop_junk ('*') ;
-
-					lexac->token = 0 ;
-					lexac->c = 0 ;
-					lexac->pv = 0 ;				
-					lexac->v = 0 ;
-
-				} else {
-
-					lexerac_jump ( 1 ) ;
-					sc_strcpy ( buffer , "/" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_DIV ;
-				
-				}
-				
-			break;
-			
-			case '|':
-				
-				if ( '|' == lexerac_look ( 1 ) ) {
-
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "||" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_OR ;						 
-
-				} else {
-
-					lexerac_jump ( 1 ) ;
-					sc_strcpy ( buffer , "|" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_HU ;						 
-
-				}
-				
-			break;
-			
-			case '&':
-				
-				if ( '&' == lexerac_look ( 1 ) ) {
-
-					lexerac_jump ( 2 ) ;
-					sc_strcpy ( buffer , "&&" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_AND ;			 
-					 
-				} else {
-
-					lexerac_jump ( 1 ) ;
-					sc_strcpy ( buffer , "&" ) ;
-					
-					lexac->token = buffer ;
-					lexac->c = 0 ;
-					lexac->pv = lexac->v ;					
-					lexac->v = LAC_HE ;		
-					
-				}
-				
-			break;
-			
-			case '^':
-				
-				lexerac_jump ( 1 ) ;
-				sc_strcpy ( buffer , "^" ) ;
-					
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_YHH ;					
-				
-			break;
-
-/*
-
-							{
-
-								//	generate lsn
-								SCClString Lsn = {0} ; 
-								lexerac_next () ;
-									
-								while ( sc_is_digit(lexac->c) ) {
-									SCClStringAdd ( &Lsn , lexerac_get_atom () ) ;
-									lexerac_next () ;
-								}   
-								
-								SCClStringAdd ( &Lsn , '\0' ) ;
-
-								lexac->lsn = SCClAtoi ( Lsn.data ) ;								
-								SCClStringDestroyEx ( &Lsn ) ;
-	
-							}
-*/
-			
-			case '%':
-
-				if (  '$' == lexerac_look ( 1 )  ) {
-					
-					lexerac_jump ( 2 ) ;
-					
-					//	skip these junk streams that we donnt needed
-					lexerac_skip_space () ;
-					
-					while( lexerac_is_var () ) ;
-
-					if ( 'V' == LACTOK.data[0] && '.' == lexerac_look ( 0 ) ) {
-					
-						//	virtual register detected 					
-						SCClStringInsert ( &LACTOK , "%$" , 0 ) ;
-						
-						{
-
-							//	generate lsn
-							SCClString Lsn = {0} ; 
-							lexerac_next () ;
-									
-							while ( sc_is_digit(lexac->c) ) {
-								SCClStringAdd ( &Lsn , lexerac_get_atom () ) ;
-								lexerac_next () ;
-							}   
-
-							SCClStringAdd ( &Lsn , '\0' ) ;
-
-							lexac->lsn = SCClAtoi ( Lsn.data ) ;								
-							SCClStringDestroyEx ( &Lsn ) ;
-
-							SCClStringAdd ( &LACTOK , '.' ) ;										
-							SCClStringAddStr ( &LACTOK , SCClItoa (lexac->lsn)) ;		
-							SCClStringAdd ( &LACTOK , '\0' ) ;							
-
-						}
-							
-						lexac->pv = lexac->v ;				
-						lexac->v = LAC_VREG ;
-						lexac->token = LACTOK.data ;
-						
-					} else if ( 'P' == LACTOK.data[0] && 'E' == LACTOK.data[1] ) {
-						
-						lexac->pv = lexac->v ;				
-						lexac->v = LAC_PE ;
-						lexac->token = LACTOK.data ;						
-
- 					} else if ( 'C' == LACTOK.data[0] && 'A' == LACTOK.data[1] ) {
-
-						lexac->pv = lexac->v ;				
-						lexac->v = LAC_CA ;
-						lexac->token = LACTOK.data ;						
-
-					}
-					
-					return STATE;
-					
-				}
-				
-				lexerac_jump ( 1 ) ;
-				sc_strcpy ( buffer , "%" ) ;
-					
-				lexac->token = buffer ;
-				lexac->c = 0 ;
-				lexac->pv = lexac->v ;				
-				lexac->v = LAC_MOD ;						
-				
-			break;
-
-		}
-	
-		
-	}
-	
-	return STATE;
-
-}
-
-int lexerac_genv ()  {
+int LexerLairGenv ()  {
 
 	//	author : Jelo Wang
 	//	since : 2008
@@ -1480,229 +1483,229 @@ int lexerac_genv ()  {
 
 	char suffix = 0 ;
 
-	SCClStringReset ( &LACTOK ) ;
+	SCClStringReset ( &LAIRTOK ) ;
 
-	while ( !lexac->stop ) {
+	while ( !lexlair->stop ) {
 		
-		lexerac_get_atom () ;
+		LexerLairGetAtom () ;
 
 		switch ( state ) {
 
 			case 0:
 
-				if ( sc_is_alpha (lexac->c) || '_' == lexac->c ) state = 1 ;
+				if ( sc_is_alpha (lexlair->c) || '_' == lexlair->c ) state = 1 ;
 				
-				else if ( sc_is_digit (lexac->c) ) state = 3 ;
+				else if ( sc_is_digit (lexlair->c) ) state = 3 ;
 
-				else if ( 0x20 == lexac->c ) {
+				else if ( 0x20 == lexlair->c ) {
 
-					lexerac_next () ;
-					lexerac_get_atom () ;
+					LexerLairNext () ;
+					LexerLairGetAtom () ;
 					
-					lexac->token = 0 ;
+					lexlair->token = 0 ;
 
-					lexac->c = ' ';
+					lexlair->c = ' ';
 
-					lexac->ppv = lexac->pv ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_SPACE ;
+					lexlair->ppv = lexlair->pv ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_SPACE ;
 
-					if ( !(lexac->mode & LEXLAC_FLITER_MODE) )
+					if ( !(lexlair->mode & LEXLAIR_FLITER_MODE) )
 						return 1 ;
 
-				} else if ( '\n' == lexac->c  ) {
+				} else if ( '\n' == lexlair->c  ) {
 
-					lexac->line ++;
-					lexerac_next () ;
+					lexlair->line ++;
+					LexerLairNext () ;
 
-					lexac->token = 0 ;
+					lexlair->token = 0 ;
 					
-					lexac->c = '\n';
-					lexac->ppv = lexac->pv ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_ENTER ;
+					lexlair->c = '\n';
+					lexlair->ppv = lexlair->pv ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_ENTER ;
 
-					if ( !(lexac->mode & LEXLAC_FLITER_MODE) )
+					if ( !(lexlair->mode & LEXLAIR_FLITER_MODE) )
 						return 1 ;
 					
 
 				} 
 
-				else if ( 13 == lexac->c ) {
+				else if ( 13 == lexlair->c ) {
 					
 					//	dont return a changing row token to above modules
-					//	lexac->line ++;
-					//	lexerac_next () ;
-					//	lexac->ppv = lexac->pv ;
-					//	lexac->pv = lexac->v ;				
-					//	lexac->v = CHROW ;
+					//	lexlair->line ++;
+					//	LexerLairNext () ;
+					//	lexlair->ppv = lexlair->pv ;
+					//	lexlair->pv = lexlair->v ;				
+					//	lexlair->v = CHROW ;
 					
-					lexerac_next () ;
+					LexerLairNext () ;
 					
-					lexac->token = 0 ;
+					lexlair->token = 0 ;
 					
-					lexac->c = 0 ;
+					lexlair->c = 0 ;
 
-					lexac->ppv = lexac->pv ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_CHROW ;
+					lexlair->ppv = lexlair->pv ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_CHROW ;
 
-					if ( !(lexac->mode & LEXLAC_FLITER_MODE) )
+					if ( !(lexlair->mode & LEXLAIR_FLITER_MODE) )
 						return 1 ;
 					
 				}
 
-				else if ( '\\' == lexac->c ) {
+				else if ( '\\' == lexlair->c ) {
 
-					lexerac_next () ;
+					LexerLairNext () ;
 
-					lexac->token = 0 ;
+					lexlair->token = 0 ;
 					
-					lexac->c = '\\';
-					lexac->ppv = lexac->pv ;
-					lexac->pv = lexac->v ;
-					lexac->v = LAC_ESCAPE ;
+					lexlair->c = '\\';
+					lexlair->ppv = lexlair->pv ;
+					lexlair->pv = lexlair->v ;
+					lexlair->v = LAIR_ESCAPE ;
  
 					return 1 ;
 
 				}				
 				
-				else if ( '\t' == lexac->c ) {
+				else if ( '\t' == lexlair->c ) {
 
-					lexerac_next () ;
-					lexerac_get_atom () ;
+					LexerLairNext () ;
+					LexerLairGetAtom () ;
 
-					lexac->token = 0 ;
+					lexlair->token = 0 ;
 					
-					lexac->c = '\t';
-					lexac->ppv = lexac->pv ;
-					lexac->pv = lexac->v ;
-					lexac->v = LAC_TABLEK ;
+					lexlair->c = '\t';
+					lexlair->ppv = lexlair->pv ;
+					lexlair->pv = lexlair->v ;
+					lexlair->v = LAIR_TABLEK ;
 					
 					//return 0 ;
 
 				}
 				
-				else if ( '=' == lexac->c ) state = 5 ;
-				else if ( '+' == lexac->c ) state = 5 ;
-				else if ( '-' == lexac->c ) state = 5 ;
-				else if ( '<' == lexac->c ) state = 5 ;
-				else if ( '>' == lexac->c ) state = 5 ;
-				else if ( '|' == lexac->c ) state = 5 ;
-				else if ( '&' == lexac->c ) state = 5 ;
-				else if ( '!' == lexac->c ) state = 5 ;
-				else if ( '*' == lexac->c ) state = 5 ;
-				else if ( '/' == lexac->c ) state = 5 ;
-				else if ( '%' == lexac->c ) state = 5 ;
-				else if ( '^' == lexac->c ) state = 5 ;
+				else if ( '=' == lexlair->c ) state = 5 ;
+				else if ( '+' == lexlair->c ) state = 5 ;
+				else if ( '-' == lexlair->c ) state = 5 ;
+				else if ( '<' == lexlair->c ) state = 5 ;
+				else if ( '>' == lexlair->c ) state = 5 ;
+				else if ( '|' == lexlair->c ) state = 5 ;
+				else if ( '&' == lexlair->c ) state = 5 ;
+				else if ( '!' == lexlair->c ) state = 5 ;
+				else if ( '*' == lexlair->c ) state = 5 ;
+				else if ( '/' == lexlair->c ) state = 5 ;
+				else if ( '%' == lexlair->c ) state = 5 ;
+				else if ( '^' == lexlair->c ) state = 5 ;
 
-				else if( '\''== lexac->c ) state = 6;
-				else if( '"'== lexac->c ) state = 6;
+				else if( '\''== lexlair->c ) state = 6;
+				else if( '"'== lexlair->c ) state = 6;
 
-				else if ( '{' == lexac->c ) { 
+				else if ( '{' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = '{' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_DKL ;
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = '{' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_DKL ;
 					
 					return 1 ;
 
-				} else if ( '}' == lexac->c ) { 
+				} else if ( '}' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = '}' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_DKR ;	
-
-					return 1 ;
-
-				} else if ( '[' == lexac->c ) { 
-
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = '[' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_ZKL ;	
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = '}' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_DKR ;	
 
 					return 1 ;
 
-				} else if ( ']' == lexac->c ) { 
+				} else if ( '[' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = ']' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_ZKR ;	
-
-					return 1 ;
-
-				} else if ( '(' == lexac->c ) { 
-
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = '(' ;
-					lexac->ppv = lexac->pv ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_XKL ;	
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = '[' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_ZKL ;	
 
 					return 1 ;
 
-				} else if ( ')' == lexac->c ) { 
+				} else if ( ']' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = ')' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_XKR ;	
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = ']' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_ZKR ;	
+
 					return 1 ;
 
-				} else if ( ';' == lexac->c ) { 
+				} else if ( '(' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = ';' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_FEN ;	
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = '(' ;
+					lexlair->ppv = lexlair->pv ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_XKL ;	
+
 					return 1 ;
 
-				} else if ( ',' == lexac->c ) { 
+				} else if ( ')' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = ',' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_DOU ;	
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = ')' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_XKR ;	
 					return 1 ;
 
-				} else if ( '.' == lexac->c ) { 
+				} else if ( ';' == lexlair->c ) { 
 
-					lexerac_next () ;
-					lexac->token = 0 ;
-					lexac->c = '.' ;
-					lexac->pv = lexac->v ;				
-					lexac->v = LAC_FIL ;	
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = ';' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_FEN ;	
+					return 1 ;
+
+				} else if ( ',' == lexlair->c ) { 
+
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = ',' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_DOU ;	
+					return 1 ;
+
+				} else if ( '.' == lexlair->c ) { 
+
+					LexerLairNext () ;
+					lexlair->token = 0 ;
+					lexlair->c = '.' ;
+					lexlair->pv = lexlair->v ;				
+					lexlair->v = LAIR_FIL ;	
 					return 1 ;
 
 				} else {
 					
-					if ( 0 == lexac -> ios ) {
+					if ( 0 == lexlair -> ios ) {
 						
-						lexac->token = 0 ;
-						lexac->pv = lexac->v ;				
-						lexac->v = 0 ;	
+						lexlair->token = 0 ;
+						lexlair->pv = lexlair->v ;				
+						lexlair->v = 0 ;	
 
-						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexac->c , lexac->line ) ;
+						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexlair->c , lexlair->line ) ;
 
-						lexerac_next () ;
+						LexerLairNext () ;
 						
 						return 0 ;
 
 					} 
 
-					lexerac_next () ;
+					LexerLairNext () ;
 
 				}
 
@@ -1711,81 +1714,81 @@ int lexerac_genv ()  {
 
 			case 1:
 				
-				while( lexerac_is_var () ) ;
+				while( LexerLairIsVar () ) ;
 
-				lexac->token = LACTOK.data ;					
+				lexlair->token = LAIRTOK.data ;					
 				
-				lexac->pv = lexac->v;
+				lexlair->pv = lexlair->v;
 
-				lexac->v = lexerac_find_key ( lexac->token ) ;
+				lexlair->v = LexerLair_find_key ( lexlair->token ) ;
 
-				if ( 0 == lexac->v ) {
+				if ( 0 == lexlair->v ) {
 
 					//	backup lexer walker
-					lexerac_backup () ;										
-					lexerac_skip_space () ;
+					LexerLairBackup () ;										
+					LexerLairSkipSpace () ;
 						
-					if ( '(' == lexerac_look ( 0 ) ) {
+					if ( '(' == LexerLairLook ( 0 ) ) {
 
-						lexerac_skip_bracket ( LEXLAC_SMART_BRACKET ) ;
-						lexerac_skip_blank () ;
+						LexerLairSkipBracket ( LEXLAIR_SMART_BRACKET ) ;
+						LexerLairSkipBlank () ;
 						
-						if ( '{' == lexerac_look ( 0 ) ) {
+						if ( '{' == LexerLairLook ( 0 ) ) {
 
-							lexac->v = LAC_FUNCDEF ;	
-							lexac->c = 0 ;
+							lexlair->v = LAIR_FUNCDEF ;	
+							lexlair->c = 0 ;
 						
 						} else {
 						
-							lexac->v = LAC_FUNCCAL ;	
-							lexac->c = 0 ;
+							lexlair->v = LAIR_FUNCCAL ;	
+							lexlair->c = 0 ;
 							
 						}
 						
-					} else if ( '[' == lexac->c ) {
+					} else if ( '[' == lexlair->c ) {
 
-						lexac->v = LAC_ARRAY ;	
-						lexac->c = 0 ;		
+						lexlair->v = LAIR_ARRAY ;	
+						lexlair->c = 0 ;		
 												
-					} else if ( ':' == lexac->c ) {
+					} else if ( ':' == lexlair->c ) {
 
-						lexac->v = LAC_LABEL ;	
-						lexac->c = 0 ;									
+						lexlair->v = LAIR_LABEL ;	
+						lexlair->c = 0 ;									
 
 					} else {	
 
 						//	variable-name.number
-						if ( '.' == lexac->c && sc_is_digit (lexerac_look (1)) ) {
+						if ( '.' == lexlair->c && sc_is_digit (LexerLairLook (1)) ) {
 
 							{
 
 								//	generate lsn
 								SCClString Lsn = {0} ; 
-								lexerac_next () ;
+								LexerLairNext () ;
 									
-								while ( sc_is_digit(lexac->c) ) {
-									SCClStringAdd ( &Lsn , lexerac_get_atom () ) ;
-									lexerac_next () ;
+								while ( sc_is_digit(lexlair->c) ) {
+									SCClStringAdd ( &Lsn , LexerLairGetAtom () ) ;
+									LexerLairNext () ;
 								}   
 								
 								SCClStringAdd ( &Lsn , '\0' ) ;
 
-								lexac->lsn = SCClAtoi ( Lsn.data ) ;
+								lexlair->lsn = SCClAtoi ( Lsn.data ) ;
  								SCClStringDestroyEx ( &Lsn ) ;
 
-								SCClStringAdd ( &LACTOK , '.' ) ;
-								SCClStringAddStr ( &LACTOK , SCClItoa (lexac->lsn)) ;
-								SCClStringAdd ( &LACTOK , '\0' ) ;
+								SCClStringAdd ( &LAIRTOK , '.' ) ;
+								SCClStringAddStr ( &LAIRTOK , SCClItoa (lexlair->lsn)) ;
+								SCClStringAdd ( &LAIRTOK , '\0' ) ;
 						
 							}
 								
-							if ( 0 == lexac->scale ) {
-								lexac->v = LAC_VAR ;	
-								lexac->c = 0 ;		
+							if ( 0 == lexlair->scale ) {
+								lexlair->v = LAIR_VAR ;	
+								lexlair->c = 0 ;		
 							} else {
 
-								lexac->v = LAC_VARDEF ;	
-								lexac->c = 0 ;	
+								lexlair->v = LAIR_VARDEF ;	
+								lexlair->c = 0 ;	
 							}
 
 							return 1 ;
@@ -1795,11 +1798,11 @@ int lexerac_genv ()  {
 					}
 
 					//	rollback walker of lexer
-					lexerac_rollback () ;
+					LexerLairRollback () ;
 				
 				} else {
 		
-					lexac->c = 0 ;
+					lexlair->c = 0 ;
 
 				}
 				
@@ -1809,21 +1812,21 @@ int lexerac_genv ()  {
 
 			case 2:
 
-				lexac -> pc = lexac->c ;
+				lexlair -> pc = lexlair->c ;
 				
 				//	skip these junk streams that we donnt needed
-				lexerac_skip_space () ;
+				LexerLairSkipSpace () ;
 				
- 				while( lexerac_is_var () ) ;
+ 				while( LexerLairIsVar () ) ;
 
-				lexac->token = LACTOK.data ;
+				lexlair->token = LAIRTOK.data ;
 				
-				lexac->c = 0 ;
-				lexac->v = 0 ;
+				lexlair->c = 0 ;
+				lexlair->v = 0 ;
 					
-				lexac->pv = lexac->v;
+				lexlair->pv = lexlair->v;
 
-				lexac->v = LAC_VAR ;	
+				lexlair->v = LAIR_VAR ;	
 											
 				return 1 ;
 
@@ -1832,43 +1835,43 @@ int lexerac_genv ()  {
 
 			case 3:
 				
-				while( lexerac_is_num () ) ;
+				while( LexerLairIsNum () ) ;
 
-				if( '.' == lexac->c ) {
+				if( '.' == lexlair->c ) {
 
-					SCClStringAdd ( &LACTOK , lexac->c  ) ;
-					lexerac_jump ( 1 ) ;
+					SCClStringAdd ( &LAIRTOK , lexlair->c  ) ;
+					LexerLairJump ( 1 ) ;
 					state = 4 ;
 
-				} else if( 'e' == lexac->c || 'E' == lexac->c ) {
+				} else if( 'e' == lexlair->c || 'E' == lexlair->c ) {
 
-					SCClStringAdd ( &LACTOK , lexac->c  ) ;
-					lexerac_jump ( 1 ) ;
+					SCClStringAdd ( &LAIRTOK , lexlair->c  ) ;
+					LexerLairJump ( 1 ) ;
 					
-					if ( '-' == lexac->c || '+' == lexac->c  ) {
-						SCClStringAdd ( &LACTOK , lexac->c  ) ;
-						lexerac_jump ( 1 ) ;
+					if ( '-' == lexlair->c || '+' == lexlair->c  ) {
+						SCClStringAdd ( &LAIRTOK , lexlair->c  ) ;
+						LexerLairJump ( 1 ) ;
 					}
 
-					while( lexerac_is_num () ) ;
+					while( LexerLairIsNum () ) ;
 
-					SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+					SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 
-					lexac->token = LACTOK.data ;
-					lexac->pv = lexac->v ;
-					lexac->v = LAC_INTENUM ;
+					lexlair->token = LAIRTOK.data ;
+					lexlair->pv = lexlair->v ;
+					lexlair->v = LAIR_INTENUM ;
 
 					return 1 ;
 
 				} else {
 
-					suffix = lexac->code -> data [ lexac->code -> get_walker ] ;
+					suffix = lexlair->code -> data [ lexlair->code -> get_walker ] ;
 					
-					SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+					SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 
-					lexac->token = LACTOK.data ;
-					lexac->pv = lexac->v ;
-					lexac->v = LAC_INTNUM ;
+					lexlair->token = LAIRTOK.data ;
+					lexlair->pv = lexlair->v ;
+					lexlair->v = LAIR_INTNUM ;
 
 					return 1 ;	
 					
@@ -1880,42 +1883,42 @@ int lexerac_genv ()  {
 
 			case 4:
 
-				if( 'e' == lexac->c ) {
+				if( 'e' == lexlair->c ) {
 					
-					SCClStringAdd ( &LACTOK , lexac->c ) ;
-					lexerac_jump ( 1 ) ;
+					SCClStringAdd ( &LAIRTOK , lexlair->c ) ;
+					LexerLairJump ( 1 ) ;
 
-					if ( '-' == lexac->c || '+' == lexac->c  ) {
-						SCClStringAdd ( &LACTOK , lexac->c ) ;
-						lexerac_jump ( 1 ) ;
+					if ( '-' == lexlair->c || '+' == lexlair->c  ) {
+						SCClStringAdd ( &LAIRTOK , lexlair->c ) ;
+						LexerLairJump ( 1 ) ;
 					}
 					
-					while( lexerac_is_num () ) ;
+					while( LexerLairIsNum () ) ;
 					
-					SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+					SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 
-					lexac->token = LACTOK.data ;
-					lexac->pv = lexac->v ;
-					lexac->v = LAC_FLTENUM ;
+					lexlair->token = LAIRTOK.data ;
+					lexlair->pv = lexlair->v ;
+					lexlair->v = LAIR_FLTENUM ;
 
 					return 1 ;
 
 				} else {
 			
-					while( lexerac_is_num () ) ;
+					while( LexerLairIsNum () ) ;
 
-					if( 'e' == lexac->c ) {
+					if( 'e' == lexlair->c ) {
 
 						state = 4 ;
 
 					} else {
 					
-						SCClStringAdd ( &LACTOK , LAC_EOS ) ;
+						SCClStringAdd ( &LAIRTOK , LAIR_EOS ) ;
 
-						lexac->token = LACTOK.data ;
+						lexlair->token = LAIRTOK.data ;
 							
-						lexac->pv = lexac->v ;
-						lexac->v = LAC_FLTNUM ;
+						lexlair->pv = lexlair->v ;
+						lexlair->v = LAIR_FLTNUM ;
 						
 						return 1 ;
 
@@ -1929,7 +1932,7 @@ int lexerac_genv ()  {
 
 			case 5 :
 
-				lexerac_matchop ( lexac->c ) ;
+				LexerLair_matchop ( lexlair->c ) ;
 
 				return 1 ;
 				
@@ -1937,7 +1940,7 @@ int lexerac_genv ()  {
 
 			case 6 :
 
-				lexerac_cluster ( lexac->c ) ;
+				LexerLairCluster ( lexlair->c ) ;
 
 				return 1 ;
 				
@@ -1955,20 +1958,20 @@ int lexerac_genv ()  {
 }
 
 
-void lexerac_clear_scale () {
+void LexerLairClearScale () {
 
 	//	author : Jelo Wang
 	//	since : 20100508
 	//	(C)TOK
 
-	if ( !lexac ) return ;
+	if ( !lexlair ) return ;
 
-	lexac->scale = 0 ;
+	lexlair->scale = 0 ;
 	
 }
 
 
-int lexerac_head_genv ( int border ) {
+int LexerLairHeadGenv ( int border ) {
 
 	//	author : Jelo Wang
 	//	since : 20100119
@@ -1977,46 +1980,46 @@ int lexerac_head_genv ( int border ) {
 	int value = -1 ;
 	int walker = 0 ;
 
-	int orgvalue = lexac->v ;	
-	int orgline = lexac->line ;
-	int orgpv = lexac->pv ;
-	int orgppv = lexac->ppv ;
-	int orgscale = lexac->scale ;
+	int orgvalue = lexlair->v ;	
+	int orgline = lexlair->line ;
+	int orgpv = lexlair->pv ;
+	int orgppv = lexlair->ppv ;
+	int orgscale = lexlair->scale ;
 
 	
 	char* orgtoken = 0 ;
-	char orgchar = lexac->c ;
+	char orgchar = lexlair->c ;
 
-	lexerac_backup () ;
+	LexerLairBackup () ;
 	
-	if ( lexac->token ) {
-		orgtoken = (char*) SCMalloc ( sc_strlen ( lexac->token ) + 1 ) ;
-		sc_strcpy_withlen ( orgtoken , lexac->token , sc_strlen (lexac->token) ) ;
+	if ( lexlair->token ) {
+		orgtoken = (char*) SCMalloc ( sc_strlen ( lexlair->token ) + 1 ) ;
+		sc_strcpy_withlen ( orgtoken , lexlair->token , sc_strlen (lexlair->token) ) ;
 	}
 	
 	for ( walker = 0 ; walker < border ; walker ++ )  {
-		lexac->deep ++ ;
-		lexerac_genv () ;
-		lexac->deep -- ;
+		lexlair->deep ++ ;
+		LexerLairGenv () ;
+		lexlair->deep -- ;
 	}
 
 	if ( orgtoken ) {
-		SCClStringReset ( &LACTOK ) ;
-		SCClStringAddStr ( &LACTOK , orgtoken ) ;
-		SCClStringAdd ( &LACTOK , '\0' ) ;
+		SCClStringReset ( &LAIRTOK ) ;
+		SCClStringAddStr ( &LAIRTOK , orgtoken ) ;
+		SCClStringAdd ( &LAIRTOK , '\0' ) ;
 		SCFree ( orgtoken ) ;
 	}
 	
-	value = lexac->v ;
+	value = lexlair->v ;
 
-	lexac->v = orgvalue ;
-	lexac->token = LACTOK.data ;
-	lexac->line = orgline ;
-	lexac->pv = orgpv ;
-	lexac->ppv = orgppv ;
-	lexac->scale = orgscale ;
+	lexlair->v = orgvalue ;
+	lexlair->token = LAIRTOK.data ;
+	lexlair->line = orgline ;
+	lexlair->pv = orgpv ;
+	lexlair->ppv = orgppv ;
+	lexlair->scale = orgscale ;
 	
-	lexerac_rollback () ;
+	LexerLairRollback () ;
 	
 	return value ; 
 	

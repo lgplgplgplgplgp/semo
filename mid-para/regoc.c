@@ -45,7 +45,7 @@ static int lslength = 0 ;
 # define LSDEFAULT_LENGTH 1024
 
 //	lair node of the last found
-static int laclast = 0 ;
+static int lairlast = 0 ;
 
 void RegocRegisterReady ( int proctotall ) {
 
@@ -157,13 +157,13 @@ static int RegocLiveScopeFind ( char* live , int scope ) {
 
 	int looper = -1 ;
 
-	laclast = 0 ;
+	lairlast = 0 ;
 	
 	//	search the live
 	for ( looper = lslooper-1 ; looper > -1 ; looper -- ) {
 		if ( scope >= lsmonitor[looper]->scope ) {			
 			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {				
-				laclast = lsmonitor[looper]->lair ;
+				lairlast = lsmonitor[looper]->lair ;
 				break ;
 			}
 		}
@@ -175,13 +175,13 @@ static int RegocLiveScopeFind ( char* live , int scope ) {
 }
 
 
-int RegocLiveScopeGetLAC () {
+int RegocLiveScopeGetLAIR () {
 	
 	//	author : Jelo Wang
 	//	since : 20110121
 	//	(C)TOK
 	
-	return laclast ;
+	return lairlast ;
 	
 }
 

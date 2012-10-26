@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC (LGNOSIA Code) Generator , part of SC mid-para
++	LAIR is an abstractive machine defined by semo , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -25,18 +25,55 @@
 
 */ 
 
-# include "sc.h"
+# include "semo.h"
 # include "schal.h"
 # include "sccl.h"
 # include "lair.h"
 # include "regoc.h"
 # include "corenr.h"
 
-static LAC* lac = 0 ;
-static LAC* lacswaper = 0 ;
+static LAIR* lair = 0 ;
+static LAIR* lairswaper = 0 ;
 static LABELMOI* labelmoi = 0 ;
 
-void LACMemoryFrameInit ( int totall ) {
+static void LairRefChainInsert ( int head , int chain ) {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+
+	LAIR* lair = (LAIR* )head ;
+
+	SCClListInsert ( &lair->refchain , chain ) ;
+
+}
+
+static void LairLiveScopeSplit ( int laira ) {
+
+	//	author : Jelo Wang
+	//	since : 20110121
+	//	(C)TOK
+
+	//	将lair 引用链上的节点分裂
+
+	LAIR* lair = laira ;
+	
+	SCClList* looper = 0 ;
+	
+	semo->lssplits ++ ;
+
+	lair->type = LAIR_L_MEM ;
+
+	for ( looper = lair->refchain.head ; looper ; looper = looper->next ) {
+		LAIR* lairnode = looper->element ;		
+		lairnode->type =LAIR_R_MEM ;		
+	}
+
+		
+}
+
+
+void LAIRMemoryFrameInit ( int totall ) {
 
 	//	author : Jelo Wang
 	//	since : 20110224
@@ -48,7 +85,7 @@ void LACMemoryFrameInit ( int totall ) {
 
 }
 
-void LACMemoryFrameAdd ( void* handle , char* frame ) {
+void LAIRMemoryFrameAdd ( void* handle , char* frame ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
@@ -57,7 +94,7 @@ void LACMemoryFrameAdd ( void* handle , char* frame ) {
 
 }
 
-char* LACMemoryFrameGet ( char* var ) {
+char* LAIRMemoryFrameGet ( char* var ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
@@ -68,139 +105,107 @@ char* LACMemoryFrameGet ( char* var ) {
 
 }
 
-int LACNew () {
+int LairCreate () {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	LAC* lac = (LAC* ) SCMalloc ( sizeof(LAC) ) ;
+	LAIR* lair = (LAIR* ) SCMalloc ( sizeof(LAIR) ) ;
 	
-	SCClStringInit ( &lac->code ) ;
-	lac->number = 0 ;
-	lac->length = 0 ; 
-	lac->head = 0 ;
-	lac->next = 0 ;
+	SCClStringInit ( &lair->code ) ;
+	lair->number = 0 ;
+	lair->length = 0 ; 
+	lair->head = 0 ;
+	lair->next = 0 ;
 
-	return (int) lac ;
+	return (int) lair ;
 
 } 
 
-void LACSetContext ( int context ) {
+void LairSetContext ( int context ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	lac = (LAC* ) context ;
+	lair = (LAIR* ) context ;
 
 } 
 
-void LACSwapIn () {
+void LairSwapIn () {
 
 	//	author : Jelo Wang
 	//	since : 20110122
 	//	(C)TOK
 	
-	lacswaper = lac ;
+	lairswaper = lair ;
 }
 
-void LACSwapBack () {
+void LairSwapBack () {
 
 	//	author : Jelo Wang
 	//	since : 20110122
 	//	(C)TOK
 	
-	lac = lacswaper ;
+	lair = lairswaper ;
 }
 
-int LACAdd ( char* string , LAC_ATOM type , int scope ) {
+int LairAddCode ( char* string , LAIR_ATOM type , int scope ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 	
-	LAC* lacn = (LAC* ) SCMalloc ( sizeof(LAC) ) ;
+	LAIR* lairn = (LAIR* ) SCMalloc ( sizeof(LAIR) ) ;
 	
-	SCClStringInitEx ( &lacn->code , sc_strlen ( string ) ) ;
-	SCClStringAddStr ( &lacn->code , string ) ;	
-	SCClStringAdd ( &lacn->code , '\0' ) ;
+	SCClStringInitEx ( &lairn->code , sc_strlen ( string ) ) ;
+	SCClStringAddStr ( &lairn->code , string ) ;	
+	SCClStringAdd ( &lairn->code , '\0' ) ;
 	
-	lacn->havelabel = 0 ;
-	lacn->length = 0 ;
-	lacn->type = type ;
-	lacn->scope = scope ;
-	//	number of lac node
-	lacn->number = lac->length ; 
-	lacn->line = lac->line ;
-	lacn->head = 0 ;
-	lacn->next = 0 ;
+	lairn->havelabel = 0 ;
+	lairn->length = 0 ;
+	lairn->type = type ;
+	lairn->scope = scope ;
+	//	number of lair node
+	lairn->number = lair->length ; 
+	lairn->line = lair->line ;
+	lairn->head = 0 ;
+	lairn->next = 0 ;
 
-	if ( LAC_CR == lacn->type )
-		lac->line ++ ;
+	if ( LAIR_CR == lairn->type )
+		lair->line ++ ;
 
-	if ( LAC_PROC == lacn->type )	
-		lac->proctotall ++ ;
+	if ( LAIR_PROC == lairn->type )	
+		lair->proctotall ++ ;
 	
-	if ( 0 == lac->head ) {
-		lac->head = lacn ;
-		lac->next = lacn ;
+	if ( 0 == lair->head ) {
+		lair->head = lairn ;
+		lair->next = lairn ;
 	} else {
-		lac->next->next = lacn ;
-		lac->next = lacn ;
+		lair->next->next = lairn ;
+		lair->next = lairn ;
 	}
 
-	lac->length ++ ;
-	lac->colen = lac->colen + lacn->code.length ;
+	lair->length ++ ;
+	lair->colen = lair->colen + lairn->code.length ;
 
-	return lacn ;
+	return lairn ;
 
 }
 
-LAC* LACGet ( int number ) {
+char* LairGetCode () {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 	
-	LAC* walker = lac->head ; 
+	//	convert LAIR to char*
 	
-	for ( ; walker && number != walker->number ; walker = walker->next ) ;
-
-	return walker ;
-
-}
-
-void LACAddLabel ( int lacn , char* label ) {
-
-	//	author : Jelo Wang
-	//	since : 20100505
-	//	(C)TOK
-	
-	LAC* lachandle = (LAC* ) lacn ;
-		
-	if ( !lachandle ) return ;
-	if ( 1 == lachandle->havelabel ) return ; 
-	
-	SCClStringAddStr ( &lachandle->code , label ) ;	
-	SCClStringAdd ( &lachandle->code , '\0' ) ;	
-
-	lachandle->havelabel = 1 ;
-	
-}
-
-char* LACGetContent () {
-
-	//	author : Jelo Wang
-	//	since : 20100505
-	//	(C)TOK
-	
-	//	convert LAC to char*
-	
-	LAC* walker = lac->head ; 
+	LAIR* walker = lair->head ; 
 	SCClString string = { 0 , 0 , 0 , 0 , 0 } ;
 
-	SCClStringInitEx ( &string , lac->colen ) ;
+	SCClStringInitEx ( &string , lair->colen ) ;
 
 	for ( ; walker ; walker = walker->next ) {
 		SCClStringAddStr ( &string , walker->code.data ) ;
@@ -213,165 +218,164 @@ char* LACGetContent () {
 	
 }
 
-static void LACRefChainInsert ( int head , int chain ) {
+LAIR* LairGetCodeEx ( int number ) {
 
 	//	author : Jelo Wang
-	//	since : 20110121
+	//	since : 20100505
 	//	(C)TOK
+	
+	LAIR* walker = lair->head ; 
+	
+	for ( ; walker && number != walker->number ; walker = walker->next ) ;
 
-	LAC* lac = (LAC* )head ;
-
-	SCClListInsert ( &lac->refchain , chain ) ;
+	return walker ;
 
 }
 
-static void LACLiveScopeSplit ( int laca ) {
+void LairAddCodeLabel ( int lairn , char* label ) {
 
 	//	author : Jelo Wang
-	//	since : 20110121
+	//	since : 20100505
 	//	(C)TOK
-
-	//	将lac 引用链上的节点分裂
-
-	LAC* lac = laca ;
 	
-	SCClList* looper = 0 ;
-	
-	compiler->lssplits ++ ;
-
-	lac->type = LAC_L_MEM ;
-
-	for ( looper = lac->refchain.head ; looper ; looper = looper->next ) {
-		LAC* lacnode = looper->element ;		
-		lacnode->type =LAC_R_MEM ;		
-	}
-
+	LAIR* lairhandle = (LAIR* ) lairn ;
 		
+	if ( !lairhandle ) return ;
+	if ( 1 == lairhandle->havelabel ) return ; 
+	
+	SCClStringAddStr ( &lairhandle->code , label ) ;	
+	SCClStringAdd ( &lairhandle->code , '\0' ) ;	
+
+	lairhandle->havelabel = 1 ;
+	
 }
 
-void LACLiveScopeGenerate ( int degreesmax ) {
+void LairAllocRegister ( int degreesmax ) {
 	
 	//	author : Jelo Wang
 	//	since : 20110118
 	//	(C)TOK
 
-	//	1. locate live scopes of LAC per procedure 
+	//	1. locate live scopes of LAIR per procedure 
 	//	2. build interference graphs with live scopes
 	//	3. color the i-graphs
 	//	4. alloc register for the live scope based on colored i-graphs
+	//	5. out new lair codes
 
+	
 	SCClGraph* iG = 0 ;
 	int totall_colors = degreesmax ;	
-	int laclsnumber = 0 ;
+	int lairlsnumber = 0 ;
 
 	int stime = 0 ;
 	int etime = 0 ;
 	
-	LAC* llooper = 0 ;
-	LAC* newlac = 0 ;
-	LAC* orignallac = lac->head ;
+	LAIR* llooper = 0 ;
+	LAIR* newlair = 0 ;
+	LAIR* orignallair = lair->head ;
 
 	stime = clock () ;
 
-	RegocRegisterReady ( lac->proctotall ) ;
-	//	backup the orignal LAC context
-	LACSwapIn () ;
+	RegocRegisterReady ( lair->proctotall ) ;
+	//	backup the orignal LAIR context
+	LairSwapIn () ;
 	
 restart :
 
-	newlac = LACNew () ;
-	LACSetContext ( newlac ) ;
+	newlair = LairCreate () ;
+	LairSetContext ( newlair ) ;
 	
-	for ( llooper = orignallac ; llooper ; ) {
+	for ( llooper = orignallair ; llooper ; ) {
 
-		LAC* lacnode = 0 ;
+		LAIR* lairnode = 0 ;
 
-		lacnode = LACAdd ( llooper->code.data , llooper->type , llooper->scope ) ;
+		lairnode = LairAddCode ( llooper->code.data , llooper->type , llooper->scope ) ;
 				
 readproc :
 
-		if ( LAC_PROC != llooper->type ) {
+		if ( LAIR_PROC != llooper->type ) {
 			
 			llooper = llooper->next ;
 			
 		} else {
 
-			laclsnumber = 0 ;
+			lairlsnumber = 0 ;
 						
 			RegocLiveScopeMoiCreate () ;
 
 			//	get next looper
 			for ( llooper = llooper->next ; llooper ; llooper = llooper->next ) {			
 
-				lacnode = LACAdd ( llooper->code.data , llooper->type , llooper->scope ) ; 
+				lairnode = LairAddCode ( llooper->code.data , llooper->type , llooper->scope ) ; 
 				
-				if ( LAC_L_DELT == lacnode->type ) {		
+				if ( LAIR_L_DELT == lairnode->type ) {		
 
 					//	添加生命域
 					//	将原始的llooper加入LiveScopeMonitor，因为生命域分列时需要操作它
 					int lsn = RegocLiveScopeAdd ( llooper->code.data , llooper->scope , llooper->line , (void* )llooper ) ;
 					//	生命域编号
 					char* value = sc_strcat ( "." , SCClItoa (lsn) ) ;		
-					SCClStringAddStr ( &lacnode->code , value ) ;
-					SCClStringAdd ( &lacnode->code , 0 ) ;
+					SCClStringAddStr ( &lairnode->code , value ) ;
+					SCClStringAdd ( &lairnode->code , 0 ) ;
 					SCFree ( value ) ;	
 
-					laclsnumber ++ ;
+					lairlsnumber ++ ;
 					
-				} else if ( LAC_R_DELT == lacnode->type ) {
+				} else if ( LAIR_R_DELT == lairnode->type ) {
 
 					//	生命域引用
 					//	获取其编号
-					int lsn = RegocCheckLiveScope ( lacnode->code.data , lacnode->scope , lacnode->line ) ;
+					int lsn = RegocCheckLiveScope ( lairnode->code.data , lairnode->scope , lairnode->line ) ;
 					char* value = 0 ; 
 					
 					if ( -1 != lsn ) {
 						value = sc_strcat ( "." , SCClItoa (lsn) ) ;					
-						SCClStringAddStr ( &lacnode->code , value ) ;
-						SCClStringAdd ( &lacnode->code , '\0' ) ;
+						SCClStringAddStr ( &lairnode->code , value ) ;
+						SCClStringAdd ( &lairnode->code , '\0' ) ;
 						SCFree ( value ) ;		
 					} else if ( -1 == lsn ) {
 						//	set register 0 as default if the ls hasnt defined
-						SCClStringAddStr ( &lacnode->code , ".0" ) ;
-						SCClStringAdd ( &lacnode->code , '\0' ) ;
+						SCClStringAddStr ( &lairnode->code , ".0" ) ;
+						SCClStringAdd ( &lairnode->code , '\0' ) ;
 					}
 					
 					if ( -1 < lsn ) {
-						//	将lac 添加到其引用链
-						int lac = 0 ;					
-						lac = RegocLiveScopeGetLAC () ;
-						LACRefChainInsert ( lac , lacnode ) ;
+						//	将lair 添加到其引用链，目的在于记录每一个引用
+						//	无法染色时将其全部分裂
+						int lair = 0 ;					
+						lair = RegocLiveScopeGetLAIR () ;
+						LairRefChainInsert ( lair , lairnode ) ;
 					}
 					
 
-				} else if ( LAC_PROC == llooper->type || 0 == llooper->next ) {
+				} else if ( LAIR_PROC == llooper->type || 0 == llooper->next ) {
 
-					if ( 0 < laclsnumber ) {
-						//	get another lac proc
+					if ( 0 < lairlsnumber ) {
+						//	get another lair proc
 						//	coloring the graph of the last proc
-						int lac = 0 ;
+						int lair = 0 ;
 						
 						iG = RegocIGraphCreate () ;
-						lac = SCClGraphColoring ( iG , degreesmax ) ;	
+						lair = SCClGraphColoring ( iG , degreesmax ) ;	
 						
-						if ( -1 != lac && lac ) {						
-							//	graph coloring is failed if lac itsnt equal -1
+						if ( -1 != lair && lair ) {						
+							//	graph coloring is failed if lair itsnt equal -1
 							//	split the problem
-							LACLiveScopeSplit ( lac ) ;
+							LairLiveScopeSplit ( lair ) ;
 							RegocLiveScopeMoiDestroy () ;
 							SCClGraphDestroy ( iG ) ;							
-							//LACClear () ;
+							//LairClearCode () ;
 							
 							goto restart ;
 							
 						}
 						
-						if ( SC_IG & compiler->parameter ) {
+						if ( SC_IG & semo->parameter ) {
 							CORENRIGBFSRender ( (SCClGraph* ) iG , 0 , 0 ) ;
 						}
 
 						//	start register allocation based on interference-graph					
-						RegocRegisterAlloc ( iG , laclsnumber ) ;
+						RegocRegisterAlloc ( iG , lairlsnumber ) ;
 						RegocLiveScopeMoiDestroy () ;	
 
 					}
@@ -380,7 +384,7 @@ readproc :
 						goto success ;
 					}
 
-					//	end of LAC flow
+					//	end of LAIR flow
 					goto readproc ;
 					
 				}
@@ -396,39 +400,39 @@ readproc :
 
 success :
 
-	//	destroy the orginal LAC flow
-	LACClearEx ( orignallac ) ;
+	//	destroy the orginal LAIR flow
+	LairClearCodeEx ( orignallair ) ;
 
 	etime = clock () ;
 	
-	compiler->regoccosts = etime - stime ;
+	semo->regoccosts = etime - stime ;
 	
 	return ;
 	
 			
 }
 
-void LACClear () {
+void LairClearCode () {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
 
-	LAC* walker = lac->head ; 
+	LAIR* walker = lair->head ; 
  
 	for ( ; walker ; ) {
 
-		lac->next = walker->next ; 
+		lair->next = walker->next ; 
 		SCFree ( walker->code.data ) ;
 		SCFree ( walker ) ;
-		walker = lac->next ;
+		walker = lair->next ;
 		
 	}	
 
 } 
 
-void LACClearEx ( LAC* walker ) {
+void LairClearCodeEx ( LAIR* walker ) {
 
 	//	author : Jelo Wang
 	//	since : 20110122
@@ -436,15 +440,15 @@ void LACClearEx ( LAC* walker ) {
 
 	for ( ; walker ; ) {
 
-		lac->next = walker->next ; 
+		lair->next = walker->next ; 
 		SCFree ( walker->code.data ) ;
 		SCFree ( walker ) ;
-		walker = lac->next ;
+		walker = lair->next ;
 	}	
 
 } 
 
-int LACLabelMoiNew () {
+int LairLabelMoiNew () {
 
 	//	author : Jelo Wang
 	//	since : 20100505
@@ -454,7 +458,7 @@ int LACLabelMoiNew () {
 	
 	LABELMOI* monitor = (LABELMOI* ) SCMalloc ( sizeof(LABELMOI) ) ;
 
-	monitor->lac = 0 ;
+	monitor->lair = 0 ;
 	monitor->head = 0 ;
 	monitor->next = 0 ;
 
@@ -462,7 +466,7 @@ int LACLabelMoiNew () {
 
 } 
 
-void LACLabelMoiSetContext ( int monitor ) {
+void LairLabelMoiSetContext ( int monitor ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
@@ -472,17 +476,17 @@ void LACLabelMoiSetContext ( int monitor ) {
 
 } 
 
-void LACLabelMoiAdd ( int lac ) {
+void LairLabelMoiAdd ( int lair ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	//	将某LAC 节点加入监控队列
+	//	将某LAIR 节点加入监控队列
 	
 	LABELMOI* la = (LABELMOI* ) SCMalloc ( sizeof(LABELMOI) ) ;
 		
-	la->lac = (LAC* ) lac ;
+	la->lair = (LAIR* ) lair ;
 	la->head = 0 ;
 	la->next = 0 ;
 	
@@ -496,20 +500,20 @@ void LACLabelMoiAdd ( int lac ) {
 
 }
 
-void LACLabelMoiSetLabel ( char* label ) {
+void LairLabelMoiSetLabel ( char* label ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	//	为所监控的LAC节点添加label
+	//	为所监控的LAIR节点添加label
 	
 	LABELMOI* walker = labelmoi->head ;
 
 	while ( walker ) {
 		
 		labelmoi->next = walker->next ;
-		LACAddLabel ( walker->lac , label ) ;
+		LairAddCodeLabel ( walker->lair , label ) ;
 		SCFree ( walker ) ;
 		walker = labelmoi->next ;
 
@@ -519,7 +523,7 @@ void LACLabelMoiSetLabel ( char* label ) {
 
 }
 
-void LACLabelMoiClear () {
+void LairLabelMoiClear () {
 
 	//	author : Jelo Wang
 	//	since : 20100505

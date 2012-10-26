@@ -26,5 +26,5 @@
 */ 
 
 extern int asmor_arm_funcdef () ;
-extern char* asmor_arm_run ( char* lac , char* asmout ) ;
+extern char* asmor_arm_run ( char* lair , char* asmout ) ;
 

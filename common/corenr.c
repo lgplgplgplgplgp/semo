@@ -494,6 +494,31 @@ static void* CORENRSearchTextModel ( char element ) {
 
 }
 
+static int corenr_get_exp_deep ( EXPR* expression , EXPR* father , int deep , int* totall ) {
+
+	//	author : Jelo Wang
+	//	since : 20100802
+	//	(C)TOK
+
+	int ld = 0 ;
+	int rd = 0 ;
+	
+	if ( !expression ) {
+		return deep ;
+	}
+
+	*totall = *totall + 1 ;
+
+	expression->deep = deep ;
+	expression->father = father ;
+	
+	ld = corenr_get_exp_deep ( expression->left , expression , deep+1 , totall ) ; 
+	rd = corenr_get_exp_deep ( expression->right , expression , deep+1 , totall ) ;
+	
+	return ld  > rd ? ld  : rd ;
+	
+}
+
 void CORENRDrawText ( int x , int y , const char* text , int red , int green , int blue ) {
 
 	//	author : Jelo Wang
@@ -531,9 +556,9 @@ void CORENRExpDFSRender ( void* exp , int x , int y ) {
 
 	if ( EXP_OPERATOR == expression->type ) {
 		
-		extern char* lacgentor_gen_operator( int ) ;
+		extern char* lexerc_get_operator( int ) ;
 
-		CORENRDrawText ( x+5 , y , lacgentor_gen_operator(expression->handle) , 255 , 0 , 0 ) ;
+		CORENRDrawText ( x+5 , y , lexerc_get_operator(expression->handle) , 255 , 0 , 0 ) ;
 		CORENRDrawCircle ( x , y , 5 , 255 , 0 , 0 ) ;
 		
 		CORENRDrawLine ( x , y , ratiox1 , y+40 , 0 , 0 , 0 ) ;
@@ -619,10 +644,10 @@ int CORENRExpBFSRender ( void* exp , int x , int y ) {
 				xx = xx + 20 ;				
 			} else if ( EXP_OPERATOR == expression->type ) {
 		
-				extern char* lacgentor_gen_operator ( int ) ;				
+				extern char* lexerc_get_operator ( int ) ;				
 				CORENRFillCircle ( xx , y , 7 , 200 , 200 , 200 ) ;				
 				if ( father ) CORENRDrawLine ( expression->x , expression->y-7 , father->x , father->y+7 , 200 , 200 , 200 );
-				CORENRDrawText ( xx-3 , y-7 , lacgentor_gen_operator(expression->handle) , 0 , 0 , 0 ) ;
+				CORENRDrawText ( xx-3 , y-7 , lexerc_get_operator(expression->handle) , 0 , 0 , 0 ) ;
 				xx = xx + 17 ;
 				
 			}
@@ -652,10 +677,10 @@ int CORENRExpBFSRender ( void* exp , int x , int y ) {
 				
 			} else if ( EXP_OPERATOR == expression->type ) {
 	
-				extern char* lacgentor_gen_operator ( int ) ;
+				extern char* lexerc_get_operator ( int ) ;
 				CORENRFillCircle ( xx , y , 7 , 200 , 200 , 200 ) ;
 				if ( father ) CORENRDrawLine ( expression->x , expression->y-7 , father->x , father->y+7 , 200 , 200 , 200 );
-				CORENRDrawText ( xx-3 , y-7 , lacgentor_gen_operator(expression->handle) , 0 , 0 , 0 ) ;
+				CORENRDrawText ( xx-3 , y-7 , lexerc_get_operator(expression->handle) , 0 , 0 , 0 ) ;
 				xx = xx + 17 ;
 			}			
 			
@@ -747,9 +772,8 @@ int CORENRLgaExpRender ( void* lgnosiaa , int anltype , int x , int y ) {
 					{
 						int totall = 0 ;
 						int deep = 0 ;
-							
-						extern int lacgentor_get_exp_deep ( EXPR* expression , EXPR* father , int deep , int* totall ) ;
-						deep = lacgentor_get_exp_deep ( expression , 0 , 0 , &totall ) ;			
+													
+						deep = corenr_get_exp_deep ( expression , 0 , 0 , &totall ) ;			
 							
 						CORENRDrawText ( x-20-60 , y+14+10 , "H = " , 150 , 150 , 150 ) ;
 						CORENRDrawText ( x-20-30 , y+14+10 , SCClItoa (deep) , 150 , 150 , 150 ) ;

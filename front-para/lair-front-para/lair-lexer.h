@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC LEXER , part of SC mid-para
++	LAIR's codes lex , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -25,12 +25,12 @@
 
 */ 
 
-# ifndef __LAC_LEXER_
-# define __LAC_LEXER_
+# ifndef __LAIR_LEXER_
+# define __LAIR_LEXER_
 
 # include "sccl.h"
 
-# define lexerac_clearv() lexc->v = 0 ;
+# define LexerLair_clearv() lexc->v = 0 ;
 
 enum {
 
@@ -39,14 +39,14 @@ enum {
 	//	(C)TOK
 
 	//	normal mode without specical features
-	LEXLAC_DEFAULT_MODE = 0x1	 ,
+	LEXLAIR_DEFAULT_MODE = 0x1	 ,
 	//	normal mode with specical features , like blank fliter
-	LEXLAC_FLITER_MODE = 0x2 ,
+	LEXLAIR_FLITER_MODE = 0x2 ,
 	//	define-head bitmap generation process
-	LEXLAC_HEADBIT_MODE = 0x4
+	LEXLAIR_HEADBIT_MODE = 0x4
  	
 
-} LAC_LEXER_MODE ;
+} LAIR_LEXER_MODE ;
 
 enum {
 
@@ -55,11 +55,11 @@ enum {
 	//	since : 20100503
 	//	(C)TOK
 
-	LEXLAC_SMART_BRACKET ,
-	LEXLAC_MID_BRACKET ,
-	LEXLAC_STRONG_BRACKET 
+	LEXLAIR_SMART_BRACKET ,
+	LEXLAIR_MID_BRACKET ,
+	LEXLAIR_STRONG_BRACKET 
 	
-} LAC_BRACKET_TYPE ;
+} LAIR_BRACKET_TYPE ;
 
 typedef struct {
 	
@@ -92,7 +92,7 @@ typedef struct {
 	int ios ;
 	int stack ; 
 
-	//	lac defination form STACK n 
+	//	lair defination form STACK n 
 	//	scale = n
 	int scale ;
 	
@@ -100,34 +100,34 @@ typedef struct {
 	SCClString* code ;
 
 
-} LEXERLAC ;
+} LEXERLAIR ;
 
 
 # endif
 
 
-extern LEXERLAC* lexac ;
+extern LEXERLAIR* lexlair ;
 
-extern void lexerac_setmode ( int mode ) ;
-extern void lexerac_ready () ;
-extern int lexerac_overflowed () ;
-extern int lexerac_next () ;
-extern unsigned char lexerac_get_atom () ;
-extern void lexerac_put_atom ( unsigned char atom ) ; 
-extern void lexerac_rollback () ;
-extern void lexerac_setback ( int step ) ;
-extern void lexerac_skip_blank () ;
-extern void lexerac_skip_space () ;
-extern void lexerac_jump ( int step ) ;
-extern int lexerac_look ( int step ) ;
-extern int lexerac_genv () ;
-extern LEXERLAC* lexerac_new ( unsigned char* data , int mmode ) ;
-extern void lexerac_set ( LEXERLAC* lexer ) ;
-extern void lexerac_clear_status () ;
-extern void lexerac_set_file ( char* name ) ;
-extern void lexerac_destroy () ;
-extern LEXERLAC* lexerac_get () ;
-extern void lexerc_clear_scale () ;
-extern int lexerac_head_genv ( int border ) ;
-extern int lexerac_expect ( int atom ) ;
+extern void LexerLairSetmode ( int mode ) ;
+extern void LexerLairReady () ;
+extern int LexerLairOverflowed () ;
+extern int LexerLairNext () ;
+extern unsigned char LexerLairGetAtom () ;
+extern void LexerLairPutAtom ( unsigned char atom ) ; 
+extern void LexerLairRollback () ;
+extern void LexerLairSetback ( int step ) ;
+extern void LexerLairSkipBlank () ;
+extern void LexerLairSkipSpace () ;
+extern void LexerLairJump ( int step ) ;
+extern int LexerLairLook ( int step ) ;
+extern int LexerLairGenv () ;
+extern LEXERLAIR* LexerLairNew ( unsigned char* data , int mmode ) ;
+extern void LexerLairSet ( LEXERLAIR* lexer ) ;
+extern void LexerLairClearStatus () ;
+extern void LexerLairSetFile ( char* name ) ;
+extern void LexerLairDestroy () ;
+extern LEXERLAIR* LexerLairGet () ;
+extern void LexerLairClearScale () ;
+extern int LexerLairHeadGenv ( int border ) ;
+extern int LexerLairExpect ( int atom ) ;
 

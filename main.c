@@ -1,6 +1,5 @@
 # include "sccl.h"
-
-# include "sc.h"
+# include "semo.h"
 
 int main ( int argc , char* argv [] ) {
 
@@ -14,7 +13,7 @@ int main ( int argc , char* argv [] ) {
 			"sc",
 			"ca.txt" ,
 			" -cr" ,
-			" -lac" ,
+			" -lair" ,
 
 		} ;
    

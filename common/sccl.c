@@ -851,7 +851,7 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 
 }
 
-void SCClStringReplaceAtom ( SCClString* A , char atom , int start , int end ) {
+void SCClStringReplaireAtom ( SCClString* A , char atom , int start , int end ) {
 
 	//	author : Jelo Wang
 	//	since : 20090921
@@ -873,7 +873,7 @@ void SCClStringRepStr ( SCClString* A , char* S , int start , int len_b) {
 	//	updated : 20090827
 	//	(C)TOK
 
-	//	notes : replace a substr of B from A with C
+	//	notes : replaire a substr of B from A with C
 	//	notes : if start > sc_strlen(A) the length of A would be realloc 
 
 	int walker = 0 ;
@@ -945,7 +945,7 @@ void SCClStringRepStrMulti ( SCClString* A , char* B , char* C ) {
 	//	since : 20090816
 	//	(C)TOK
 
-	//	notes : lookup all substr B in A , then replace B with C
+	//	notes : lookup all substr B in A , then replaire B with C
 	//	input : A = "asdf b sadf asdf bbb sdf b"
 	//	input : B = b
 	//	input : C = B
@@ -979,7 +979,7 @@ void SCClStringRepStrMultiEx ( SCClString* A , char* B , char* C , char border )
 	//	since : 20120314
 	//	(C)TOK
 
-	//	notes : lookup all substr B in A , then replace B with C
+	//	notes : lookup all substr B in A , then replaire B with C
 	//	input : A = "asdf b sadf asdf bbb sdf b"
 	//	input : B = b
 	//	input : C = B
@@ -1827,7 +1827,7 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 	//	since : 20110118
 	//	(C)TOK	
 
-	//	when processing of coloring graph is failed return LAC handle
+	//	when processing of coloring graph is failed return LAIR handle
 	//	else return -1
 
 	SCClList* llooper = 0 ;
@@ -1840,7 +1840,7 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 
 		node = (SCClGraphNode* ) llooper->element ;
 
-		//	node->handle is a handle of LAC
+		//	node->handle is a handle of LAIR
 		if ( node->degree >= totall_colors ) return (int )node->handle ;
 
 		if ( -1 == node->color ) node->color = SCClGraphGetColor ( node , totall_colors ) ;
@@ -1850,7 +1850,7 @@ int SCClGraphColoring ( SCClGraph* graph , int totall_colors ) {
 
 			SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
 
-			//	node->handle is a handle of LAC
+			//	node->handle is a handle of LAIR
 			if ( innode->degree >= totall_colors ) 
 				return (int )innode->handle ;
 		
@@ -1971,7 +1971,7 @@ void SCClStringTest ()
 	SCClStringAdd ( &S , 0x20 ) ;
 	SCClStringAddStr ( &S , "-cr" ) ;
 	SCClStringAdd ( &S , 0x20 ) ;
-	SCClStringAddStr ( &S , "-lac" ) ;
+	SCClStringAddStr ( &S , "-lair" ) ;
 	SCClStringAdd ( &S , 0x20 ) ;	
 	SCClStringAdd ( &S , '\0' ) ;
 	SClog ( "%s\n" , S.data ) ;
