@@ -32,8 +32,8 @@
 # include "symbole.h"
 # include "evalor.h"
 # include "lgnosia.h"
-# include "lac-gentor.h"
-# include "lac.h"
+# include "lair-gentor.h"
+# include "lair.h"
 # include "corenr.h"
 
 static SCClStack LabelStack = { 0 , 0 , 0 , 0 , 0 } ;

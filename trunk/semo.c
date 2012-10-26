@@ -31,11 +31,11 @@
 # include "c-parser.h"
 # include "arm-asmor.h"
 # include "arm-assemer.h"
-# include "lac-gentor.h"
+# include "lair-gentor.h"
 # include "java-gentor.h"
 # include "schal.h"
 # include "sccl.h"
-# include "sc.h"
+# include "semo.h"
 
 COMPILER* compiler = 0 ;
 

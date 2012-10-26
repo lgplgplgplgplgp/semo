@@ -39,8 +39,8 @@ typedef struct {
 	//	register name 
 	char live [ LIVE_NAME_LENGTH ] ;
 
-	//	a handle to LAC
-	void* lac ;
+	//	a handle to LAIR
+	void* lair ;
 
 	//	number of live scope
 	int number ; 

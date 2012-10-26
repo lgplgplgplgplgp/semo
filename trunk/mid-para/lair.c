@@ -28,7 +28,7 @@
 # include "sc.h"
 # include "schal.h"
 # include "sccl.h"
-# include "lac.h"
+# include "lair.h"
 # include "regoc.h"
 # include "corenr.h"
 
