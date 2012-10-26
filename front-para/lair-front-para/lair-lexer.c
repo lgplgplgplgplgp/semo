@@ -27,8 +27,8 @@
 
 # include "schal.h"
 # include "sccl.h"
-# include "lac-lexer.h"
-# include "lac-grammar.h"
+# include "lair-lexer.h"
+# include "lair-grammar.h"
 
 # define LAC_TOK_DEFAULT_LENGTH 256
 # define LAC_LANGUGE_KEYWORDS_TOTALL 10

@@ -28,10 +28,10 @@
 # include "sccl.h"
 # include "schal.h"
 # include "regoc.h"
-# include "lac-grammar.h"
-# include "lac-lexer.h"
+# include "lair-grammar.h"
+# include "lair-lexer.h"
 
-//	二维表regoc 记录了寄存器的分配情况，第一维是lac函数编号
+//	二维表regoc 记录了寄存器的分配情况，第一维是lair函数编号
 //	第二维是生命域编号
 static int** regoc = 0 ;
 static int regoclooper = 0 ;
@@ -41,10 +41,10 @@ static int regoclooper = 0 ;
 static LIVESCOPE** lsmonitor = 0 ;
 static int lslooper = 0 ;
 static int lslength = 0 ;
-//	default amouts of lsmonitor that means the totall livescopes apeared in a lac procedure
+//	default amouts of lsmonitor that means the totall livescopes apeared in a lair procedure
 # define LSDEFAULT_LENGTH 1024
 
-//	lac node of the last found
+//	lair node of the last found
 static int laclast = 0 ;
 
 void RegocRegisterReady ( int proctotall ) {
@@ -163,7 +163,7 @@ static int RegocLiveScopeFind ( char* live , int scope ) {
 	for ( looper = lslooper-1 ; looper > -1 ; looper -- ) {
 		if ( scope >= lsmonitor[looper]->scope ) {			
 			if ( !sc_strcmp (live , lsmonitor[looper]->live) ) {				
-				laclast = lsmonitor[looper]->lac ;
+				laclast = lsmonitor[looper]->lair ;
 				break ;
 			}
 		}
@@ -234,7 +234,7 @@ static int RegocLiveScopeICheck ( LIVESCOPE* ls_1 , LIVESCOPE* ls_2 ) {
 }
 
 
-int RegocLiveScopeAdd ( char* live , int scope , int line , void* lac ) {
+int RegocLiveScopeAdd ( char* live , int scope , int line , void* lair ) {
 
 	//	author : Jelo Wang
 	//	since : 20110107
@@ -263,7 +263,7 @@ int RegocLiveScopeAdd ( char* live , int scope , int line , void* lac ) {
 	lsmonitor[lslooper]->number = lslooper ;
 	lsmonitor[lslooper]->start_line = line ;
 	lsmonitor[lslooper]->end_line = -1 ;
-	lsmonitor[lslooper]->lac = lac ;
+	lsmonitor[lslooper]->lair = lair ;
 	//	plus lslooper
 	lslooper ++ ;
 
@@ -290,7 +290,7 @@ int RegocIGraphCreate () {
 		LIVESCOPE* ls_1 = lsmonitor[looper] ;
 
 		//	add a node into ref graph
-		SCClGraphAddNode ( iG , ls_1->number , ls_1->lac ) ;
+		SCClGraphAddNode ( iG , ls_1->number , ls_1->lair ) ;
 		
 		for ( inlooper = 0 ; inlooper < lslooper ; inlooper ++ ) {
 
@@ -300,7 +300,7 @@ int RegocIGraphCreate () {
 			
 			if ( RegocLiveScopeICheck ( ls_1 , ls_2 ) ) {
 		
-				SCClGraphAddNode ( iG , ls_2->number , (void* )ls_2->lac ) ;
+				SCClGraphAddNode ( iG , ls_2->number , (void* )ls_2->lair ) ;
 				//	add ref edge bettwen ls_1 and ls_2
 				SCClGraphAddEdge ( iG , ls_1->number , ls_2->number ) ;
 //				printf("%d- %d\n",ls_1->number , ls_2->number );
@@ -332,7 +332,7 @@ int RegocGetRegister ( int pn , int lsn ) {
 	//	since : 20110119
 	//	(C)TOK	
 
-	//	pn : lac procedure number
+	//	pn : lair procedure number
 	//	lsn : live scope number
 
 	return regoc [pn][lsn] ;
