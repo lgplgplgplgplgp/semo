@@ -51,8 +51,8 @@ SCClStack stack ;
 # define MAX_PATH 260
 
 # define MACRO_PACKED( macro , nname ) \
-		macro -> name = (unsigned char* ) SCMalloc ( sc_strlen (nname) ) ; \
-		sc_strcpy ( macro -> name , nname ) ;\
+		macro->name = (unsigned char* ) SCMalloc ( sc_strlen (nname) ) ; \
+		sc_strcpy ( macro->name , nname ) ;\
 
 # define macro_set_iterator( macro , walker ) \
 		macro . front = 0 ; \
@@ -399,9 +399,11 @@ static char* macro_subsit ( MACRO* macro , MACRO* macrof , char* param_body , in
 
 			}
 
-			if ( lexc->stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error :: bracket of a macro is not matched , macro : %s , line %d\n" , macro -> name ,  lexc->line ) ;
+			if ( lexc->stack ) 
+				cerror ( C_PRESOR_MOD , IS_C_ERROR , "error :: bracket of a macro is not matched , macro : %s , line %d\n" , macro->name ,  lexc->line ) ;
 			
-			if ( lexc->stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ::  macro : %s has %d parameters , line %d\n" , macro -> name , lexc->line ) ;
+			if ( lexc->stack ) 
+				cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ::  macro : %s has %d parameters , line %d\n" , macro->name , lexc->line ) ;
 
 			lexc->stack = 0 ;
 
@@ -681,7 +683,8 @@ static int read_macro () {
 
 		}
 		
-		if ( lexc->stack ) cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ! bracket of a macro is not matched , macro : %s , line %d\n" , nmc->name , lexc->line ) ;
+		if ( lexc->stack ) 
+			cerror ( C_PRESOR_MOD , IS_C_ERROR , "error ! bracket of a macro is not matched , macro : %s , line %d\n" , nmc->name , lexc->line ) ;
 		
 		lexc->stack = 0 ;
 

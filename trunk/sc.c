@@ -613,7 +613,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//	Preprcessor of the front-para
 		if ( !compiler->PRESOR ( sc_strcat (file,".po") ) ) continue ;
 		
-#if 0
+#if 1
 		//	Parser of the front-para
 	 	if ( !compiler->PARSER ( &compiler->lines ) ) continue ;
 
