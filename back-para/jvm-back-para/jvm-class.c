@@ -44,5 +44,7 @@ int JVMClassFileCreate ( char* path ) {
 	ClassFile.minor_version = JCF_MINVER ;
 	ClassFile.major_version = JCF_MAJVER ;
 	
+	return 1 ;
+
 }
 
