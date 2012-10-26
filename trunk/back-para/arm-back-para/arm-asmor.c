@@ -25,7 +25,7 @@
 
 */ 
 
-# include "sc.h"
+# include "semo.h"
 # include "schal.h"
 # include "sccl.h"
 # include "lair-grammar.h"
@@ -36,9 +36,9 @@
 
 SCClString ArmAsm = { 0 , 0 , 0 , 0 , 0 } ;
 
-# define DUA_OPERATOR(x) (LAC_SUB <= x && x <= LAC_HE)
+# define DUA_OPERATOR(x) (LAIR_SUB <= x && x <= LAIR_HE)
 
-static void asmor_arm_gen_exp ( SCClString* lac ) {
+static void asmor_arm_gen_exp ( SCClString* lair ) {
 
 	//	author : Jelo Wang
 	//	since : 20100723
@@ -55,44 +55,44 @@ static void asmor_arm_gen_exp ( SCClString* lac ) {
 	int state = 0 ;
 
 	//	backup the orignal lexer
-	int lexerac = lexerac_get () ;
+	int lexerac = LexerLairGet () ;
 
 	//	generate a new laxer
-	lexerac_set ( lexerac_new ( lac->data , LEXLAC_FLITER_MODE ) ) ; 
+	LexerLairSet ( LexerLairNew ( lair->data , LEXLAIR_FLITER_MODE ) ) ; 
 	
-	for ( lexerac_ready () ; !lexac->stop ; ) {
+	for ( LexerLairReady () ; !lexlair->stop ; ) {
 
-		lexerac_genv () ;		
+		LexerLairGenv () ;		
 
 		switch ( state ) {
 			case 0 :
 		
-				if ( LAC_VREG == lexac->v ) {		
+				if ( LAIR_VREG == lexlair->v ) {		
 					
-					R = SCClItoa ( RegocGetRegister ( 0 , lexac->lsn )  ) ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
 					sc_strcat_ex ( "R" , R , Rd ) ;
 					state = 1  ;
 
 				}
 			break ;
 			case 1 :
-				if ( LAC_VAR == lexac->v ) {
-					R = SCClItoa ( RegocGetRegister ( 0 , lexac->lsn )  ) ;
+				if ( LAIR_VAR == lexlair->v ) {
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
 					sc_strcat_ex ( "R" , R , Rn ) ;			
 					state = 2  ;
 				}
 			break ;
 			case 2 :
-				if ( DUA_OPERATOR(lexac->v) ) {
+				if ( DUA_OPERATOR(lexlair->v) ) {
 					state = 3  ;
 				}
 			break ;
 			case 3 :
-			 	if ( LAC_VAR == lexac->v ) {
+			 	if ( LAIR_VAR == lexlair->v ) {
 			
-					R = SCClItoa ( RegocGetRegister ( 0 , lexac->lsn )  ) ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
 					sc_strcat_ex ( "R" , R , Rm ) ;				
-					lexac->stop = 1 ;
+					lexlair->stop = 1 ;
  					THUMB_ADD_RdRnRm ( Rd , Rn , Rm ) ;
 					
 				}
@@ -102,7 +102,7 @@ static void asmor_arm_gen_exp ( SCClString* lac ) {
 	}
 
 	//	set the orignal lexer
-	lexerac_set ( lexerac ) ;
+	LexerLairSet ( lexerac ) ;
 		
 }
 
@@ -120,29 +120,29 @@ static int asmor_arm_read_variable_inf () {
 
 	int state = 0 ;
 	
-	if ( LAC_VAR != lexac->v ) return 0 ;
+	if ( LAIR_VAR != lexlair->v ) return 0 ;
 
-	sc_strcpy ( R , SCClItoa ( RegocGetRegister ( 0 , lexac->lsn ) ) ) ;
+	sc_strcpy ( R , SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ) ;
 	sc_strcat_ex ( "R" , R , Rd ) ;
 
-	while ( !lexac->stop ) {
+	while ( !lexlair->stop ) {
 
-		lexerac_genv () ;
+		LexerLairGenv () ;
 				
 		switch ( state ) {
 			case 0 :		
-				if ( LAC_EQU == lexac->v ) {
+				if ( LAIR_EQU == lexlair->v ) {
 					state = 1 ;
 				}
 			break ;
 			case 1 :
-				if ( LAC_VAR == lexac->v || LAC_VREG == lexac->v ) {
-					char* R = SCClItoa ( RegocGetRegister ( 0 , lexac->lsn )  ) ;
+				if ( LAIR_VAR == lexlair->v || LAIR_VREG == lexlair->v ) {
+					char* R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
 					sc_strcat_ex ( "R" , R , Rn ) ;				
  					THUMB_MOV_RdRn ( Rd , Rn ) ;
 					return 1 ;
-				} else if ( LAC_INTNUM == lexac->v ) {		
- 					THUMB_MOV_RdImmed_8 ( Rd , lexac->token ) ;
+				} else if ( LAIR_INTNUM == lexlair->v ) {		
+ 					THUMB_MOV_RdImmed_8 ( Rd , lexlair->token ) ;
 					return 1 ;				
 				}
  			break ;
@@ -161,27 +161,27 @@ static int asmor_arm_read_virtual_reg () {
 	//	since : 20100722
 	//	(C)TOK
 
-	SCClString lac = { 0 , 0 , 0 , 0 , 0 } ;
+	SCClString lair = { 0 , 0 , 0 , 0 , 0 } ;
 
-	if ( LAC_VREG != lexac->v ) return 0 ;
+	if ( LAIR_VREG != lexlair->v ) return 0 ;
 
-	SCClStringInit ( &lac ) ;
-	SCClStringAddStr ( &lac , lexac->token ) ;
+	SCClStringInit ( &lair ) ;
+	SCClStringAddStr ( &lair , lexlair->token ) ;
 	
-	while ( !lexac->stop ) {
+	while ( !lexlair->stop ) {
 
-		lexerac_genv () ;
+		LexerLairGenv () ;
 		
-		if ( LAC_FEN == lexac->v ) break ;
+		if ( LAIR_FEN == lexlair->v ) break ;
 
-		SCClStringAddStr ( &lac , lexac->token ) ;
+		SCClStringAddStr ( &lair , lexlair->token ) ;
 		
 	}
 
-	SCClStringAdd ( &lac , '\0' ) ;	
+	SCClStringAdd ( &lair , '\0' ) ;	
 
 	//	generate arm-exp form
-	asmor_arm_gen_exp ( &lac ) ;
+	asmor_arm_gen_exp ( &lair ) ;
 
 	return 1 ;
 
@@ -193,24 +193,24 @@ static int asmor_arm_read_peca () {
 	//	since : 20110212
 	//	(C)TOK
 	
-	if ( LAC_PE != lexac->v && LAC_CA != lexac->v ) return 0 ;
+	if ( LAIR_PE != lexlair->v && LAIR_CA != lexlair->v ) return 0 ;
 
-	while ( !lexac->stop ) {
+	while ( !lexlair->stop ) {
 
-		lexerac_genv () ;
+		LexerLairGenv () ;
 		
-		if ( LAC_CA == lexac->v ) {
-			lexerac_genv () ;
+		if ( LAIR_CA == lexlair->v ) {
+			LexerLairGenv () ;
 			break ;
 		}
 		
-		else if ( LAC_PE == lexac->v ) {			
-			lexerac_genv () ;
+		else if ( LAIR_PE == lexlair->v ) {			
+			LexerLairGenv () ;
 		}
 		
 	}
 
-	THUMB_BL(lexac->token) ;	
+	THUMB_BL(lexlair->token) ;	
 	
 }
 
@@ -220,15 +220,15 @@ static int asmor_arm_read_symbol_inf () {
 	//	since : 20100722
 	//	(C)TOK
 
-	switch ( lexac->v ) {
-		case LAC_VAR :
+	switch ( lexlair->v ) {
+		case LAIR_VAR :
 			return asmor_arm_read_variable_inf () ;
 		break ;
-		case LAC_VREG :
+		case LAIR_VREG :
 			return asmor_arm_read_virtual_reg () ;
 		break ;
-		case LAC_PE :
-		case LAC_CA :			
+		case LAIR_PE :
+		case LAIR_CA :			
 			return asmor_arm_read_peca () ;
 		break ;
 		default : return 0 ;
@@ -246,21 +246,21 @@ int asmor_arm_funcdef () {
 
 	int stack = 0 ;
 	
-	if ( LAC_FUNCDEF != lexac->v ) return 0 ;
+	if ( LAIR_FUNCDEF != lexlair->v ) return 0 ;
 
 	SCClStringAddStr ( &ArmAsm , "proc " ) ;
-	SCClStringAddStr ( &ArmAsm , lexac->token ) ;
+	SCClStringAddStr ( &ArmAsm , lexlair->token ) ;
 	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;
 
 	//	parsing parameter scope of function
 	stack = 0 ;
-	while ( !lexac->stop ) {
+	while ( !lexlair->stop ) {
 		
-		lexerac_genv () ;
+		LexerLairGenv () ;
 		
-		if ( LAC_XKL == lexac->v )
+		if ( LAIR_XKL == lexlair->v )
 			stack ++ ;
-		if ( LAC_XKR == lexac->v )
+		if ( LAIR_XKR == lexlair->v )
 			stack -- ;
 		
 		if ( 0 == stack ) 
@@ -270,20 +270,20 @@ int asmor_arm_funcdef () {
 
 	//	parsing function body
 	stack = 0 ;
-	while ( !lexac->stop ) {
+	while ( !lexlair->stop ) {
 		
-		lexerac_genv () ;
+		LexerLairGenv () ;
 		
-		if ( LAC_DKL == lexac->v )
+		if ( LAIR_DKL == lexlair->v )
 			stack ++ ;
-		if ( LAC_DKR == lexac->v )
+		if ( LAIR_DKR == lexlair->v )
 			stack -- ;
 		
 		if ( 0 == stack ) 
 			break ;		
 
-		if ( LAC_LABEL == lexac->v ) {
-			SCClStringAddStr ( &ArmAsm , sc_strcat ( lexac->token , ":\r\n")  ) ;
+		if ( LAIR_LABEL == lexlair->v ) {
+			SCClStringAddStr ( &ArmAsm , sc_strcat ( lexlair->token , ":\r\n")  ) ;
 			continue ;
 		}
 
@@ -296,30 +296,30 @@ int asmor_arm_funcdef () {
 	
 }
 
-char* asmor_arm_run ( char* lac , char* asmout ) {
+char* asmor_arm_run ( char* lair , char* asmout ) {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 	
-	ASSERT ( lac ) ;
+	ASSERT ( lair ) ;
 	
-	lexerac_set ( lexerac_new ( lac , LEXLAC_FLITER_MODE ) ) ; 
-	lexerac_ready () ;
+	LexerLairSet ( LexerLairNew ( lair , LEXLAIR_FLITER_MODE ) ) ; 
+	LexerLairReady () ;
 
 	SCClStringInit ( &ArmAsm ) ;
 
   	SEMO_ASSEMBLER_COPYRIGHTS;
 
-	for ( lexerac_genv () ; !lexac->stop ; lexerac_genv () ) {
-		if ( LAC_FUNCDEF == lexac->v ) {
+	for ( LexerLairGenv () ; !lexlair->stop ; LexerLairGenv () ) {
+		if ( LAIR_FUNCDEF == lexlair->v ) {
 			asmor_arm_funcdef () ;
 		} 
 	} 
 
 	SCClStringAdd ( &ArmAsm , '\0' ) ;
 
-	if ( SC_SASM & compiler->parameter ) {
+	if ( SC_SASM & semo->parameter ) {
 		void* file = SCHalFileOpen ( asmout , "wb+" ) ;
 		SCHalFileWrite ( file , ArmAsm.data , 1 , sc_strlen (ArmAsm.data) ) ;
 		SCHalFileClose ( file ) ;

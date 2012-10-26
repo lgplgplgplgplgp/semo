@@ -168,7 +168,7 @@ static int have_priority ( int priority , int object ) {
 
 }
 
-static long int value_calac ( int op_1 , int op_2 , int functer ) {
+static long int value_calair ( int op_1 , int op_2 , int functer ) {
 	
 	//	author: Jelo Wang
 	//	since : 20091123
@@ -316,7 +316,7 @@ static long int c_suffix_exp_evalor () {
 		int op_2 = (int )SCClStackPop ( &suffix_stack ) ;
 		int op_1 = (int )SCClStackPop ( &suffix_stack ) ;
 
-		SCClStackPush ( &suffix_stack , (void* )value_calac ( op_1 , op_2 , functer ) ) ;
+		SCClStackPush ( &suffix_stack , (void* )value_calair ( op_1 , op_2 , functer ) ) ;
 							
 //	}
 

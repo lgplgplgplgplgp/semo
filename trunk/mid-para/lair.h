@@ -1,7 +1,7 @@
 
 /*
 
-+	LAC (LGNOSIA Code) Generator , part of SC mid-para
++	LAIR is an abstractive machine defined by semo , part of SC mid-para
 
 +	'Semo Compiler' is a multi-objective compiler which is developing under the terms of the 
 +	GNU general public license as published by the Free Software Foundation.
@@ -25,8 +25,8 @@
 
 */ 
 
-# ifndef __LAC_
-# define __LAC_
+# ifndef __LAIR_
+# define __LAIR_
 
 # include "sccl.h"
 
@@ -38,12 +38,12 @@ typedef enum {
 	//	since : 20100722
 	//	(C)TOK
 
-	//	lac EXPR atoms
+	//	lair EXPR atoms
 	
-	LAC_FLOW_LOGICAL ,
-	LAC_FLOW_LOOP ,
+	LAIR_FLOW_LOGICAL ,
+	LAIR_FLOW_LOOP ,
 
-} LAC_FLOW_ATOM ;
+} LAIR_FLOW_ATOM ;
 
 typedef enum {
 
@@ -51,14 +51,14 @@ typedef enum {
 	//	since : 20100722
 	//	(C)TOK
 
-	//	lac EXPR atoms
+	//	lair EXPR atoms
 
-	LAC_REG_MEMPORT ,	
-	LAC_STATIC_MEMPORT ,
-	LAC_STACK_MEMPORT ,
-	LAC_HEAP_MEMPORT ,
+	LAIR_REG_MEMPORT ,	
+	LAIR_STATIC_MEMPORT ,
+	LAIR_STACK_MEMPORT ,
+	LAIR_HEAP_MEMPORT ,
 
-} LAC_MEMPORT ;
+} LAIR_MEMPORT ;
 
 
 typedef struct {
@@ -67,14 +67,14 @@ typedef struct {
 	//	since : 20100722
 	//	(C)TOK
 
-	//	LAC Control-flow 
+	//	LAIR Control-flow 
 	
-	LAC_FLOW_ATOM type ;
+	LAIR_FLOW_ATOM type ;
 	
 	char* label ;
 	char* expr ;
 		
-} LAC_FLOW ;
+} LAIR_FLOW ;
 
 typedef struct {
 
@@ -82,16 +82,16 @@ typedef struct {
 	//	since : 20100722
 	//	(C)TOK
 
-	//	LAC symbol 
+	//	LAIR symbol 
 	
 	char* name ;
 	char* label ;
 
-	LAC_MEMPORT memport ;
+	LAIR_MEMPORT memport ;
 	int based ;
 	int size ;	
 	
-} LAC_SYMBOL ;
+} LAIR_SYMBOL ;
 
 #endif
 //	Jelo Edited Finished
@@ -104,23 +104,23 @@ typedef enum {
 	//	(C)TOK
 
 	//	A procedure , function or method and some thing like that
-	LAC_PROC ,	
+	LAIR_PROC ,	
 	//	An if logic node
-	LAC_IF ,
+	LAIR_IF ,
 	//	A lvalue
-	LAC_L_DELT ,
+	LAIR_L_DELT ,
 	//	A rvalue but you know it already
-	LAC_R_DELT ,
+	LAIR_R_DELT ,
 	//	A rvalue of memory mode
-	LAC_L_MEM ,
+	LAIR_L_MEM ,
 	//	A lvalue of memory mode
-	LAC_R_MEM ,
+	LAIR_R_MEM ,
 	//	A function call
-	LAC_P_CALL ,	
+	LAIR_P_CALL ,	
 	//	just change row
-	LAC_CR ,
+	LAIR_CR ,
 	
-} LAC_ATOM ;
+} LAIR_ATOM ;
 
 typedef struct {
 
@@ -128,10 +128,10 @@ typedef struct {
 	//	since : 20100107
 	//	(C)TOK
 
-	//	LAC-CALL-FRAME
+	//	LAIR-CALL-FRAME
 	//	call-frame is a manager for the parameter transfering of function-calling 
 
-	//	type of frame , value bettwen LAC_REG_CFRAME , LAC_STK_CFRAME
+	//	type of frame , value bettwen LAIR_REG_CFRAME , LAIR_STK_CFRAME
 	int type ;
 
 	//	a pointer to an azonal name
@@ -145,44 +145,44 @@ typedef struct {
 
 	} stack ;
 	
-} LACMemoryFrame ;
+} LAIRMemoryFrame ;
 
-typedef struct LACA {
+typedef struct LAIRA {
 
 	//	author : Jelo Wang
 	//	since : 20100505
 	//	(C)TOK
 
-	//	a LAC flow consits two part
+	//	a LAIR flow consits two part
 	//	oprand1 op oprand2
 	//	and a label if necessary
 
-	//	lac type
+	//	lair type
 	int type ;
 	//	a handle to another datas
 	int handle ;
-	//	scope of lac atom
+	//	scope of lair atom
 	int scope ;
 	//	line position
 	int line ;
-	//	totall of lac-procedure
+	//	totall of lair-procedure
 	int proctotall ;
 	int havelabel ;
-	//	number of the lac atom in the whole chain
+	//	number of the lair atom in the whole chain
 	int number ;
 	int length ;
-	//	lac codes length in bytes
+	//	lair codes length in bytes
 	int colen ;
 	
-	struct LACA* head ;
-	struct LACA* next ;
+	struct LAIRA* head ;
+	struct LAIRA* next ;
 
 	SCClString code ;
 
 	//	reference chain
 	SCClList refchain ;
 
-} LAC ;
+} LAIR ;
 
 typedef struct LMON {
 
@@ -190,7 +190,7 @@ typedef struct LMON {
 	//	since : 20100505
 	//	(C)TOK
 	
-	LAC* lac ;
+	LAIR* lair ;
 	struct LMON* head ; 
 	struct LMON* next ; 
 
@@ -198,22 +198,22 @@ typedef struct LMON {
 
 # endif
 
-extern int LACNew () ;
-extern void LACSetContext ( int context ) ;
-extern LAC* LACGet ( int number ) ;
-extern int LACAdd ( char* string , LAC_ATOM type , int scope ) ;
-extern void LACAddLabel ( int number , char* label ) ;
-extern char* LACGetContent () ;
-extern void LACLiveScopeGenerate ( int degreesmax ) ;
-extern void LACClear () ;
-extern void LACClearEx ( LAC* walker ) ;
+extern int LairCreate () ;
+extern void LairSetContext ( int context ) ;
+extern LAIR* LairGetCodeEx ( int number ) ;
+extern int LairAddCode ( char* string , LAIR_ATOM type , int scope ) ;
+extern void LairAddCodeLabel ( int number , char* label ) ;
+extern char* LairGetCode () ;
+extern void LairAllocRegister ( int degreesmax ) ;
+extern void LairClearCode () ;
+extern void LairClearCodeEx ( LAIR* walker ) ;
 
-extern int LACLabelMoiNew () ;
-extern void LACLabelMoiSetContext ( int monitor ) ;
-extern void LACLabelMoiAdd ( int lac ) ;
-extern void LACLabelMoiSetLabel ( char* label ) ;
-extern void LACLabelMoiClear () ;
-extern void LACMemoryFrameInit ( int totall ) ;
-extern void LACMemoryFrameAdd ( void* var , char* frame ) ;
-extern char* LACMemoryFrameGet ( char* var ) ;
+extern int LairLabelMoiNew () ;
+extern void LairLabelMoiSetContext ( int monitor ) ;
+extern void LairLabelMoiAdd ( int lair ) ;
+extern void LairLabelMoiSetLabel ( char* label ) ;
+extern void LairLabelMoiClear () ;
+extern void LAIRMemoryFrameInit ( int totall ) ;
+extern void LAIRMemoryFrameAdd ( void* var , char* frame ) ;
+extern char* LAIRMemoryFrameGet ( char* var ) ;
  

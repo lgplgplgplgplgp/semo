@@ -25,7 +25,7 @@
 
 */ 
 
-# include "sc.h"
+# include "semo.h"
 # include "schal.h"
 # include "sccl.h"
 # include "elf-gen.h"

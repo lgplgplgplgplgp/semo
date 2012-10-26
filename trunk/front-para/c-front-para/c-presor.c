@@ -32,7 +32,7 @@
 # include "evalor.h"
 # include "schal.h"
 # include "sccl.h"
-# include "sc.h"
+# include "semo.h"
 
 int read_if () ;
 int read_ifdef () ;
@@ -887,7 +887,7 @@ static int read_ifdef () {
 	
 	if ( macro_find ( lexc->token , lexc->line ) ) {
 
-		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
+		SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
 		lexc->stack ++ ;
 
 redo :
@@ -904,7 +904,7 @@ redo :
 
 		if ( C_PI_ENDIF == lexc->v ) {
 
-			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
+			SCClStringReplaireAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc->stack -- ;
 			
 			//	clear lexc->v
@@ -956,7 +956,7 @@ redo :
 		}
 		
 		lexc->v = 0 ;
-		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	}
 
@@ -989,7 +989,7 @@ static int read_ifndef () {
 	
 	if ( !macro_find ( lexc->token , lexc->line ) ) {
 
-		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
+		SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , key_scope ) ;
 		lexc->stack ++ ;
 
 redo :
@@ -1006,7 +1006,7 @@ redo :
 
 		if ( C_PI_ENDIF == lexc->v ) {
 
-			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
+			SCClStringReplaireAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc->stack -- ;
 			
 			//	clear lexc->v
@@ -1059,7 +1059,7 @@ redo :
 		}
 		
 		lexc->v = 0 ;
-		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	}
 
@@ -1089,7 +1089,7 @@ static int read_if () {
 
 	if ( 0 != c_evalor () ) {
 
-		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 redo :
 		
@@ -1105,7 +1105,7 @@ redo :
 
 		if ( C_PI_ENDIF == lexc->v ) {
 
-			SCClStringReplaceAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
+			SCClStringReplaireAtom ( lexc->code , 0x20 , lexc->code->get_walker - 6 , 6 ) ;
 			lexc->stack -- ;
 			
 			//	clear lexc->v
@@ -1159,7 +1159,7 @@ redo :
 		}
 		
 		lexc->v = 0 ;
-		SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+		SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	}
 	
@@ -1181,7 +1181,7 @@ static int read_else () {
 
 	//	length of token "#else" save it starting pos here
 	key_pos = lexc->code->get_walker - 5 ; //sc_strlen("#else") ;
-	SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+	SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 	
 	stack ++ ;
 
@@ -1200,7 +1200,7 @@ static int read_else () {
 		
 	lexc->v = 0 ;
 	key_pos = lexc->code->get_walker-5 ; //sc_strlen("#else") ;
-	SCClStringReplaceAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
+	SCClStringReplaireAtom ( lexc->code , 0x20 , key_pos , lexc->code->get_walker - key_pos ) ;
 
 	return 1 ;
 
@@ -1277,7 +1277,7 @@ int presor_c_run ( char* presor_file ) {
 	SCClStackInit ( &stack ) ;
 	SCClStackInit ( &macro_stack ) ;
 
-	//	marco replacing
+	//	marco replairing
  	for ( lexerc_ready () ; !lexc->stop ; ) {
 
 		lexerc_genv () ;
@@ -1324,7 +1324,7 @@ int presor_c_run ( char* presor_file ) {
 
 	lexc->line = line ;
 	
-	if ( SC_PO & compiler->parameter ) {
+	if ( SC_PO & semo->parameter ) {
 
 		//	output precompiling results
 		file = SCHalFileOpen ( presor_file , "w+" ) ; 

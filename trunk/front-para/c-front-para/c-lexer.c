@@ -112,6 +112,48 @@ static C_KEYWORDS c_presorinstruc [10] = {
 
 } ;
 
+
+char* lexerc_get_operator ( int operator ) {
+
+	//	author : Jelo Wang
+	//	since : 20100428
+	//	(C)TOK
+
+	switch ( operator ) {
+
+		case C_MUL : return "*" ;
+		case C_DIV : return "/" ;
+		case C_MOD : return "%" ;
+
+		case C_ADD : return "+" ;
+		case C_SUB : return "-" ;
+
+		case C_SHL : return "<<" ;
+		case C_SHR : return ">>" ;
+
+		case C_GE :	return ">=" ;
+		case C_GT :	return ">" ;
+		case C_LT :	return "<" ;
+		case C_LE :	return "<=" ;
+
+		case C_EQ :	return "==" ;
+		case C_NE :	return "!=" ;
+
+		case C_YHH : return "^" ;
+
+		case C_HE :	return "&" ;
+
+		case C_HU :	return "|" ;
+
+		case C_AND : return "&&" ;
+
+		case C_OR :	return "||" ;
+
+	}
+
+}
+
+
 LEXERC* lexerc_new ( unsigned char* data , int mmode ) {
 
 	//	author : Jelo Wang
@@ -507,7 +549,7 @@ int lexerc_next ()  {
 	//	flit '\r'
 	if( '\r' == lexc->code->data [ lexc->code->get_walker + 1 ] && 
 		'\n' == lexc->code->data [ lexc->code->get_walker + 2 ] ) {
-		//	replace '\r\n' with '\n\0x20' is no problem
+		//	replaire '\r\n' with '\n\0x20' is no problem
 		lexc->code->data [ lexc->code->get_walker + 1 ] = '\n' ;
 		lexc->code->data [ lexc->code->get_walker + 2 ] = ' ' ;
 	}
@@ -533,7 +575,7 @@ unsigned char lexerc_get_atom ()  {
 	//	flit '\r'
 	if( '\r' == lexc->code->data [ lexc->code->get_walker ] && 
 		'\n' == lexc->code->data [ lexc->code->get_walker + 1 ] ) {
-		//	replace '\r\n' with '\n\0x20' is no problem
+		//	replaire '\r\n' with '\n\0x20' is no problem
 		lexc->code->data [ lexc->code->get_walker ] = '\n' ;
 		lexc->code->data [ lexc->code->get_walker + 1 ] = ' ' ;
 	}	
@@ -646,7 +688,7 @@ void lexerc_jump ( int step ) {
 	//	flit '\r'
 	if( '\r' == lexc->code->data [ lexc->code->get_walker + step ] && 
 		'\n' == lexc->code->data [ lexc->code->get_walker + step + 1 ] ) {
-		//	replace '\r\n' with '\n\0x20' is no problem
+		//	replaire '\r\n' with '\n\0x20' is no problem
 		lexc->code->data [ lexc->code->get_walker + step ] = '\n' ;
 		lexc->code->data [ lexc->code->get_walker + step + 1 ] = ' ' ;
 	}	

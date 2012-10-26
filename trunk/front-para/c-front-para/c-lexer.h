@@ -119,6 +119,7 @@ typedef struct {
 
 extern LEXERC* lexc ;
 
+extern char* lexerc_get_operator ( int operator ) ;
 extern void lexerc_setmode ( int mode ) ;
 extern void lexerc_ready () ;
 extern int lexerc_overflowed () ;

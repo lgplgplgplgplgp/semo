@@ -26,7 +26,7 @@
 */ 
 
 
-# include "sc.h"
+# include "semo.h"
 # include "schal.h"
 # include "sccl.h"
 # include "c-grammar.h"
