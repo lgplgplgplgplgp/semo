@@ -59,11 +59,13 @@ typedef struct {
 	int alias ;
 	//	the last flow has apeared
 	int flow ;
+	int scope ;
 
 	struct {
 
 		int totall ;
-		//	the lastest scope of any of a alias
+		//	the smallest scope of any of a alias
+		//	基于这个条件识别是否有多重别名
 		int scope ;
 		int alias[ SSA_MULTI_ALIAS_MAX ] ;
 		
@@ -87,14 +89,14 @@ static int SsaMultiAliasEnable = 0 ;
 static SCClList aliaslist = { 0 } ;
 static SCClList ancestorlist = { 0 } ;
 
-static int SsaGetMultiAliasValid ( int symbol , int scope ) {
+static int SsaGetMultiAliasValid ( int symbol , int flow , int scope ) {
 
 	//	author : Jelo Wang
 	//	since : 20121026
 	//	(C)TOK	
 
 	//	判断是否可获得多重别名
-	//	只有在多重别名.scope > scope 方可获得
+	//	只要发生了flow迁移就需要判断
 
 	SSA* ssa = 0 ;
 	SCClList* looper = 0 ;
@@ -107,7 +109,9 @@ static int SsaGetMultiAliasValid ( int symbol , int scope ) {
 	}	
 	
 	if ( 0 != looper ) {		
-		if ( ssa->MultiAlias.scope > scope ) {
+		//	多重别名作用域最大深度大于当前深度
+		//	并且已经发生了flow迁移
+		if ( ssa->flow != flow ) {
 			return 1 ;
 		}
 		return 0 ;
@@ -179,7 +183,7 @@ int SsaMakeAlias ( int flow , int symbol , int scope ) {
 		//	if there have a ssa form exist already , we just return it here as well
 		//	increase it and return
 		ssa->alias ++ ;
-
+		
 		//	save multi alias
 		if ( SsaMultiAliasEnable ) {
 
@@ -188,13 +192,18 @@ int SsaMakeAlias ( int flow , int symbol , int scope ) {
 				ssa->MultiAlias.totall ++ ;
 			}
 
-			ssa->MultiAlias.scope = scope ;
-			ssa->MultiAlias.alias [ssa->MultiAlias.totall] = ssa->alias ;
+			//	only save the smallest one
+			//	有没有多重别名的条件就是拿当前作用域跟ssa->MultiAlias.scope
+			//	比较看谁最深
+			if ( scope > ssa->MultiAlias.scope ) {
+				ssa->MultiAlias.scope = scope ;
+			}
 
-//printf(" - %x , %d,%d,%d - \n",symbol , ssa->MultiAlias.totall,ssa->MultiAlias.alias[0],ssa->MultiAlias.alias[1])			;
+			ssa->MultiAlias.alias [ssa->MultiAlias.totall] = ssa->alias ;
 
 		}
 		ssa->flow = flow ;
+		ssa->scope = scope ;
 		//	可以假设所有别名都是ancestor，这是没问题
 		SsaSaveAncestorAlias ( symbol ,  ssa->alias , scope ) ;			
 		return ssa->alias ;
@@ -206,8 +215,9 @@ int SsaMakeAlias ( int flow , int symbol , int scope ) {
 		ASSERT(ssa) ;
 		ssa->symbol = symbol ;
 		ssa->alias = 0 ;
-		ssa->flow = flow ;
- 
+		ssa->flow = flow ;	
+		ssa->scope = scope ;
+		
 		SCClListInsert ( &aliaslist , (void* ) ssa ) ;
 
 		//	save multi alias
@@ -247,6 +257,35 @@ int SsaGetAlias ( int symbol , int scope ) {
 
 		//	if found , we just return it here as well
 		return ssa->alias ;
+
+	} else {
+	
+		return 0 ;
+
+	}	
+	
+}
+
+int SsaGetAliasFlow ( int symbol ) {
+
+	//	author : Jelo Wang
+	//	since : 20121026
+	//	(C)TOK	
+
+	SSA* ssa = 0 ;
+	SCClList* looper = 0 ;
+	
+	for ( looper = aliaslist.head ; looper ; looper = looper->next ) {
+		ssa = (SSA* ) looper->element ;
+		if ( (int ) symbol == (int ) ssa->symbol ) {
+			break ;
+		}
+	}
+		
+	if ( 0 != looper ) {
+
+		//	if found , we just return it here as well
+		return ssa->flow ;
 
 	} else {
 	
@@ -330,7 +369,7 @@ int* SsaGetMultiAlias ( int symbol , int* totall ) {
 	
 }
 
-void SsaCleanMultiAlias ( int symbol , int scope ) {
+void SsaCleanMultiAlias ( int symbol , int flow ) {
 
 	//	author : Jelo Wang
 	//	since : 20121026
@@ -346,8 +385,9 @@ void SsaCleanMultiAlias ( int symbol , int scope ) {
 		}
 	}	
 	
-	if ( 0 != looper ) {		
-		if ( ssa->MultiAlias.scope > scope ) {
+	if ( 0 != looper ) {	
+		//	一旦外界发生了AST回溯，即可清除多重别名记录
+		if ( ssa->flow != flow ) {
 			ssa->MultiAlias.totall = 0 ;
 		}
 	}
@@ -355,7 +395,7 @@ void SsaCleanMultiAlias ( int symbol , int scope ) {
 
 }
 
-char* SsaMakeMultiAliasString ( int symbol , char* name , int scope ) {
+char* SsaMakeMultiAliasString ( int symbol , char* name , int scope , int flow ) {
 
 	//	author : Jelo Wang
 	//	since : 20121026
@@ -371,8 +411,9 @@ char* SsaMakeMultiAliasString ( int symbol , char* name , int scope ) {
 	char* azonalname = 0 ;
 
 	int ancestor = 0 ;
+	int alias = 0 ;
 
-	if ( 0 == SsaGetMultiAliasValid ( symbol , scope ) ) {
+	if ( 0 == SsaGetMultiAliasValid ( symbol , flow , scope ) ) {
 		return 0 ;
 	}
 	
@@ -382,16 +423,14 @@ char* SsaMakeMultiAliasString ( int symbol , char* name , int scope ) {
 		return 0 ;
 	}
 	
-printf("[%x , %d,%d,%d]\n",symbol , totallmultialias,multialias[0],multialias[1])			;
-
 	//	get ancestor first
-	ancestor = SsaGetAncestorAlias ( symbol , scope ) ;
-	if ( -1 != ancestor ) {
-		azonalname = sc_strcat ( name , SCClItoa (ancestor) ) ;
-		ASSERT(azonalname) ;
-		SCClStringAddStr ( &string , azonalname ) ;
-		SCClStringAdd( &string , ',' ) ;
-	} 
+//	ancestor = SsaGetAncestorAlias ( symbol , scope ) ;
+//	if ( -1 != ancestor ) {
+//		azonalname = sc_strcat ( name , SCClItoa (ancestor) ) ;
+//		ASSERT(azonalname) ;
+//		SCClStringAddStr ( &string , azonalname ) ;
+//		SCClStringAdd( &string , ',' ) ;
+//	} 
 	
 	for ( looper = 0 ; looper < totallmultialias ; looper ++ ) {
 		

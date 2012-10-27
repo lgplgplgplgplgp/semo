@@ -28,10 +28,11 @@
 extern int SsaMakeAlias ( int flow , int symbol , int scope ) ;
 extern int* SsaGetMultiAlias ( int symbol , int* totall ) ;
 extern int SsaGetAlias ( int symbol , int scope ) ;
+extern int SsaGetAliasFlow ( int symbol ) ;
 extern int SsaGetAncestorAlias ( int symbol , int scope )  ;
-extern char* SsaMakeMultiAliasString ( int symbol , char* name , int scope ) ;
+extern char* SsaMakeMultiAliasString ( int symbol , char* name , int scope , int flow ) ;
 extern void SsaMakeMultiAliasEnable () ;
 extern void SsaMakeMultiAliasDisable () ;
-extern void SsaCleanMultiAlias ( int symbol , int scope ) ;
+extern void SsaCleanMultiAlias ( int symbol , int flow , int scope ) ;
 extern void SsaClean () ;
 

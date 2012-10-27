@@ -79,6 +79,8 @@ typedef struct LGNOSIAN {
 extern int LgnosiaNew ( int azonal , LGNOSIA_IDENT type ) ;
 extern void LgnosiaAddContext ( int lgnosia , int handle , LGNOSIA_IDENT type ) ;
 extern void LgnosiaAddParameter ( int lgnosia , int handle , LGNOSIA_IDENT type ) ;
+extern int LgnosiaFindContext ( int flgnosia , int clgnosia ) ;
+extern int LgnosiaFindContextEx ( int flgnosia , int clgnosia ) ;
 extern int LgnosiaDFSNormalize( int lga , int flga , int deep ) ;
 extern int LgnosiaGenPOC ( int lgnosia , int azonal ) ;
 extern int LgnosiaGenNEC ( int lgnosia , int azonal ) ;
