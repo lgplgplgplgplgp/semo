@@ -595,16 +595,24 @@ static void lairgentor_switcher ( LGNOSIA* lgnosia ) {
 	switch ( azonal->azonaltype ) {
 		
 		case ISA_IFCF :
+			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_ifcf ( lgnosia , azonal ) ;
+			SsaMakeMultiAliasDisable () ;
 		break ;
 		case ISA_ELSEIFCF :
+			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_elseifcf ( lgnosia , azonal ) ;
+			SsaMakeMultiAliasDisable () ;
 		break ;
 		case ISA_ELSECF :
+			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_else ( lgnosia , azonal ) ;
+			SsaMakeMultiAliasDisable () ;			
 		break ;
 		case ISA_WHILECF :
+			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_while ( lgnosia , azonal ) ;
+			SsaMakeMultiAliasDisable () ;
 		break ;
 
 		case ISA_VARIABLE :
@@ -629,25 +637,35 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 	if ( !lgnosia->parameter.head ) {
 
-		char* name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;
-
+//		char* name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;
 //		LairAddCode ( lairgentor_get_identor () ) ;
 //		LairAddCode ( "%$STACK 4 " ) ;	
 //		LairAddCode ( name ) ;		
 //		LairAddCode ( " = 0 ;\r\n" ) ;		
-		SCFree ( (void*)name ) ;
+//		SCFree ( (void*)name ) ;
 
 	} else {
 
 		char* name = 0 ;
 			
 		expression = (EXPR*)lgnosia->parameter.head->element ;
-
 		lairgentor_gen_expr ( (EXPR*)expression , 1 ) ;
 
-		name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;		
-		SymboleDRCDropCFF ( azonal ) ;
-		
+
+//	jelo
+//		name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;		
+//		SymboleDRCDropCFF ( azonal ) ;
+{
+
+	name = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
+	ASSERT(name) ;
+	
+	sc_strcpy ( name , azonal->name ) ;
+	name = sc_strcat (name , SCClItoa(SsaMakeAlias ( GET_LAIRGENTOR_LGA(),azonal,lairgentor.identor.deep) ) ) ;
+	SsaCleanMultiAlias ( azonal , lairgentor.identor.deep ) ;
+}
+//	jelo
+
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
 
 		LairAddCode ( name , LAIR_L_DELT , lairgentor.identor.deep ) ;
@@ -878,12 +896,34 @@ static int lairgentor_gen_expr ( EXPR* expression , int drop ) {
 		//	if this azonal is not a parameter
 		//	else it would be in LAIR-CALL-FRAME
 		if ( 0 == azonal->isparam ) {
-			
+		
+//
+			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
+			ASSERT(name) ;	
+			sc_strcpy ( name , azonal->name ) ;
+
 	 		if ( ISA_INTEGER != azonal->azonaltype ) {
-				name = SymboleDRCGetDRC ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
-				sc_strcpy ( expression->delt  , name ) ;
+
+				char* multialias = 0 ;
+ 				multialias = SsaMakeMultiAliasString(azonal,azonal->name,lairgentor.identor.deep) ;
+
+				if ( 0 != multialias ) {
+					//	using multialias first
+					name = multialias ;
+					expression->delt = (char* ) SCMalloc ( sc_strlen (name) + sc_strlen ( "$%SSA()" ) ) ;
+					sc_strcpy ( expression->delt  , "$%SSA(" ) ;
+					sc_strcat_ex ( expression->delt  , name , expression->delt   ) ;
+					sc_strcat_ex ( expression->delt  , ")" , expression->delt ) ;
+				} else {
+					name = sc_strcat (name,SCClItoa(SsaGetAlias (azonal,lairgentor.identor.deep) ) ) ;
+					expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
+					sc_strcpy ( expression->delt  , name ) ;
+				}
+
+//				name = SymboleDRCGetDRC ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+//
 				SCFree ( name ) ;
+				
 			} else {		
 				expression->delt = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
 				sc_strcpy ( expression->delt  , azonal->name ) ;
@@ -1055,7 +1095,7 @@ char* LairGentorRun ( char* lairfile ) {
 	//	generate live-scope and start register allocation
 	if ( SC_ARM & semo->parameter ) {
 		//	there are only 8 gernel registers for programer from ARM
-		LairAllocRegister ( 8 ) ;
+		//	LairAllocRegister ( 8 ) ;
 	}
 	
 	//	Get Lair Codes

@@ -253,6 +253,8 @@ void* SCNormalloc ( unsigned int length , char* file , int line ) {
 	//	author : Jelo Wang
 	//	notes : malloc
 	//	since : 20090809
+
+	//	set zero automatically
 	
 	void* buffer = 0 ;
 
