@@ -15,21 +15,21 @@ void gtkings () {
 			a = a +a ;
 			if(a+a){
 				a = a +a ;
-				a = a +a ;
+				b = a +b ;
 			}
 		}
 	} 
 	if ( a+a ) {
-		a = a + a ;
-		a = a + a ;
+		a = a + b ;
+		b = e + a ;
 	}
 	if ( a + a ) {
 		if(a+a){
-			a = a +a ;
-			a = a +a ;
+			a = b +e ;
+			b = a +a ;
 			if(a+a){
-				a = a +a ;
-				a = a +a ;
+				e = a +b ;
+				e = e +a ;
 			}
 			a = e + b ;
 			e = a + b ;
@@ -37,8 +37,8 @@ void gtkings () {
 		b = e + a ;
 	} 
 	
+	b = e + a ;
 	e = b + a ;
-	b = b+b ;
 	a = a + a ;
 	a = a + a ;
 	

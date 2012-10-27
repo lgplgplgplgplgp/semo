@@ -126,6 +126,8 @@ typedef struct EXPRE {
 
 } EXPR ;
 
+//	jelo 20121027
+/*
 typedef struct {
 
 	//	author : Jelo Wang
@@ -152,6 +154,8 @@ typedef struct {
 	} cffset ;
 	
 } ANLDRC ;
+*/
+//	end
 
 typedef struct ANLLSNN {
 
@@ -205,6 +209,8 @@ typedef struct ANODE {
 	//	tack , SC use tack to handling additional information about a ANL , like a function which parameters are handled here
 	SCClList tack ;
 
+//	jelo 20121027	
+/*
 	struct {
 
 		//	identify defination times of ANL , SC use this value for alias generating.
@@ -213,6 +219,8 @@ typedef struct ANODE {
 		SCClList* chain ;
 
 	} DRC ;
+*/
+//	End
 	
 	struct ANODE* head ;
 	struct ANODE* next ;
@@ -337,12 +345,6 @@ extern void SymboleUninstall () ;
 extern int SymboleGetCurrentFuncNumber () ;
 extern void* SymboleGetCurrentFunc () ; 
 extern void* SymboleGetFuncParameter ( void* azonal , char* name ) ;
-
-extern char* SymboleDRCAdd ( AZONAL* azonal , int scope , int cf , int lga ) ;
-extern char* SymboleDRCGetDRC ( AZONAL* azonal , int scope , int lga ) ;
-extern ANLDRC* SymboleDRCGenCFF ( AZONAL* azonal , int scope , int lga ) ;
-extern void SymboleDRCDropCFF ( AZONAL* azonal ) ;
-extern void SymboleDRCDropDRC ( AZONAL* azonal ) ;
 extern AZONAL* SymboleAndNumeric ( char* name , int type ) ;
 extern int SymboleAddFunctionLayer ( AZONAL* function ) ;
 

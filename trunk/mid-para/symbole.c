@@ -194,10 +194,12 @@ AZONAL* SymboleAddVarAzonal (
 	azonal->head = 0 ;
 	azonal->next = 0 ;
 	azonal->lgabelong = lgabelong ;
-
-	azonal->DRC.deftimes = 0 ;
-	azonal->DRC.chain = 0 ;
 	
+	//	jelo 20121027
+	//	azonal->DRC.deftimes = 0 ;
+	//	azonal->DRC.chain = 0 ;
+	//	end
+
 	azonal->name = (char* ) SCMalloc ( sc_strlen ( name ) + 1 ) ;
 	sc_strcpy ( azonal->name , name ) ;
 	
@@ -371,8 +373,10 @@ AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line )
 	azonal->azonaltype = azonaltype ;
 	azonal->line = line ;
 
-	azonal->DRC.deftimes = 0 ;
-	azonal->DRC.chain = 0 ;
+	//	jelo 20121027
+	//	azonal->DRC.deftimes = 0 ;
+	//	azonal->DRC.chain = 0 ;
+	//	end
 
 	azonal->tack.head = 0 ;
 	azonal->tack.next = 0 ;
@@ -604,10 +608,11 @@ void SymboleUninstall () {
 		
 		symbole->variable.next = azonal->next ;
 		if ( azonal->name ) SCFree ( azonal->name ) ;
-
-		if ( azonal->DRC.chain ) SCClListDestroyEx ( azonal->DRC.chain ) ;		
 		
-		SymboleDRCDropDRC ( azonal ) ;
+		//	jelo 20121027
+		//	if ( azonal->DRC.chain ) SCClListDestroyEx ( azonal->DRC.chain ) ;		
+		//	SymboleDRCDropDRC ( azonal ) ;
+		// end
 		
 		SCFree ( azonal ) ;
 		azonal = symbole->variable.next ;
@@ -1048,6 +1053,9 @@ void SymboleSetStructSCale ( SYMBOLE* symbole , int scale ) {
 }
 #endif
 
+//	jelo 20121027
+#if 0
+
 /*
 static char* SymboleDRCConvertCFFSETtoSSA ( AZONAL* azonal , ANLDRC* cff ) {
 
@@ -1109,6 +1117,7 @@ static char* SymboleDRCConvertCFFSETtoSSA ( AZONAL* azonal , ANLDRC* cff ) {
 }
 */
 
+/*
 static ANLDRC* SymboleDRCSearchCFF ( AZONAL* azonal ) {
 
 	//	author : Jelo Wang
@@ -1653,6 +1662,9 @@ return ;
 
 
 }
+
+*/
+# endif
 
 AZONAL* SymboleAndNumeric ( char* name , int type ) {
 

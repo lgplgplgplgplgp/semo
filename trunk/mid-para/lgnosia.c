@@ -101,26 +101,31 @@ int LgnosiaFindContext ( int flgnosia , int clgnosia ) {
 	//	since : 20100720
 	//	(C)TOK
 
-	//	notes : 在一个控制点下搜索一个LGA。
+	//	notes : 在一个点下搜索一个LGA。
 
 	SCClList* looper = 0 ;
 	LGNOSIA* lgnosiap = (LGNOSIA* )flgnosia ;
   
 	if ( !lgnosiap ) return 0 ;
-	if ( flgnosia == clgnosia ) return 1 ;
+	if ( flgnosia == clgnosia ) return clgnosia ;
 
 	for ( looper = lgnosiap->context.head ; looper ; looper = looper->next ) {
 
-		if ( clgnosia == looper->element ) return 1  ;
+		if ( clgnosia == looper->element ) 
+			return looper->element  ;
 		
 		if ( LGNOSIA_CP_IDENT == looper->eltype ) {
 
-			LGNOSIA* lga = (LGNOSIA* )looper->element ;
-			LGNOSIA* poc = lga->po_chain ;
-			LGNOSIA* nec = lga->ne_chain ;
-		
-			if ( LgnosiaFindContext ( poc , clgnosia ) ) return 1 ;
-			if ( LgnosiaFindContext ( nec , clgnosia ) ) return 1 ;
+			//	获取poc、nec 继续搜索clgnosia
+			LGNOSIA* lga = (LGNOSIA* )looper->element ;		
+
+			//	搜poc
+			if ( 0 != LgnosiaFindContext ( lga->po_chain , clgnosia )  ) 
+				return clgnosia ;
+
+			//	搜nec
+			if ( 0 != LgnosiaFindContext ( lga->ne_chain , clgnosia )  ) 
+				return clgnosia ;				
 
 		}
 
@@ -132,6 +137,64 @@ int LgnosiaFindContext ( int flgnosia , int clgnosia ) {
 	
 }
 
+int LgnosiaFindContextEx ( int flgnosia , int clgnosia ) {
+
+	//	author : Jelo Wang
+	//	since : 20121027
+	//	(C)TOK
+
+	//	notes : 在一个控点下搜索一个LGA。
+
+	SCClList* looper = 0 ;
+	LGNOSIA* lgnosiap = (LGNOSIA* )flgnosia ;
+  
+	if ( !lgnosiap ) return 0 ;
+	if ( flgnosia == clgnosia ) return clgnosia ;
+
+	if ( 0 == lgnosiap->context.head ) {
+		
+		//	搜poc
+		if ( 0 != LgnosiaFindContextEx ( lgnosiap->po_chain , clgnosia )  ) 
+			return clgnosia ;
+
+		//	搜nec
+		if ( 0 != LgnosiaFindContextEx ( lgnosiap->ne_chain , clgnosia )  ) 
+			return clgnosia ;	
+		
+	} else {
+	
+		for ( looper = lgnosiap->context.head ; looper ; looper = looper->next ) {
+
+			if ( clgnosia == looper->element ) 
+				return looper->element  ;
+			
+			if ( LGNOSIA_CP_IDENT == looper->eltype ) {
+
+				//	获取poc、nec 继续搜索clgnosia
+				LGNOSIA* lga = (LGNOSIA* )looper->element ;		
+				LGNOSIA* poc = lga->po_chain ;
+				LGNOSIA* nec = lga->ne_chain ;
+				LGNOSIA* found = 0 ;
+
+				//	搜poc
+				found = LgnosiaFindContext ( poc , clgnosia ) ;
+				if ( 0 != found  ) return found ;
+
+				//	搜nec
+				found = LgnosiaFindContext ( nec , clgnosia ) ;
+				if ( 0 != found  ) return found ;
+
+			}
+
+			
+		}
+
+	}
+	
+	return 0 ;
+	
+	
+}
 
 int LgnosiaDFSNormalize ( int lga , int flga , int deep ) {
 

@@ -662,7 +662,7 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	sc_strcpy ( name , azonal->name ) ;
 	name = sc_strcat (name , SCClItoa(SsaMakeAlias ( GET_LAIRGENTOR_LGA(),azonal,lairgentor.identor.deep) ) ) ;
-	SsaCleanMultiAlias ( azonal , lairgentor.identor.deep ) ;
+	SsaCleanMultiAlias ( azonal , GET_LAIRGENTOR_LGA() , azonal,lairgentor.identor.deep ) ;
 }
 //	jelo
 
@@ -785,9 +785,13 @@ static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				LairAddCode ( vn[walker] , -1 , -1 ) ;				
 				LairAddCode ( " = " , -1 , -1 ) ;
 
-				name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
-				SCFree ( name ) ;
+				//	jelo 20121027
+				//	SSA get Alias
+				//	name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+				//	LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
+				//	SCFree ( name ) ;
+				//	jelo
+				
 				LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;			
 
 				
@@ -818,14 +822,17 @@ static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 			
 				LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ; 								
 				LairAddCode ( "%$STACK IN " , -1 , -1 ) ;
-				name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ; 	
-				LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ; 		
-				SCFree ( name ) ;
+				//	jelo 20121027
+				//	SSA get Alias
+				//	name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+				//	LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ; 	
+				//	LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ; 		
+				//	SCFree ( name ) ;
+				//	jelo end
 				
 			}
-			//	end her			
-
+			//	end
+			
 			for ( counter = 0 , looper = lgnosia->context.head ; looper && counter < 4 ; looper = looper->next , counter ++ ) {
 
 				LGNOSIA* lga = (LGNOSIA* ) looper->element ;
@@ -835,10 +842,13 @@ static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				LairAddCode ( vn[counter] , -1 , -1 ) ;				
 				LairAddCode ( " = " , -1 , -1 ) ;
 
-				name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
-				LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;			
-//				SCFree ( name ) ;
+				//	jelo 20121027
+				//	SSA get Alias
+				//	name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+				//	LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
+				//	LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;			
+				//	SCFree ( name ) ;
+				//	end
 				
 			}
 			
@@ -897,31 +907,44 @@ static int lairgentor_gen_expr ( EXPR* expression , int drop ) {
 		//	else it would be in LAIR-CALL-FRAME
 		if ( 0 == azonal->isparam ) {
 		
-//
 			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
 			ASSERT(name) ;	
 			sc_strcpy ( name , azonal->name ) ;
 
 	 		if ( ISA_INTEGER != azonal->azonaltype ) {
 
-				char* multialias = 0 ;
- 				multialias = SsaMakeMultiAliasString(azonal,azonal->name,lairgentor.identor.deep) ;
+				LGNOSIA* lgnosia = 0 ;
 
-				if ( 0 != multialias ) {
-					//	using multialias first
-					name = multialias ;
-					expression->delt = (char* ) SCMalloc ( sc_strlen (name) + sc_strlen ( "$%SSA()" ) ) ;
-					sc_strcpy ( expression->delt  , "$%SSA(" ) ;
-					sc_strcat_ex ( expression->delt  , name , expression->delt   ) ;
-					sc_strcat_ex ( expression->delt  , ")" , expression->delt ) ;
-				} else {
+				//	在最近Alias 的flow中寻找当前flow
+				//	如果找到了则不获取多重别名，直接使用最近的alias
+				lgnosia = LgnosiaFindContextEx ( SsaGetAliasFlow (azonal) , GET_LAIRGENTOR_LGA() ) ;
+		
+				if ( 0 != lgnosia && LGNOSIA_CP_IDENT == lgnosia->type ) { 
+					
 					name = sc_strcat (name,SCClItoa(SsaGetAlias (azonal,lairgentor.identor.deep) ) ) ;
 					expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
 					sc_strcpy ( expression->delt  , name ) ;
-				}
+					
+				} else {
 
-//				name = SymboleDRCGetDRC ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-//
+					char* multialias = 0 ;
+	 				multialias = SsaMakeMultiAliasString(azonal,azonal->name,lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
+
+					if ( 0 != multialias ) {
+						//	using multialias first
+						name = multialias ;
+						expression->delt = (char* ) SCMalloc ( sc_strlen (name) + sc_strlen ( "$%SSA()" ) ) ;
+						sc_strcpy ( expression->delt  , "$%SSA(" ) ;
+						sc_strcat_ex ( expression->delt  , name , expression->delt   ) ;
+						sc_strcat_ex ( expression->delt  , ")" , expression->delt ) ;
+					} else {
+						name = sc_strcat (name,SCClItoa(SsaGetAlias (azonal,lairgentor.identor.deep) ) ) ;
+						expression->delt = (char* ) SCMalloc ( sc_strlen (name) + 1 ) ;
+						sc_strcpy ( expression->delt  , name ) ;
+					}
+					
+				}
+						
 				SCFree ( name ) ;
 				
 			} else {		
