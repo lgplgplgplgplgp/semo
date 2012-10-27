@@ -1073,7 +1073,7 @@ char* LairGentorRun ( char* lairfile ) {
 	//	Initialize Lair Gentor
 	lairgentor_ready () ; 
 
-	LairAddCode ( "# Codes Generated As Semo Compiler 0.3.0\r\n" , -1 , -1 ) ;
+	LairAddCode ( "# Codes Generated As Semo Compiler 0.3.1\r\n" , -1 , -1 ) ;
 	LairAddCode ( "# Techniques of Knowledge\r\n" , -1 , -1 ) ;
 	LairAddCode ( "# Í»¿Ç¿ªÔ´\r\n\r\n" , -1 , -1 ) ;	
 	
