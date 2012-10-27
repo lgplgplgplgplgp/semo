@@ -1232,6 +1232,25 @@ int SCClListListIteratorNext ( void* lt ) {
 
 }
 
+void* SCClListSearch ( void* lt , void* element ) {
+
+	//	author : Jelo Wang
+	//	since : 20121026
+	//	(C)TOK
+
+	
+	SCClList* looper = 0 ;
+	
+	for ( looper = ((SCClList* )lt)->head ; looper ; looper = looper->next ) {
+		if ( (int ) element == (int ) looper->element ) {
+			return (int ) looper ;
+		}
+	}
+
+	return 0 ;
+
+}
+
 void* SCClListSearchBigestElement ( void* lt ) {
 
 	//	author : Jelo Wang

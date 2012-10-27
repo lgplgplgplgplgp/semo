@@ -208,6 +208,7 @@ extern int SCClListEmpty ( SCClList* list ) ;
 extern void SCClListConect ( void* N1 , void* element , void* N3  ) ;
 extern int SCClListSetIterator ( void* lt , int position ) ;
 extern int SCClListIteratorPermit ( void* lt ) ;
+extern void* SCClListSearch ( void* lt , void* element ) ;
 extern void* SCClListIteratorGetElement ( void* lt ) ;
 extern int SCClListListIteratorNext ( void* lt ) ;
 extern void* SCClListSearchBigestElement ( void* lt ) ;
