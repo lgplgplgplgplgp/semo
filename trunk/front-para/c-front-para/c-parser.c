@@ -74,6 +74,55 @@ SCClStack cfstack = { 0 , 0 , 0 , 0 , 0 } ;
 
 # define SCOPER_GET() parserc->stack
 
+static int parserc_azonal_type ( int headbit ) {
+
+
+	//	author : Jelo Wang
+	//	since : 20121030
+	//	(C)TOK
+
+	if ( C_FLOAT_BIT != ( headbit & C_FLOAT_BIT ) ) {
+		return AZONAL_INT ;
+	} else {
+		return AZONAL_FLOAT ;
+	}
+
+}
+
+static int parserc_azonal_size ( int headbit ) {
+
+
+	//	author : Jelo Wang
+	//	since : 20121030
+	//	(C)TOK
+
+	int size = 0 ;
+	
+	if ( C_VOID_BIT == headbit ) {
+		size = 4 ;
+	} else if ( C_CHAR_BIT == headbit ) {
+		size = 1 ;
+	} else if ( C_INT_BIT == headbit ) {
+		size = 4 ;
+	} else if ( C_FLOAT_BIT == headbit ) {
+		size = 4 ;
+	} else if ( C_DOUBLE_BIT == headbit ) {
+		size = 4 ;
+	} else if ( C_SHORT_BIT == headbit ) {
+		size = 2 ;
+	} else if ( C_LONG_BIT == headbit ) {
+		size = 4 ;
+	} else if ( C_LONG_LONG_BIT == headbit ) {
+		size = 4 ;
+	} else if ( C_REGISTER_BIT == headbit ) {
+		size = 4 ;	
+	} 
+
+	return size ;
+
+}
+
+
 static void parserc_ready () {
 
 	parserc = (PARSERC* ) SCMalloc ( sizeof(PARSERC) ) ;
@@ -712,11 +761,12 @@ static int parser_c_read_variable_def () {
 		cerror ( C_PARSER_MOD , IS_C_ERROR , "! - variable is multi-defined: '%s' , line : %d\n" , lexc->token , lexc->line ) ;
 	} 
 
-	azonal = SymboleAddVarAzonal (
+	azonal = SymboleAzonalAddVariable (
 		lexc->token ,
-		lexc->headbit ,
+		parserc_azonal_type ( lexc->headbit ) ,
 		ISA_VARIABLE ,
 		scope ,
+		parserc_azonal_size ( lexc->headbit ) ,
 		( parserc->scope == PARSERC_SCOPE_PARAM ) ,
 		lexc->line ,
 		SymboleGetCurrentFunc () ,
@@ -788,7 +838,7 @@ static int parser_c_read_variable_inf () {
 	//	gen scope value
 	scope = SCOPER_GET () ;
 
-	azonal = SymboleFindVarAzonal ( lexc->token , scope , LgnosiaStackTop () ) ;
+	azonal = SymboleFindAzonal ( lexc->token , scope , LgnosiaStackTop () ) ;
 
 	if ( !azonal ) {
 		//	if the inf isnt exits on the scope and search for it in funtion parameter list then

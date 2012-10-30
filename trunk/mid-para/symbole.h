@@ -38,6 +38,19 @@ typedef enum {
 	//	since : 2008
 	//	(C)TOK
 
+	//	data type of azonal
+	
+	AZONAL_INT ,
+	AZONAL_FLOAT ,
+	
+} ;
+
+typedef enum {
+
+	//	author : Jelo Wang
+	//	since : 2008
+	//	(C)TOK
+
 	ISA_INTEGER ,
 	ISA_VARIABLE ,
 	ISA_ARRAY ,		
@@ -83,22 +96,6 @@ typedef enum {
 
 } EXPDELTTYPE ;
 
-typedef enum {
-
-	//	author : Jelo Wang
-	//	since : 20100806
-	//	(C)TOK
-	
-	AZONAL_DRC_DEFAULT ,
-	AZONAL_DRC_CFF ,
-	AZONAL_DRC_GRAY_CFF ,
-	AZONAL_DRC_IF_DISTURB ,	
-	AZONAL_DRC_ELSEIF_DISTURB ,
-	AZONAL_DRC_ELSE_DISTURB , 
-	AZONAL_DRC_WHILE_DISTURB ,
-	
-} DRCTYPE ;
-
 typedef struct EXPRE {
 
 	//	author : Jelo Wang
@@ -125,54 +122,6 @@ typedef struct EXPRE {
 	struct EXPRE* brother ;
 
 } EXPR ;
-
-//	jelo 20121027
-/*
-typedef struct {
-
-	//	author : Jelo Wang
-	//	since : 20100806
-	//	(C)TOK
-
-	//	notes : AZONAL Define-Reference Chain
-
-	int alias ;
-	int scope ;
-	int cf ;
-	int lga ;
-	
-	//	cff reference times
-	int cffref_t ;
-	
-	//	for AZONAL_DRC_CFF
-	//	all of alias in a CFF set are saved here
-	struct {
-		//	type == 1 is a handle to a SCClList*
-		//	type == 2 is a handle to a SCClString*		
-		int type ;
-		void* handle ;
-	} cffset ;
-	
-} ANLDRC ;
-*/
-//	end
-
-typedef struct ANLLSNN {
-
-	//	author : Jelo Wang
-	//	since : 20100826
-	//	(C)TOK
-
-	//	notes : life span of ANL
-
-	char* name ;
-	int  start_pn;
-	int end_pn ;
-
-	struct ANLLSNN* head ;
-	struct ANLLSNN* next ;
-	
-} ANLLSN ;
 
 typedef struct ANODE {
 
@@ -202,28 +151,14 @@ typedef struct ANODE {
 	// if azonaltype is ISA_FUNCTION , layer = the totall ANLDATA in scope
 	int layer ;			
 
-	int size ;
-
 	//	totall length in bytes
 	//	for a function this is the aoznal totall length
+	int size ;
+
 	int scale ;
-	
 	
 	//	tack , SC use tack to handling additional information about a ANL , like a function which parameters are handled here
 	SCClList tack ;
-
-//	jelo 20121027	
-/*
-	struct {
-
-		//	identify defination times of ANL , SC use this value for alias generating.
-		int deftimes ; 
-		//	ANLDRC nodes are saved here.used for SSA transform. 
-		SCClList* chain ;
-
-	} DRC ;
-*/
-//	End
 	
 	struct ANODE* head ;
 	struct ANODE* next ;
@@ -238,80 +173,19 @@ typedef struct SNODE {
 	AZONAL constant ;	
 	AZONAL variable ;
 	AZONAL array ;
-	AZONAL function ;
+	AZONAL object ;
+	AZONAL function ;	
 	AZONAL funccal ;
 	AZONAL controlflow ;
 	
 	int vartotall ;
 	int arrtotall ;
+	int objecttotall ;
 	int functotall ;
 	int exptotall ;
 	int logicalblocks ;
 
 } SYMBOLE ;
-
-/*
-typedef struct STNODE {
-
-	//	author : Jelo Wang
-	//	since : 20090321
-
-	//	field (1) : name of a struct head
-	//	field (2): scope
-	//	field (3) : belong to function
-	//	field (4) : normal struct or union or enum or typdef type
-	//	field (5) : struct head number we can use it for a trail chain number
-	//	field (6) : layer position of a recursion struct
-	//	field (7) : layers of a struct
-
-	//	trail is a scope filed of a structs
-	//	like some flow bellow , a is in the scope field of GTKINGS
-	//	struct {
-	//		int a ;
-	//	} GTKINGS  ;
-	//	field (1) : its a linked node to AZONAL . SC use it to linking a trail chain node of a struct symbol
-	//	field (2) : for struct trail chain node
-	//	field (3) : next node
-
-	//	field (8) : next node
-	//	field (9) : front node	
-		
-	char* name ;
-	char* scope ;
-	int belong ;			
-	int type ;			
-	int number ;			
-	int on_layer ;		
-	int layer ;			
-
-	struct {
-		struct AZONAL* anode ;	
-		struct STNODE* snode ;	
-		struct STNODE* next ;
-	} trail ;
-	
-	struct STNODE* next ;
-	struct STNODE* front ;
-
-} STRUCTHEAD  ;
-
-
-typedef struct STRU_SYM {
-
-	//	author : Jelo Wang
-	//	since : 20090322
-
-	//	field (1) : its a linked node to AZONAL . 
-	//	field (2) : its a linked node to STRUCT_HEAD . 
-	//	field (3) : next node
-	
-	struct AZONAL* azonal ;
-	STRUCT_HEAD* head ;
-	struct STRU_SYM* next ;
-	struct STRU_SYM* front ;	
-	
-} STRUCTS  ;
-*/
 
 extern SYMBOLE* symbole ;
 
@@ -320,12 +194,13 @@ extern SYMBOLE* symbole ;
 
 extern int SymboleCreate () ;
 extern void SymboleSetCurrent ( int ) ;
-extern AZONAL* SymboleAddVarAzonal ( 
+extern AZONAL* SymboleAzonalAddVariable ( 
 
 	char* name ,
 	int data_type , 
 	int azonal_type , 
 	int scope ,
+	int size , 
 	int is_param ,
 	int line ,
 	int belong ,
@@ -334,7 +209,7 @@ extern AZONAL* SymboleAddVarAzonal (
 ) ;
 
 extern  int SymboleAddFunctionParameter ( AZONAL* function , AZONAL* azonal ) ;
-extern AZONAL* SymboleFindVarAzonal ( char* name ,int scope ,int belong ) ;
+extern AZONAL* SymboleFindAzonal ( char* name ,int scope ,int belong ) ;
 extern AZONAL* SymboleVarAzonalSavable ( char* name ,int scope ,int lgabelong ) ;
 extern void SymboleAzonalRefInc ( AZONAL* azonal ) ;
 extern AZONAL* SymboleAddFunction ( char* name , int azonaltype , int type , int line ) ;

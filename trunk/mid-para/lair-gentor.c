@@ -68,21 +68,8 @@ int corenr = 0 ;
 # define POP_LAIRGENTOR_LGA()\
 	SCClStackPop ( &lairgentor.lgastack ) ;\
 
-
-static void LAIRIdentorPush () ;
-static void LAIRIdentorPop () ;
-static char* gentorLAIR_get_identor () ;
-static void gentorLAIR_ready () ;
-static void gentorLAIR_next () ;
-static void gentorLAIR_genv () ;
-static void genterLAIR_gen_funcdef () ;
-static void gentorLAIR_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
 static void lairgentor_gen_else ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
 static void lairgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
-static void gentorLAIR_switcher ( LGNOSIA* lgnosia ) ;
-static void gentorLAIR_gen_variable ( AZONAL* azonal ) ;
-static int gentorLAIR_gen_expr ( EXPR* expression , int drop ) ;
-static void gentorLAIR_disp_expr (  EXPR* expression ) ;
 static void lairgentor_switcher ( LGNOSIA* lgnosia ) ;
 static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) ; 
 static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) ;
@@ -114,7 +101,7 @@ static char* lairgentor_get_register ( int index ) {
 	//	author : Jelo Wang
 	//	since : 20100425
 
-	static char tempv [64] = {"%$V"} ;
+	static char tempv [64] = {"%$TEMP"} ;
 	
 	return sc_strcat ( tempv , SCClItoa (index) ) ;
 	
@@ -307,11 +294,12 @@ static void lairgentor_gen_funcdef () {
 	LAIRIdentorPush () ;
 	//	if this function has local variables
 	//	we initialize the MF here
-	if ( 0 < azonal->layer ) {
-		LAIRMemoryFrameInit ( LAIR_MF_STACK , azonal->layer ) ;
+	if ( 0 < azonal->size) {
+		LAIRMemoryFrameInit ( LAIR_MF_STACK , azonal->size ) ;
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
-		LairAddCode ( "%$STACK." , -1 , -1 ) ;
-		LairAddCode ( SCClItoa (azonal->layer) , -1 , -1 ) ;
+		LairAddCode ( "%$STACK.Creat(" , -1 , -1 ) ;
+		LairAddCode ( SCClItoa (azonal->size) , -1 , -1 ) ;
+		LairAddCode ( ")" , -1 , -1 ) ;		
 		LairAddCode ("\r\n",LAIR_CR,-1);
 	}
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
@@ -589,27 +577,32 @@ static void lairgentor_switcher ( LGNOSIA* lgnosia ) {
 	
 	if ( !azonal ) return ;
 		
-	LairAddCode ( lairgentor_get_label() , -1 , -1 );
-	LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;
-
 	switch ( azonal->azonaltype ) {
 		
 		case ISA_IFCF :
+			LairAddCode ( lairgentor_get_label() , -1 , -1 );
+			LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;						
 			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_ifcf ( lgnosia , azonal ) ;
 			SsaMakeMultiAliasDisable () ;
 		break ;
 		case ISA_ELSEIFCF :
+			LairAddCode ( lairgentor_get_label() , -1 , -1 );
+			LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;						
 			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_elseifcf ( lgnosia , azonal ) ;
 			SsaMakeMultiAliasDisable () ;
 		break ;
 		case ISA_ELSECF :
+			LairAddCode ( lairgentor_get_label() , -1 , -1 );
+			LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;						
 			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_else ( lgnosia , azonal ) ;
 			SsaMakeMultiAliasDisable () ;			
 		break ;
 		case ISA_WHILECF :
+			LairAddCode ( lairgentor_get_label() , -1 , -1 );
+			LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;						
 			SsaMakeMultiAliasEnable () ;
 			lairgentor_gen_while ( lgnosia , azonal ) ;
 			SsaMakeMultiAliasDisable () ;
@@ -635,36 +628,37 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	
 	EXPR* expression = 0 ;
 
-	if ( !lgnosia->parameter.head ) {
+	if ( 0 == lgnosia->parameter.head ) {
+		
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
+		LairAddCode ( "%$STACK. " , -1 , -1 ) ;	
+		LairAddCode ( azonal->name , LAIR_DEF , lairgentor.identor.deep ) ;		
+		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;	
 
-//		char* name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;
-//		LairAddCode ( lairgentor_get_identor () ) ;
-//		LairAddCode ( "%$STACK 4 " ) ;	
-//		LairAddCode ( name ) ;		
-//		LairAddCode ( " = 0 ;\r\n" ) ;		
-//		SCFree ( (void*)name ) ;
-
-	} else {
+	} else if ( lgnosia->parameter.head ) {
 
 		char* name = 0 ;
 			
 		expression = (EXPR*)lgnosia->parameter.head->element ;
 		lairgentor_gen_expr ( (EXPR*)expression , 1 ) ;
 
+		//	for local azonal
+		if ( 0 != azonal->lgabelong ) {
+			
+			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + sc_strlen ("%$STACK.")+ 1 ) ;
+			ASSERT(name) ;
+			sc_strcpy ( name , "%$STACK." ) ;
 
-//	jelo
-//		name = SymboleDRCAdd ( azonal , lairgentor.identor.deep , GET_LAIRGENTOR_SCOPE() , GET_LAIRGENTOR_LGA() ) ;		
-//		SymboleDRCDropCFF ( azonal ) ;
-{
-
-	name = (char* ) SCMalloc ( sc_strlen (azonal->name) + 1 ) ;
-	ASSERT(name) ;
-	
-	sc_strcpy ( name , azonal->name ) ;
-	name = sc_strcat (name , SCClItoa(SsaMakeAlias ( GET_LAIRGENTOR_LGA(),azonal,lairgentor.identor.deep) ) ) ;
-	SsaCleanMultiAlias ( azonal , GET_LAIRGENTOR_LGA() , azonal,lairgentor.identor.deep ) ;
-}
-//	jelo
+		} else {
+		//	for global azonal
+			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + sc_strlen ("%$HEEP.")+ 1 ) ;
+			ASSERT(name) ;		
+			sc_strcpy ( name , "%$HEEP." ) ;
+		}
+		
+		sc_strcat_ex ( name , azonal->name , name ) ;
+		name = sc_strcat (name , SCClItoa(SsaMakeAlias ( GET_LAIRGENTOR_LGA(),azonal,lairgentor.identor.deep) ) ) ;
+		SsaCleanMultiAlias ( azonal , GET_LAIRGENTOR_LGA() , azonal,lairgentor.identor.deep ) ;
 
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
 
@@ -988,7 +982,7 @@ static int lairgentor_gen_expr ( EXPR* expression , int drop ) {
 		lairgentor.delt = lairgentor.delt + 1 ;
 		
 		if ( (EXP_DELT_DEFAULT == expression->left->delttype) && (EXP_DELT_DEFAULT == expression->right->delttype) ) {
-			lairgentor.delt = 0 ;
+			//lairgentor.delt = 0 ;
 		}
 
 		if ( drop ) {
@@ -1099,8 +1093,9 @@ char* LairGentorRun ( char* lairfile ) {
 
 					if ( SC_EXP & semo->parameter )
 						lgay = CORENRLgaExpRender ( lairgentor.lgnosia , LGNOSIA_TOP_IDENT , 200 , lgay ) ;	
-					if ( SC_LGA & semo->parameter )
-						CORENRCFDFSRender ( lairgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
+					//if ( SC_LGA & semo->parameter )
+					//	CORENRCFDFSRender ( lairgentor.lgnosia , 0 , 1024 , lgay , 1024 , lgay , 1 ) ;
+					
 	 				//CORENRCFBFSRender ( corenr , lairgentor.lgnosia , 200 , lgay ) ;
 				}
 				
@@ -1118,7 +1113,7 @@ char* LairGentorRun ( char* lairfile ) {
 	//	generate live-scope and start register allocation
 	if ( SC_ARM & semo->parameter ) {
 		//	there are only 8 gernel registers for programer from ARM
-		//	LairAllocRegister ( 8 ) ;
+		LairAllocRegister ( 8 ) ;
 	}
 	
 	//	Get Lair Codes

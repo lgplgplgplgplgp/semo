@@ -62,16 +62,28 @@ static void LairLiveScopeSplit ( int laira ) {
 	
 	semo->lssplits ++ ;
 
-	lair->mode |= LAIR_LVA_MEM ;
+	if ( 1 == lair->splited ) {
+		return ;
+	}
+	
+	lair->mode = LAIR_LVA_MEM ;
+	lair->splited = 1 ;
+	
+	SCClStringInsert ( &lair->code , "%$STACK." , 0 ) ;
 
 	for ( looper = lair->refchain.head ; looper ; looper = looper->next ) {
-		LAIR* lairnode = looper->element ;		
-		lairnode->mode  |= LAIR_RVA_MEM ;		
+		LAIR* lairnode = looper->element ;	
+
+		if ( 0 == lairnode->splited ) {
+			SCClStringInsert ( &lairnode->code , "%$STACK." , 0 ) ;
+			lairnode->mode  = LAIR_RVA_MEM ;		
+			lairnode->splited = 1 ;
+		}
+		
 	}
 
 		
 }
-
 
 void LAIRMemoryFrameInit ( int mode , int length ) {
 
@@ -176,6 +188,7 @@ int LairAddCode ( char* string , LAIR_ATOM type , int scope ) {
 	lairn->length = 0 ;
 	lairn->mode = type ;
 	lairn->scope = scope ;
+	lairn->splited = 0 ;
 	//	number of lair node
 	lairn->number = lair->length ; 
 	lairn->line = lair->line ;
@@ -260,15 +273,7 @@ void LairAddCodeLabel ( int lairn , char* label ) {
 }
 
 
-void LairAllocRegister ( int degreesmax ) {
 
-	//	author : Jelo Wang
-	//	since : 20110118
-	//	(C)TOK
-
-}
-
-/*
 void LairAllocRegister ( int degreesmax ) {
 	
 	//	author : Jelo Wang
@@ -308,11 +313,11 @@ restart :
 
 		LAIR* lairnode = 0 ;
 
-		lairnode = LairAddCode ( llooper->code.data , llooper->type , llooper->scope ) ;
+		lairnode = LairAddCode ( llooper->code.data , llooper->mode , llooper->scope ) ;
 				
 readproc :
 
-		if ( LAIR_PROC != llooper->type ) {
+		if ( LAIR_PROC != llooper->mode ) {
 			
 			llooper = llooper->next ;
 			
@@ -325,9 +330,9 @@ readproc :
 			//	get next looper
 			for ( llooper = llooper->next ; llooper ; llooper = llooper->next ) {			
 
-				lairnode = LairAddCode ( llooper->code.data , llooper->type , llooper->scope ) ; 
+				lairnode = LairAddCode ( llooper->code.data , llooper->mode , llooper->scope ) ; 
 				
-				if ( LAIR_LVA_DELT == lairnode->type ) {		
+				if ( LAIR_LVA_DELT == lairnode->mode ) {		
 
 					//	添加生命域
 					//	将原始的llooper加入LiveScopeMonitor，因为生命域分列时需要操作它
@@ -340,7 +345,7 @@ readproc :
 
 					lairlsnumber ++ ;
 					
-				} else if ( LAIR_RVA_DELT == lairnode->type ) {
+				} else if ( LAIR_RVA_DELT == lairnode->mode ) {
 
 					//	生命域引用
 					//	获取其编号
@@ -363,11 +368,11 @@ readproc :
 						//	无法染色时将其全部分裂
 						int lair = 0 ;					
 						lair = RegocLiveScopeGetLAIR () ;
-						LairRefChainInsert ( lair , lairnode ) ;
+						LairRefChainInsert ( lair , llooper ) ;
 					}
 					
 
-				} else if ( LAIR_PROC == llooper->type || 0 == llooper->next ) {
+				} else if ( LAIR_PROC == llooper->mode || 0 == llooper->next ) {
 
 					if ( 0 < lairlsnumber ) {
 						//	get another lair proc
@@ -383,14 +388,14 @@ readproc :
 							LairLiveScopeSplit ( lair ) ;
 							RegocLiveScopeMoiDestroy () ;
 							SCClGraphDestroy ( iG ) ;							
-							//LairClearCode () ;
+							LairClearCode () ;
 							
 							goto restart ;
 							
 						}
 						
 						if ( SC_IG & semo->parameter ) {
-							CORENRIGBFSRender ( (SCClGraph* ) iG , 0 , 0 ) ;
+							CORENRIGBFSRender ( (SCClGraph* ) iG , 300 , 0 ) ;
 						}
 
 						//	start register allocation based on interference-graph					
@@ -430,7 +435,6 @@ success :
 	
 			
 }
-*/
 
 void LairClearCode () {
 
@@ -449,6 +453,8 @@ void LairClearCode () {
 		walker = lair->next ;
 		
 	}	
+
+	SCFreeEx ( &lair ) ;
 
 } 
 
