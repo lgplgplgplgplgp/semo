@@ -132,7 +132,7 @@ typedef enum {
 	//	A procedure , function or method and some thing like that
 	LAIR_PROC = 0x0 ,	
 	//	An if logic node
-	LAIR_IF = 0x1 ,
+	LAIR_IF = 0x1 << 0 ,
 	//	A lvalue
 	LAIR_LVA_DELT = 0x1 << 1 ,
 	//	A rvalue but you know it already
@@ -149,6 +149,8 @@ typedef enum {
 	LAIR_P_CALL = 0x1 << 7 ,	
 	//	just change row
 	LAIR_CR = 0x1 << 8 ,
+	//	symbol defination
+	LAIR_DEF = 0x1 << 9 ,
 	
 } LAIR_ATOM ;
 
@@ -218,6 +220,8 @@ typedef struct LAIRA {
 	int length ;
 	//	lair codes length in bytes
 	int colen ;
+	//	splited by regoc
+	int splited ;
 	
 	struct LAIRA* head ;
 	struct LAIRA* next ;

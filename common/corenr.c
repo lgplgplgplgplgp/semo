@@ -30,11 +30,17 @@
 # include "schal.h"
 # include "symbole.h"
 # include "lgnosia.h"
+# include "lair.h"
 # include "corenr.h"
 # include "corenr-text.h"
 
 # define CORENRPI 3.1415926
 # define CORENRDTR(x) (CORENRPI*x/180.0)
+
+# define X_MIN 200
+# define X_MAX 1000
+# define Y_MIN 200
+# define Y_MAX 1000
 
 # define CORENRRGB565COLOR(color,red,green,blue)\
 	color = color | ( (red >> 3) << 11 ) ;\
@@ -758,8 +764,16 @@ int CORENRLgaExpRender ( void* lgnosiaa , int anltype , int x , int y ) {
 				if ( lgnosia->parameter.head ) {
 					
 					int namelen = 0 ;
+					int totall = 0 ;
+					int deep = 0 ;
+						
 					EXPR* expression = (EXPR*)lgnosia->parameter.head->element ;
-					name = sc_strcat("  VAR:",azonal->name) ;
+
+					deep = corenr_get_exp_deep ( expression , 0 , 0 , &totall ) ;			
+
+					if ( 1 == totall ) continue ;
+					
+					name = sc_strcat(" ",azonal->name) ;
 					namelen = sc_strlen(name) ;
 						
 					x = x + 50 ;
@@ -768,24 +782,16 @@ int CORENRLgaExpRender ( void* lgnosiaa , int anltype , int x , int y ) {
 					CORENRDrawLine ( x+namelen*10+2 , y+10 , x+namelen*10+2+30 , y+10 , 150 , 150 , 150 );
 					x = x+namelen*10+2+30 ;
 					SCFree ( name ) ;
-						
-					{
-						int totall = 0 ;
-						int deep = 0 ;
-													
-						deep = corenr_get_exp_deep ( expression , 0 , 0 , &totall ) ;			
 							
-						CORENRDrawText ( x-20-60 , y+14+10 , "H = " , 150 , 150 , 150 ) ;
-						CORENRDrawText ( x-20-30 , y+14+10 , SCClItoa (deep) , 150 , 150 , 150 ) ;
+					CORENRDrawText ( x-20-60 , y+14+10 , "H = " , 150 , 150 , 150 ) ;
+					CORENRDrawText ( x-20-30 , y+14+10 , SCClItoa (deep) , 150 , 150 , 150 ) ;
 							
-						CORENRDrawText ( x-20-60 , y+14+14+10 , "N = " , 150 , 150 , 150 ) ;
-						CORENRDrawText ( x-20-30 , y+14+14+10 , SCClItoa (totall) , 150 , 150 , 150 ) ;
+					CORENRDrawText ( x-20-60 , y+14+14+10 , "N = " , 150 , 150 , 150 ) ;
+					CORENRDrawText ( x-20-30 , y+14+14+10 , SCClItoa (totall) , 150 , 150 , 150 ) ;
 
-						deepestc = deep ;
+					deepestc = deep ;
 
-						if ( deepestl < deepestc ) deepestl = deepestc ;
-						
-					}
+					if ( deepestl < deepestc ) deepestl = deepestc ;								
 					
 					x = x + CORENRExpBFSRender ( expression , x  , y+10 )*14 ;
 					
@@ -1048,8 +1054,8 @@ void CORENRIGBFSRender ( SCClGraph* graph , int x , int y ) {
 			
 			if ( !visited[genode->id] ) {
 				visited[genode->id] = 1 ;
-				genode->x = sc_randex ( 200 , 500 ) ;
-				genode->y = sc_randex ( 100 , 500 ) ;
+				genode->x = sc_randex ( X_MIN , X_MAX ) + x ;
+				genode->y = sc_randex ( Y_MIN , Y_MAX ) + y ;
 		 		CORENRFillCircle ( genode->x , genode->y , 15 , genode->color*sc_randex ( 10 , 150 ) , genode->color*sc_randex ( 10 , 150 ) , 0 ) ;	
 				
 			}
@@ -1062,15 +1068,14 @@ void CORENRIGBFSRender ( SCClGraph* graph , int x , int y ) {
 
 					visited[innode->id] = 1 ;
 
-					innode->x = sc_randex ( 200 , 500 ) ;
-					innode->y = sc_randex ( 100 , 500 ) ;
+					innode->x = sc_randex ( X_MIN , X_MAX ) + x ;
+					innode->y = sc_randex ( Y_MIN , Y_MAX ) + y ;
 					
 	 				CORENRFillCircle ( innode->x , innode->y , 15 , innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) , 0 ) ;					
 					SCClQueueEnter ( &queue , (void* )innode ) ;
 					
 				}
-
-				
+	
 			}			
 
 		}
@@ -1084,25 +1089,27 @@ void CORENRIGBFSRender ( SCClGraph* graph , int x , int y ) {
 		SCClGraphNode* node = 0 ;		
 		
 		for ( llooper = graph->nl.head ; llooper ; llooper = llooper->next ) {
-		
+
+			LAIR* lair = 0 ;
+			
 			int textcolor = 0 ;
 			
 			node = (SCClGraphNode* ) llooper->element ;
 
+			lair = (LAIR* ) node->handle ;
+			
 			textcolor = ~(node->color*sc_randex ( 10 , 150 )) ;
 
-			CORENRDrawText ( node->x , node->y , SCClItoa(node->id), textcolor , textcolor , 0 ) ;	
+			CORENRDrawText ( node->x , node->y , lair->code.data, textcolor , textcolor , 0 ) ;	
 			CORENRDrawText ( node->x , node->y-15 , SCClItoa(node->degree), textcolor , textcolor , 0 ) ;	
-	
+
 			for ( inlooper = node->nei.head ; inlooper ;  inlooper = inlooper->next ) {
-					
+				
 				SCClGraphNode* innode = (SCClGraphNode* ) inlooper->element ;
 				textcolor = ~(innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 50 , 150 ) )  ;
-				
+					
 				CORENRDrawLine ( node->x , node->y , innode->x , innode->y , innode->color*sc_randex ( 0 , 50 ) , innode->color*sc_randex ( 0 , 50 ) , 0 ) ;
-				CORENRDrawText ( innode->x , innode->y , SCClItoa(innode->id), textcolor , textcolor , 0 ) ;	
-				CORENRDrawText ( innode->x , innode->y-15 , SCClItoa(innode->degree), textcolor , textcolor , 0 ) ;
-				
+			
 			}
 		
 							
