@@ -62,18 +62,18 @@ static void LairLiveScopeSplit ( int laira ) {
 	
 	semo->lssplits ++ ;
 
-	lair->type = LAIR_L_MEM ;
+	lair->mode |= LAIR_LVA_MEM ;
 
 	for ( looper = lair->refchain.head ; looper ; looper = looper->next ) {
 		LAIR* lairnode = looper->element ;		
-		lairnode->type =LAIR_R_MEM ;		
+		lairnode->mode  |= LAIR_RVA_MEM ;		
 	}
 
 		
 }
 
 
-void LAIRMemoryFrameInit ( int totall ) {
+void LAIRMemoryFrameInit ( int mode , int length ) {
 
 	//	author : Jelo Wang
 	//	since : 20110224
@@ -133,6 +133,15 @@ void LairSetContext ( int context ) {
 
 } 
 
+int LairGetContext () {
+
+	//	author : Jelo Wang
+	//	since : 20121028
+	//	(C)TOK
+
+	return (int ) lair ;
+} 
+
 void LairSwapIn () {
 
 	//	author : Jelo Wang
@@ -165,7 +174,7 @@ int LairAddCode ( char* string , LAIR_ATOM type , int scope ) {
 	
 	lairn->havelabel = 0 ;
 	lairn->length = 0 ;
-	lairn->type = type ;
+	lairn->mode = type ;
 	lairn->scope = scope ;
 	//	number of lair node
 	lairn->number = lair->length ; 
@@ -173,10 +182,10 @@ int LairAddCode ( char* string , LAIR_ATOM type , int scope ) {
 	lairn->head = 0 ;
 	lairn->next = 0 ;
 
-	if ( LAIR_CR == lairn->type )
+	if ( LAIR_CR == (LAIR_CR & lairn->mode) )
 		lair->line ++ ;
 
-	if ( LAIR_PROC == lairn->type )	
+	if ( LAIR_PROC == (LAIR_PROC &lairn->mode) )	
 		lair->proctotall ++ ;
 	
 	if ( 0 == lair->head ) {
@@ -250,6 +259,16 @@ void LairAddCodeLabel ( int lairn , char* label ) {
 	
 }
 
+
+void LairAllocRegister ( int degreesmax ) {
+
+	//	author : Jelo Wang
+	//	since : 20110118
+	//	(C)TOK
+
+}
+
+/*
 void LairAllocRegister ( int degreesmax ) {
 	
 	//	author : Jelo Wang
@@ -308,7 +327,7 @@ readproc :
 
 				lairnode = LairAddCode ( llooper->code.data , llooper->type , llooper->scope ) ; 
 				
-				if ( LAIR_L_DELT == lairnode->type ) {		
+				if ( LAIR_LVA_DELT == lairnode->type ) {		
 
 					//	添加生命域
 					//	将原始的llooper加入LiveScopeMonitor，因为生命域分列时需要操作它
@@ -321,7 +340,7 @@ readproc :
 
 					lairlsnumber ++ ;
 					
-				} else if ( LAIR_R_DELT == lairnode->type ) {
+				} else if ( LAIR_RVA_DELT == lairnode->type ) {
 
 					//	生命域引用
 					//	获取其编号
@@ -411,6 +430,7 @@ success :
 	
 			
 }
+*/
 
 void LairClearCode () {
 

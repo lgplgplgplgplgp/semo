@@ -447,6 +447,15 @@ char* SsaMakeMultiAliasString ( int symbol , char* name , int scope , int flow )
 	
 }
 
-void SsaClean () ;
+void SsaClean () {
+
+	//	author : Jelo Wang
+	//	since : 20121027
+	//	(C)TOK	
+
+	SCClListDestroy ( &aliaslist ) ;
+	sc_memset ( &aliaslist , 0 , sizeof(SCClList) ) ;
+	
+}
 
 
