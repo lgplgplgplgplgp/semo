@@ -203,6 +203,9 @@ typedef struct ANODE {
 	int layer ;			
 
 	int size ;
+
+	//	totall length in bytes
+	//	for a function this is the aoznal totall length
 	int scale ;
 	
 	

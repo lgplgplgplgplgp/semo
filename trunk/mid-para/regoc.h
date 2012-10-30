@@ -46,6 +46,9 @@ typedef struct {
 	int number ; 
 	
 	int scope ;
+
+	//	for splited LIVE who neednt register
+	int splited ;
 	
 	//	start position of a register's live scope
 	int start_line ;
@@ -56,6 +59,8 @@ typedef struct {
 
 # endif
 
+extern void RegocReady () ;
+extern void RegocRelease () ;
 extern int RegocRegPoolCreate ( char** regs , int totall ) ;
 extern void RegocBuildRefGraph ( char* code , int position ) ;
 extern void RegocLiveScopeMoiCreate () ;

@@ -98,29 +98,72 @@ typedef struct {
 
 typedef enum {
 
+	//	author : Jelo Wang
+	//	since : 20121030
+	//	(C)TOK
+
+	//	defination of general lair register
+
+	LAIR_REG_0 = 1 << 0x16 ,
+	LAIR_REG_1 = 1 << 0x17 ,
+	LAIR_REG_2 = 1 << 0x18 ,
+	LAIR_REG_3 = 1 << 0x19 ,
+	LAIR_REG_4 = 1 << 0x20 ,
+	LAIR_REG_5 = 1 << 0x21 ,
+	LAIR_REG_6 = 1 << 0x22 ,
+	LAIR_REG_7 = 1 << 0x23 ,
+	LAIR_REG_8 = 1 << 0x24 ,
+	LAIR_REG_9 = 1 << 0x25 ,
+	LAIR_REG_10 = 1 << 0x26 ,
+	LAIR_REG_11 = 1 << 0x27 ,
+	LAIR_REG_12 = 1 << 0x28 ,
+	LAIR_REG_13 = 1 << 0x29 ,
+	LAIR_REG_14 = 1 << 0x30 ,
+	LAIR_REG_15 = 1 << 0x31 ,
+	
+} LAIR_REG ;
+
+typedef enum {
 
 	//	author : Jelo Wang
 	//	since : 20100722
 	//	(C)TOK
 
 	//	A procedure , function or method and some thing like that
-	LAIR_PROC ,	
+	LAIR_PROC = 0x0 ,	
 	//	An if logic node
-	LAIR_IF ,
+	LAIR_IF = 0x1 ,
 	//	A lvalue
-	LAIR_L_DELT ,
+	LAIR_LVA_DELT = 0x1 << 1 ,
 	//	A rvalue but you know it already
-	LAIR_R_DELT ,
+	LAIR_RVA_DELT = 0x1 << 2 ,
 	//	A rvalue of memory mode
-	LAIR_L_MEM ,
+	LAIR_LVA_MEM = 0x1 << 3 ,
 	//	A lvalue of memory mode
-	LAIR_R_MEM ,
+	LAIR_RVA_MEM = 0x1 << 4 ,
+	//	A lvalue of register mode
+	LAIR_LVA_REG = 0x1 << 5 ,
+	//	a rvalue of register mode
+	LAIR_RVA_REG = 0x1 << 6 ,	
 	//	A function call
-	LAIR_P_CALL ,	
+	LAIR_P_CALL = 0x1 << 7 ,	
 	//	just change row
-	LAIR_CR ,
+	LAIR_CR = 0x1 << 8 ,
 	
 } LAIR_ATOM ;
+
+typedef enum {
+	
+	//	author : Jelo Wang
+	//	since : 20100722
+	//	(C)TOK
+
+	//	mode of lair memory frame
+
+	LAIR_MF_STACK , 
+	LAIR_MF_HEEP , 
+	
+} LAIRMEMROYFRAME;
 
 typedef struct {
 
@@ -157,8 +200,10 @@ typedef struct LAIRA {
 	//	oprand1 op oprand2
 	//	and a label if necessary
 
-	//	lair type
-	int type ;
+	//	low 0 - 15 for lair type
+	//	low 16 - 31 for lair register
+	int mode ;
+	
 	//	a handle to another datas
 	int handle ;
 	//	scope of lair atom
@@ -213,7 +258,7 @@ extern void LairLabelMoiSetContext ( int monitor ) ;
 extern void LairLabelMoiAdd ( int lair ) ;
 extern void LairLabelMoiSetLabel ( char* label ) ;
 extern void LairLabelMoiClear () ;
-extern void LAIRMemoryFrameInit ( int totall ) ;
+extern void LAIRMemoryFrameInit ( int mode , int length ) ;
 extern void LAIRMemoryFrameAdd ( void* var , char* frame ) ;
 extern char* LAIRMemoryFrameGet ( char* var ) ;
  

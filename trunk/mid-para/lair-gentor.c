@@ -289,7 +289,7 @@ static void lairgentor_gen_funcdef () {
 
 			if ( counter < 4 ) {
 				LAIRMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
-				LairAddCode ( vn[counter] , LAIR_L_DELT , -1 ) ;
+				LairAddCode ( vn[counter] , LAIR_LVA_DELT , -1 ) ;
 			} else {
 				LAIRMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
 			}
@@ -308,9 +308,9 @@ static void lairgentor_gen_funcdef () {
 	//	if this function has local variables
 	//	we initialize the MF here
 	if ( 0 < azonal->layer ) {
-		LAIRMemoryFrameInit ( azonal->layer ) ;
+		LAIRMemoryFrameInit ( LAIR_MF_STACK , azonal->layer ) ;
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
-		LairAddCode ( "%$MEMORY." , -1 , -1 ) ;
+		LairAddCode ( "%$STACK." , -1 , -1 ) ;
 		LairAddCode ( SCClItoa (azonal->layer) , -1 , -1 ) ;
 		LairAddCode ("\r\n",LAIR_CR,-1);
 	}
@@ -351,7 +351,7 @@ static void lairgentor_gen_ifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	UNSET_LAIRGENTOR_DELT();
 
 	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "if ( " ) , LAIR_IF , -1 ) ;
-	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 
 	lair = LairAddCode ( " ) FALSE goto " , -1 , -1 ) ;
 	LairAddCode ( "\r\n" , LAIR_CR , -1 );
@@ -430,7 +430,7 @@ static void lairgentor_gen_elseifcf ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	lairgentor_gen_expr ( (EXPR*)parameter->element , 1 ) ;
 		
 	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "if ( " ) , LAIR_IF , -1  ) ;
-	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 
 	lair = LairAddCode ( " ) FALSE goto " , -1 , -1 ) ;
 	LairAddCode ( "\r\n" , LAIR_CR , -1 );
@@ -545,7 +545,7 @@ static void lairgentor_gen_while ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	LairAddCode ( "\r\n" , LAIR_CR , -1 );		
 
 	LairAddCode ( sc_strcat ( lairgentor_get_identor () , "while ( " ) , -1 , -1 ) ;
-	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+	LairAddCode ( ((EXPR*)parameter->element)->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 	lair = LairAddCode ( " ) FALSE goto " , -1 , -1 ) ;
 	LairAddCode ( "\r\n" , LAIR_CR , -1 );
 	
@@ -668,13 +668,13 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
 
-		LairAddCode ( name , LAIR_L_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( name , LAIR_LVA_DELT , lairgentor.identor.deep ) ;
 		LairAddCode ( " = " , -1 , -1 ) ;
 
 		if ( expression->delttype == EXP_DELT_ANLNUMERIC ) 
 			LairAddCode ( ((EXPR*)expression)->delt , -1 , -1 ) ;
 		else 
-			LairAddCode ( ((EXPR*)expression)->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+			LairAddCode ( ((EXPR*)expression)->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 		
 		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
 
@@ -788,7 +788,7 @@ static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				//	jelo 20121027
 				//	SSA get Alias
 				//	name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				//	LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
+				//	LairAddCode ( name , LAIR_RVA_DELT , lairgentor.identor.deep ) ;		
 				//	SCFree ( name ) ;
 				//	jelo
 				
@@ -825,7 +825,7 @@ static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				//	jelo 20121027
 				//	SSA get Alias
 				//	name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				//	LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ; 	
+				//	LairAddCode ( name , LAIR_RVA_DELT , lairgentor.identor.deep ) ; 	
 				//	LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ; 		
 				//	SCFree ( name ) ;
 				//	jelo end
@@ -845,7 +845,7 @@ static void lairgentor_gen_funccal ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 				//	jelo 20121027
 				//	SSA get Alias
 				//	name = SymboleDRCGetDRC ( anl , lairgentor.identor.deep , GET_LAIRGENTOR_LGA() ) ;
-				//	LairAddCode ( name , LAIR_R_DELT , lairgentor.identor.deep ) ;		
+				//	LairAddCode ( name , LAIR_RVA_DELT , lairgentor.identor.deep ) ;		
 				//	LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;			
 				//	SCFree ( name ) ;
 				//	end
@@ -978,11 +978,11 @@ static int lairgentor_gen_expr ( EXPR* expression , int drop ) {
 
 		expression->delttype = EXP_DELT_DEFAULT ;
 		
-		LairAddCode ( expression->delt , LAIR_L_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( expression->delt , LAIR_LVA_DELT , lairgentor.identor.deep ) ;
 		LairAddCode ( " = " , -1 , -1 ) ;
-		LairAddCode ( expression->left->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( expression->left->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 		LairAddCode ( lexerc_get_operator (expression->handle) , -1 , -1 ) ;
-		LairAddCode ( expression->right->delt , LAIR_R_DELT , lairgentor.identor.deep ) ;
+		LairAddCode ( expression->right->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 		LairAddCode ( ";\r\n" , LAIR_CR , -1 ) ;
 
 		lairgentor.delt = lairgentor.delt + 1 ;
@@ -1072,7 +1072,7 @@ char* LairGentorRun ( char* lairfile ) {
 
 	//	Initialize Lair Gentor
 	lairgentor_ready () ; 
-
+	
 	LairAddCode ( "# Codes Generated As Semo Compiler 0.3.1\r\n" , -1 , -1 ) ;
 	LairAddCode ( "# Techniques of Knowledge\r\n" , -1 , -1 ) ;
 	LairAddCode ( "# Í»¿Ç¿ªÔ´\r\n\r\n" , -1 , -1 ) ;	
@@ -1140,6 +1140,7 @@ char* LairGentorRun ( char* lairfile ) {
 		SCFree ( lairfile ) ;
 	}
 
+	SsaClean () ;
 	SymboleUninstall () ;
 
 	return lair ;
