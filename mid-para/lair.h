@@ -262,7 +262,4 @@ extern void LairLabelMoiSetContext ( int monitor ) ;
 extern void LairLabelMoiAdd ( int lair ) ;
 extern void LairLabelMoiSetLabel ( char* label ) ;
 extern void LairLabelMoiClear () ;
-extern void LAIRMemoryFrameInit ( int mode , int length ) ;
-extern void LAIRMemoryFrameAdd ( void* var , char* frame ) ;
-extern char* LAIRMemoryFrameGet ( char* var ) ;
  

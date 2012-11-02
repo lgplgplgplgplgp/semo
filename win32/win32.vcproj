@@ -102,6 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy .\Debug\win32.exe Demo\Semo.exe"
 			/>
 		</Configuration>
 		<Configuration
@@ -455,6 +456,14 @@
 			</File>
 			<File
 				RelativePath="..\mid-para\elf-gen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\mid-para\frame.c"
+				>
+			</File>
+			<File
+				RelativePath="..\mid-para\frame.h"
 				>
 			</File>
 			<File

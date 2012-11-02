@@ -115,13 +115,20 @@
 # define LAIR_MUS_INTENUM     		2109 //int e
 # define LAIR_FUNCDEF				2033
 # define LAIR_VAR         				2034 //general variables name
-# define LAIR_VARDEF         				2035 //general variables name
+# define LAIR_VARDEF         			2035 //general variables name
 # define LAIR_ARRAY      		 		2036
 # define LAIR_FUNCCAL     			2037 //function call
 # define LAIR_LABEL     				2038 //label
-# define LAIR_VREG					2040
-# define LAIR_PE						2041 //PARAMETER
-# define LAIR_CA						2042 //function call
+# define LAIR_STKCRE					2039
+# define LAIR_STKSET					2040
+# define LAIR_STKGET					2041
+# define LAIR_STKPUSH				2042
+# define LAIR_STKPOP					2043
+# define LAIR_STKREL					2044
+# define LAIR_STKDEF					2045
+# define LAIR_X						2046	//	intermedia value
+# define LAIR_PE						2047 //PARAMETER
+# define LAIR_CA						2048 //function call
 	
 # define LAIR_EOS         			'\0' //ending of string
 # define LAIR_ENTER				2515

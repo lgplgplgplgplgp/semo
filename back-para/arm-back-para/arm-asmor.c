@@ -31,6 +31,7 @@
 # include "lair-grammar.h"
 # include "lair-lexer.h"
 # include "Regoc.h"
+# include "frame.h"
 # include "arm-asm.h"
 # include "arm-asmor.h"
 
@@ -67,13 +68,13 @@ static void asmor_arm_gen_exp ( SCClString* lair ) {
 		switch ( state ) {
 			case 0 :
 		
-				if ( LAIR_VREG == lexlair->v ) {		
+				//if ( LAIR_VREG == lexlair->v ) {		
 					
 					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
 					sc_strcat_ex ( "R" , R , Rd ) ;
 					state = 1  ;
 
-				}
+				//}
 			break ;
 			case 1 :
 				if ( LAIR_VAR == lexlair->v ) {
@@ -106,6 +107,111 @@ static void asmor_arm_gen_exp ( SCClString* lair ) {
 		
 }
 
+static int asmor_arm_read_x () {
+
+	
+	//	author : Jelo Wang
+	//	since : 20121031
+	//	(C)TOK
+
+	char R [32] = { 0 } ;
+	char Rd [32] = { 0 } ;
+	char Rn [32] = { 0 } ;
+	char Rm [32] = { 0 } ;
+
+	int state = 0 ;
+	
+	if ( LAIR_X != lexlair->v ) return 0 ;
+
+	sc_strcpy ( R , SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ) ;
+	sc_strcat_ex ( "R" , R , Rd ) ;
+
+	while ( !lexlair->stop ) {
+
+		LexerLairGenv () ;
+				
+		switch ( state ) {
+			case 0 :		
+ 				if ( LAIR_EQU == lexlair->v ) {
+					state = 1 ;
+				}
+			break ;
+			case 1 :
+				if ( LAIR_VAR == lexlair->v ) {
+					if ( LAIR_CHROW != LexerLairHeadGenv(1) ) {
+						char* R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
+						sc_strcat_ex ( "R" , R , Rn ) ;
+						state = 2 ;
+					}
+				} else if ( LAIR_INTNUM == lexlair->v ) {		
+ 					THUMB_MOV_RdImmed_8 ( Rd , lexlair->token ) ;		
+				}
+ 			break ;
+			case 2 :
+
+				if ( LAIR_ADD == lexlair->v ) {
+					char* R = 0 ;
+					LexerLairGenv () ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ;
+					sc_strcat_ex ( "R" , R , Rm ) ;
+					THUMB_ADD_RdRnRm(Rd,Rn,Rm) ;
+					return 1 ;			
+				} else if ( LAIR_SUB == lexlair->v ) {
+					char* R = 0 ;
+					LexerLairGenv () ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ;
+					sc_strcat_ex ( "R" , R , Rm ) ;
+					THUMB_SUB_RdRnRm(Rd,Rn,Rm) ;
+					return 1 ;			
+				} else if ( LAIR_MUL == lexlair->v ) {
+					char* R = 0 ;
+					LexerLairGenv () ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ;
+					sc_strcat_ex ( "R" , R , Rm ) ;
+					THUMB_MUL_RdRm(Rn,Rm) ;
+					//	MOV
+					THUMB_MOV_RdRm(Rd,Rn) ;					
+					return 1 ;			
+				} else if ( LAIR_AND == lexlair->v ) {
+					char* R = 0 ;
+					LexerLairGenv () ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ;
+					sc_strcat_ex ( "R" , R , Rm ) ;
+					THUMB_AND_RdRm(Rn,Rm) ;
+					//	MOV
+					THUMB_MOV_RdRm(Rd,Rn) ;					
+					return 1 ;			
+				} else if ( LAIR_OR == lexlair->v ) {
+					char* R = 0 ;
+					LexerLairGenv () ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ;
+					sc_strcat_ex ( "R" , R , Rm ) ;
+					THUMB_ORR_RdRm(Rn,Rm) ;
+					//	MOV
+					THUMB_MOV_RdRm(Rd,Rn) ;					
+					return 1 ;			
+				} else if ( LAIR_SHL == lexlair->v ) {
+					char* R = 0 ;
+					LexerLairGenv () ;
+					R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ;
+					sc_strcat_ex ( "R" , R , Rm ) ;
+					THUMB_LSL_RdRs(Rn,Rm) ;
+					//	MOV
+					THUMB_MOV_RdRm(Rd,Rn) ;					
+					return 1 ;			
+				}
+				
+				
+			break ;  
+		}
+
+	}	
+
+	return 1 ;
+
+}
+
+
 static int asmor_arm_read_variable_inf () {
 
 	
@@ -136,7 +242,7 @@ static int asmor_arm_read_variable_inf () {
 				}
 			break ;
 			case 1 :
-				if ( LAIR_VAR == lexlair->v || LAIR_VREG == lexlair->v ) {
+/*				if ( LAIR_VAR == lexlair->v || LAIR_VREG == lexlair->v ) {
 					char* R = SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn )  ) ;
 					sc_strcat_ex ( "R" , R , Rn ) ;				
  					THUMB_MOV_RdRn ( Rd , Rn ) ;
@@ -145,6 +251,7 @@ static int asmor_arm_read_variable_inf () {
  					THUMB_MOV_RdImmed_8 ( Rd , lexlair->token ) ;
 					return 1 ;				
 				}
+*/
  			break ;
 		}
 
@@ -162,9 +269,9 @@ static int asmor_arm_read_virtual_reg () {
 	//	(C)TOK
 
 	SCClString lair = { 0 , 0 , 0 , 0 , 0 } ;
-
+/*
 	if ( LAIR_VREG != lexlair->v ) return 0 ;
-
+*/
 	SCClStringInit ( &lair ) ;
 	SCClStringAddStr ( &lair , lexlair->token ) ;
 	
@@ -214,6 +321,95 @@ static int asmor_arm_read_peca () {
 	
 }
 
+static char* asmor_asm_split_ssaalias ( char* name ) {
+
+	//	author : Jelo Wang
+	//	since : 20121031
+	//	(C)TOK
+
+	int looper = 0 ;
+
+	for ( looper = 0 ; name[looper] != '.' ; )
+		looper  ++ ;
+
+	//	split alias
+	name [looper-1] = '\0' ;
+
+	return name ;
+	
+}
+
+static int asmor_arm_read_stk () {
+
+	//	author : Jelo Wang
+	//	since : 20121031
+	//	(C)TOK
+
+	char R [32] = { 0 } ;
+	char Rd [32] = { 0 } ;
+	char Rn [32] = { 0 } ;
+	
+	switch ( lexlair->v ) {
+		case LAIR_STKCRE :
+			LexerLairGenv () ;
+			SCClStringAddStr ( &ArmAsm , "SUB SP,SP," ) ;
+			SCClStringAddStr ( &ArmAsm , lexlair->token ) ;
+			SCClStringAddStr ( &ArmAsm , "\r\n") ;
+			MemoryFrameCreate ( SCClAtoi(lexlair->token) , MF_STACK ) ;
+		break ;
+		case LAIR_STKREL :
+			LexerLairGenv () ;
+			SCClStringAddStr ( &ArmAsm , "ADD SP,SP," ) ;
+			SCClStringAddStr ( &ArmAsm , lexlair->token ) ;
+			SCClStringAddStr ( &ArmAsm , "\r\n" ) ;
+		break ;		
+		case LAIR_STKDEF :
+			LexerLairGenv () ;
+			MemoryFrameAdd ( lexlair->token , MF_STACK ) ;
+		break ;		
+		
+		case LAIR_STKSET :
+		{
+			int offset = 0 ;
+
+			SCClStringAddStr ( &ArmAsm , "MOV [SP+" ) ;		
+
+			LexerLairGenv () ;
+			offset = MemoryFrameGetAddress ( asmor_asm_split_ssaalias (lexlair->token) ) ;
+
+			SCClStringAddStr ( &ArmAsm , SCClItoa (offset) ) ;	
+			SCClStringAddStr ( &ArmAsm , "]," ) ;
+			
+			//skip LAIR_EQU
+			LexerLairGenv () ;
+			//Get LAIR_X
+			LexerLairGenv () ;
+
+			sc_strcpy ( R , SCClItoa ( RegocGetRegister ( 0 , lexlair->lsn ) ) ) ;
+			sc_strcat_ex ( "R" , R , Rn ) ;
+	
+			SCClStringAddStr ( &ArmAsm , Rn ) ;
+			SCClStringAddStr ( &ArmAsm , "\r\n" ) ;
+
+		}
+		break ;
+		
+		break ;
+		case LAIR_STKGET :
+		break ;
+		case LAIR_STKPUSH :
+		break ;
+		case LAIR_STKPOP :
+		break ;		
+
+		default :
+			return 0 ;
+	}
+
+	return 1 ;
+	
+}		
+
 static int asmor_arm_read_symbol_inf () {
 
 	//	author : Jelo Wang
@@ -224,8 +420,8 @@ static int asmor_arm_read_symbol_inf () {
 		case LAIR_VAR :
 			return asmor_arm_read_variable_inf () ;
 		break ;
-		case LAIR_VREG :
-			return asmor_arm_read_virtual_reg () ;
+		case LAIR_X :
+			return asmor_arm_read_x () ;
 		break ;
 		case LAIR_PE :
 		case LAIR_CA :			
@@ -287,7 +483,11 @@ int asmor_arm_funcdef () {
 			continue ;
 		}
 
-		asmor_arm_read_symbol_inf () ;
+		if ( 1 == asmor_arm_read_stk () )
+			continue ;
+		
+		if ( 1 == asmor_arm_read_symbol_inf () )
+			continue ;
 		
 	}	
 	

@@ -28,11 +28,7 @@
 # ifndef __SCCL
 # define __SCCL
 
-# include <assert.h>
-
 # define SC_SCCL_TEST
-
-# define ASSERT assert
 
 //	the default length of SCCString
 //	create a SCCString with SCClSLEN could accelerate it compare with realloc

@@ -69,13 +69,13 @@ static void LairLiveScopeSplit ( int laira ) {
 	lair->mode = LAIR_LVA_MEM ;
 	lair->splited = 1 ;
 	
-	SCClStringInsert ( &lair->code , "%$STACK." , 0 ) ;
+	SCClStringInsert ( &lair->code , "%$STK.Set " , 0 ) ;
 
 	for ( looper = lair->refchain.head ; looper ; looper = looper->next ) {
 		LAIR* lairnode = looper->element ;	
 
 		if ( 0 == lairnode->splited ) {
-			SCClStringInsert ( &lairnode->code , "%$STACK." , 0 ) ;
+			SCClStringInsert ( &lairnode->code , "%$STK.Get " , 0 ) ;
 			lairnode->mode  = LAIR_RVA_MEM ;		
 			lairnode->splited = 1 ;
 		}
@@ -83,38 +83,6 @@ static void LairLiveScopeSplit ( int laira ) {
 	}
 
 		
-}
-
-void LAIRMemoryFrameInit ( int mode , int length ) {
-
-	//	author : Jelo Wang
-	//	since : 20110224
-	//	(C)TOK
-
-	//	stack_append is the totall memory needs of parameters of a function
-
-
-
-}
-
-void LAIRMemoryFrameAdd ( void* handle , char* frame ) {
-
-	//	author : Jelo Wang
-	//	since : 20100505
-	//	(C)TOK
-
-
-}
-
-char* LAIRMemoryFrameGet ( char* var ) {
-
-	//	author : Jelo Wang
-	//	since : 20100505
-	//	(C)TOK
-
-
-	return 0 ;
-
 }
 
 int LairCreate () {
