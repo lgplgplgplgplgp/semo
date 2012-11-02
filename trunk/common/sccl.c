@@ -839,11 +839,11 @@ void SCClStringInsert ( SCClString* A , char* S , int start ) {
 		A->data [ move_step + walker ] = A->data [ walker ] ;
 	}
 
-	A->add_walker = A->add_walker + move_step + 1 ;
-
 	for ( counter = start ; counter < start + len_s ; counter ++ ) {
 		A->data [ counter ] = S [ counter - start ] ;
 	}
+
+	A->add_walker = A->add_walker + move_step ;
 	
 	if ( A->add_walker == A->length ) {
 		A->data [ A->add_walker ] = '\0' ;

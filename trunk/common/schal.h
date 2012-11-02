@@ -25,10 +25,13 @@
 
 */ 
 
-# include <stdio.h>
-
 # ifndef __SCHAL
 # define __SCHAL
+
+# include <stdio.h>
+# include <assert.h>
+
+# define ASSERT assert
 
 # define SEEK_HEAD SEEK_SET
 

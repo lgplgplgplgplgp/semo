@@ -101,7 +101,7 @@ static char* lairgentor_get_register ( int index ) {
 	//	author : Jelo Wang
 	//	since : 20100425
 
-	static char tempv [64] = {"%$TEMP"} ;
+	static char tempv [64] = {"%$X"} ;
 	
 	return sc_strcat ( tempv , SCClItoa (index) ) ;
 	
@@ -275,10 +275,8 @@ static void lairgentor_gen_funcdef () {
 			anl = (AZONAL* ) listlooper->element ;
 
 			if ( counter < 4 ) {
-				LAIRMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
 				LairAddCode ( vn[counter] , LAIR_LVA_DELT , -1 ) ;
 			} else {
-				LAIRMemoryFrameAdd ( (void*)anl->name , vn[counter] ) ;
 			}
 				
 		}
@@ -295,16 +293,24 @@ static void lairgentor_gen_funcdef () {
 	//	if this function has local variables
 	//	we initialize the MF here
 	if ( 0 < azonal->size) {
-		LAIRMemoryFrameInit ( LAIR_MF_STACK , azonal->size ) ;
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
-		LairAddCode ( "%$STACK.Creat(" , -1 , -1 ) ;
+		LairAddCode ( "%$STK.Creat " , -1 , -1 ) ;
 		LairAddCode ( SCClItoa (azonal->size) , -1 , -1 ) ;
-		LairAddCode ( ")" , -1 , -1 ) ;		
 		LairAddCode ("\r\n",LAIR_CR,-1);
 	}
 	for ( listlooper = lgnosia->context.head ; listlooper ; listlooper = listlooper->next ) {
 		lairgentor_switcher ( (LGNOSIA*)listlooper->element ) ;		
 	}
+
+	//	if this function has local variables
+	//	release stack memory
+	if ( 0 < azonal->size) {
+		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
+		LairAddCode ( "%$STK.Release " , -1 , -1 ) ;
+		LairAddCode ( SCClItoa (azonal->size) , -1 , -1 ) ;
+		LairAddCode ("\r\n",LAIR_CR,-1);
+	}
+	
 	LAIRIdentorPop () ;
 	UNSET_LAIRGENTOR_DELT();
 	UNSET_LAIRGENTOR_SCOPE();
@@ -312,6 +318,8 @@ static void lairgentor_gen_funcdef () {
 	
 	LairAddCode ( "}" , LAIR_CR , -1 ) ;
 	LairAddCode ("\r\n",LAIR_CR,-1);
+
+
 	
 	SCFree ( (void* )lairgentor.lgnosia ) ;
 
@@ -631,9 +639,9 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 	if ( 0 == lgnosia->parameter.head ) {
 		
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
-		LairAddCode ( "%$STACK. " , -1 , -1 ) ;	
+		LairAddCode ( "%$STK.Def " , -1 , -1 ) ;	
 		LairAddCode ( azonal->name , LAIR_DEF , lairgentor.identor.deep ) ;		
-		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;	
+		LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;	
 
 	} else if ( lgnosia->parameter.head ) {
 
@@ -645,15 +653,15 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		//	for local azonal
 		if ( 0 != azonal->lgabelong ) {
 			
-			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + sc_strlen ("%$STACK.")+ 1 ) ;
+			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + sc_strlen ("%$STK.Set ")+ 1 ) ;
 			ASSERT(name) ;
-			sc_strcpy ( name , "%$STACK." ) ;
+			sc_strcpy ( name , "%$STK.Set " ) ;
 
 		} else {
 		//	for global azonal
-			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + sc_strlen ("%$HEEP.")+ 1 ) ;
+			name = (char* ) SCMalloc ( sc_strlen (azonal->name) + sc_strlen ("%$HEAP.")+ 1 ) ;
 			ASSERT(name) ;		
-			sc_strcpy ( name , "%$HEEP." ) ;
+			sc_strcpy ( name , "%$HEAP." ) ;
 		}
 		
 		sc_strcat_ex ( name , azonal->name , name ) ;
@@ -663,14 +671,14 @@ static void lairgentor_gen_variable ( LGNOSIA* lgnosia , AZONAL* azonal ) {
 		LairAddCode ( lairgentor_get_identor () , -1 , -1 ) ;
 
 		LairAddCode ( name , LAIR_LVA_DELT , lairgentor.identor.deep ) ;
-		LairAddCode ( " = " , -1 , -1 ) ;
+		LairAddCode ( "=" , -1 , -1 ) ;
 
 		if ( expression->delttype == EXP_DELT_ANLNUMERIC ) 
 			LairAddCode ( ((EXPR*)expression)->delt , -1 , -1 ) ;
 		else 
 			LairAddCode ( ((EXPR*)expression)->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 		
-		LairAddCode ( " ;\r\n" , LAIR_CR , -1 ) ;
+		LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;
 
 		SCFreeEx ( &((EXPR*)expression)->delt ) ;
 		SCFreeEx ( (void**)&expression ) ;
@@ -973,16 +981,16 @@ static int lairgentor_gen_expr ( EXPR* expression , int drop ) {
 		expression->delttype = EXP_DELT_DEFAULT ;
 		
 		LairAddCode ( expression->delt , LAIR_LVA_DELT , lairgentor.identor.deep ) ;
-		LairAddCode ( " = " , -1 , -1 ) ;
+		LairAddCode ( "=" , -1 , -1 ) ;
 		LairAddCode ( expression->left->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
 		LairAddCode ( lexerc_get_operator (expression->handle) , -1 , -1 ) ;
 		LairAddCode ( expression->right->delt , LAIR_RVA_DELT , lairgentor.identor.deep ) ;
-		LairAddCode ( ";\r\n" , LAIR_CR , -1 ) ;
+		LairAddCode ( "\r\n" , LAIR_CR , -1 ) ;
 
 		lairgentor.delt = lairgentor.delt + 1 ;
 		
 		if ( (EXP_DELT_DEFAULT == expression->left->delttype) && (EXP_DELT_DEFAULT == expression->right->delttype) ) {
-			//lairgentor.delt = 0 ;
+			lairgentor.delt = 0 ;
 		}
 
 		if ( drop ) {
@@ -1067,7 +1075,7 @@ char* LairGentorRun ( char* lairfile ) {
 	//	Initialize Lair Gentor
 	lairgentor_ready () ; 
 	
-	LairAddCode ( "# Codes Generated As Semo Compiler 0.3.1\r\n" , -1 , -1 ) ;
+	LairAddCode ( "# Semo C()mpiler 0.3.1\r\n" , -1 , -1 ) ;
 	LairAddCode ( "# Techniques of Knowledge\r\n" , -1 , -1 ) ;
 	LairAddCode ( "# Í»¿Ç¿ªÔ´\r\n\r\n" , -1 , -1 ) ;	
 	
@@ -1113,7 +1121,7 @@ char* LairGentorRun ( char* lairfile ) {
 	//	generate live-scope and start register allocation
 	if ( SC_ARM & semo->parameter ) {
 		//	there are only 8 gernel registers for programer from ARM
-		LairAllocRegister ( 8 ) ;
+		LairAllocRegister ( 1008 ) ;
 	}
 	
 	//	Get Lair Codes

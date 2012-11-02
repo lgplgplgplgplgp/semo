@@ -32,7 +32,7 @@
 	//	since : 20100508
 	//	(C)TOK
 # define SEMO_ASSEMBLER_COPYRIGHTS\
-	SCClStringAddStr ( &ArmAsm , "# Codes Generated As Semo Compiler 0.3.0\r\n") ;\
+	SCClStringAddStr ( &ArmAsm , "# Semo C()mpiler 0.3.1\r\n") ;\
 	SCClStringAddStr ( &ArmAsm , "# Techniques of Knowledge\r\n") ;\
 	SCClStringAddStr ( &ArmAsm , "# Í»¿Ç¿ªÔ´\r\n\r\n") ;\
 	
@@ -89,6 +89,12 @@
 	SCClStringAddStr ( &ArmAsm , sc_strcat ("ADD ","SP") ) ;\
 	SCClStringAddStr ( &ArmAsm , sc_strcat (",",immed_7) ) ;\
 	SCClStringAddStr ( &ArmAsm , "*4" ) ;\
+	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
+
+//	AND <Rd> , <Rm>
+# define THUMB_AND_RdRm(Rd,Rm)\
+	SCClStringAddStr ( &ArmAsm , sc_strcat ("AND ",Rd) ) ;\
+	SCClStringAddStr ( &ArmAsm , sc_strcat (",",Rm) ) ;\
 	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
 
 //	BL <target_addr>
@@ -289,7 +295,23 @@
 	SCClStringAddStr ( &ArmAsm , "*4" ) ;\
 	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
 
+//	MUL <Rd> , <Rm>
+# define THUMB_MUL_RdRm(Rd,Rm)\
+	SCClStringAddStr ( &ArmAsm , sc_strcat ("MUL ",Rd) ) ;\
+	SCClStringAddStr ( &ArmAsm , sc_strcat (",",Rm) ) ;\
+	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
 
+//	ORR <Rd> , <Rm>
+# define THUMB_ORR_RdRm(Rd,Rm)\
+	SCClStringAddStr ( &ArmAsm , sc_strcat ("OR ",Rd) ) ;\
+	SCClStringAddStr ( &ArmAsm , sc_strcat (",",Rm) ) ;\
+	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
+
+//	LSL <Rd> , <Rs>
+# define THUMB_LSL_RdRs(Rd,Rs)\
+	SCClStringAddStr ( &ArmAsm , sc_strcat ("LSL ",Rd) ) ;\
+	SCClStringAddStr ( &ArmAsm , sc_strcat (",",Rs) ) ;\
+	SCClStringAddStr ( &ArmAsm , "\r\n" ) ;\
 
 # endif
 

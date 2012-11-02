@@ -583,7 +583,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 
 		int filen = 0 ;
 		
-		void* inputfile = SCHalFileOpen ( "F:\\TOK\\semo\\win32\\Debug\\ca.txt" , "rb" ) ;
+		void* inputfile = SCHalFileOpen ( "F:\\TOK\\semo\\win32\\Demo\\ca.c" , "rb" ) ;
 		//void* inputfile = SCHalFileOpen ( file , "rb" ) ;
 		
 		if ( !inputfile ) {
@@ -620,7 +620,7 @@ int SCCompile ( int argc , char** argv , int type ) {
 		//	Lgnosia Codes Generator
 		lair = semo->GENTOR ( sc_strcat (file,".ir") ) ;		
 		//	Assembly Codes Generator
-		//asm = compiler->ASMOR ( lair , sc_strcat (file,".sasm") ) ;
+		asm = semo->ASMOR ( lair , sc_strcat (file,".sasm") ) ;
 		
 		o = sc_strcat (file,".elf") ;
 		SCClListInsert  ( (SCClList* )semo->ol , o ) ;

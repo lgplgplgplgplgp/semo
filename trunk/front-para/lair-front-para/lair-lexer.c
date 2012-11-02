@@ -665,38 +665,56 @@ static int LexerLair_matchop ( int el ) {
 					
 					while( LexerLairIsVar () ) ;
 
-					if ( 'V' == LAIRTOK.data[0] && '.' == LexerLairLook ( 0 ) ) {
-					
-						//	virtual register detected 					
-						SCClStringInsert ( &LAIRTOK , "%$" , 0 ) ;
+					if ( 0 == sc_strcmp ( "STK" , LAIRTOK.data ) ) {
 						
-						{
+						SCClStringReset ( &LAIRTOK ) ;
 
-							//	generate lsn
-							SCClString Lsn = {0} ; 
-							LexerLairNext () ;
-									
-							while ( sc_is_digit(lexlair->c) ) {
-								SCClStringAdd ( &Lsn , LexerLairGetAtom () ) ;
-								LexerLairNext () ;
-							}   
-
-							SCClStringAdd ( &Lsn , '\0' ) ;
-
-							lexlair->lsn = SCClAtoi ( Lsn.data ) ;								
-							SCClStringDestroyEx ( &Lsn ) ;
-
-							SCClStringAdd ( &LAIRTOK , '.' ) ;										
-							SCClStringAddStr ( &LAIRTOK , SCClItoa (lexlair->lsn)) ;		
-							SCClStringAdd ( &LAIRTOK , '\0' ) ;							
-
-						}
-							
-						lexlair->pv = lexlair->v ;				
-						lexlair->v = LAIR_VREG ;
+						//	skip .
+						LexerLairNext () ;
+						//	get stream
+						while( LexerLairIsVar () ) ;
+						
+						lexlair->pv = lexlair->v ;	
 						lexlair->token = LAIRTOK.data ;
+
+						if ( 0 == sc_strcmp ("Creat",LAIRTOK.data) ) {			
+							lexlair->v = LAIR_STKCRE ;
+						}  else if ( 0 == sc_strcmp ("Release",LAIRTOK.data) ) {							
+							lexlair->v = LAIR_STKREL ;
+						} else if ( 0 == sc_strcmp ("Def",LAIRTOK.data) ) {							
+							lexlair->v = LAIR_STKDEF ;
+						} else if ( 0 == sc_strcmp ("Set",LAIRTOK.data) ) {			
+							lexlair->v = LAIR_STKSET ;
+						} else if ( 0 == sc_strcmp ("Get",LAIRTOK.data) ) {			
+							lexlair->v = LAIR_STKGET ;
+						} else if ( 0 == sc_strcmp ("Push",LAIRTOK.data) ) {			
+							lexlair->v = LAIR_STKPUSH ;
+						} else if ( 0 == sc_strcmp ("Pop",LAIRTOK.data) ) {							
+							lexlair->v = LAIR_STKPOP ;
+						} 
+
+					} else if ( 'X' == LAIRTOK.data[0] ) {
+
+						//	generating lsn
+						SCClString Lsn = {0} ; 
+						//	skip .
+						LexerLairNext () ;
+									
+						while ( sc_is_digit(lexlair->c) ) {
+							SCClStringAdd ( &Lsn , LexerLairGetAtom () ) ;
+							LexerLairNext () ;
+						}   
+								
+						SCClStringAdd ( &Lsn , '\0' ) ;
+
+						lexlair->lsn = SCClAtoi ( Lsn.data ) ;
+ 						SCClStringDestroyEx ( &Lsn ) ;
 						
-					} else if ( 'P' == LAIRTOK.data[0] && 'E' == LAIRTOK.data[1] ) {
+						lexlair->pv = lexlair->v ;				
+						lexlair->v = LAIR_X ;
+						lexlair->token = LAIRTOK.data ;						
+
+ 					} else if ( 'P' == LAIRTOK.data[0] && 'E' == LAIRTOK.data[1] ) {
 						
 						lexlair->pv = lexlair->v ;				
 						lexlair->v = LAIR_PE ;
@@ -1690,25 +1708,8 @@ int LexerLairGenv ()  {
 					return 1 ;
 
 				} else {
-					
-					if ( 0 == lexlair -> ios ) {
-						
-						lexlair->token = 0 ;
-						lexlair->pv = lexlair->v ;				
-						lexlair->v = 0 ;	
-
-						SClog ( "unrecognizable symbol : %x detected , on line : %d\n" , lexlair->c , lexlair->line ) ;
-
-						LexerLairNext () ;
-						
-						return 0 ;
-
-					} 
-
 					LexerLairNext () ;
-
 				}
-
 				
 			break;
 
